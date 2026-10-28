@@ -1,0 +1,36 @@
+{
+  "name": "Vôlei do Bosque — Campeonato de Vôlei",
+  "short_name": "Vôlei do Bosque",
+  "description": "Sistema de gerenciamento do Campeonato de Vôlei do Bosque: tabela de jogos, classificação automática, finais e pódio.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "volei-do-bosque-campeonato",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "portrait",
+  "background_color": "#06152e",
+  "theme_color": "#0a1f3d",
+  "categories": ["sports", "utilities"],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
