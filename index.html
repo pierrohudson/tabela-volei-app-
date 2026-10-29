@@ -1057,15 +1057,6 @@
   }
   .btn-danger:hover { background: rgba(239, 68, 68, 0.22); border-color: #ef4444; color: #ffffff; }
 
-  footer.app-footer {
-    text-align: center; font-size: .78rem; color: var(--muted-2);
-    margin-top: 40px; display: flex; flex-direction: column; gap: 6px; align-items: center;
-  }
-  footer.app-footer .badge-brand {
-    display: inline-flex; align-items: center; gap: 6px;
-    color: var(--turquoise); font-weight: 700;
-  }
-
   /* ===== Responsividade ===== */
   @media (max-width: 840px) {
     .matches-grid { grid-template-columns: 1fr; }
@@ -1139,7 +1130,7 @@
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     .config-bar, .header-actions, .match-status, .progress-card,
-    h2.section-title .hint, footer.app-footer .badge-brand { display: none !important; }
+    h2.section-title .hint { display: none !important; }
     input.score {
       border: 1px solid #888888 !important;
       background: #ffffff !important; color: #000000 !important;
@@ -1351,10 +1342,6 @@
     </div>
     <div id="sorteioResultado"></div>
   </div>
-
-  <footer class="app-footer">
-    <div class="badge-brand">Vôlei do Bosque — Championship Dashboard</div>
-  </footer>
 
 </main>
 
