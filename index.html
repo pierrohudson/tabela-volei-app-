@@ -1112,7 +1112,6 @@
     </div>
     <div class="header-actions">
       <button class="btn btn-primary" id="btnInstall" hidden>Instalar App</button>
-      <button class="btn btn-primary" id="btnPrint">Imprimir / PDF</button>
       <button class="btn btn-danger" id="btnReset">Zerar Campeonato</button>
     </div>
   </div>
@@ -2920,9 +2919,12 @@
     publicarEstado();
   });
 
-  document.getElementById("btnPrint").addEventListener("click", function () {
-    window.print();
-  });
+  var btnPrintEl = document.getElementById("btnPrint");
+  if (btnPrintEl) {
+    btnPrintEl.addEventListener("click", function () {
+      window.print();
+    });
+  }
 
   document.getElementById("btnReset").addEventListener("click", function () {
     if (!esAdmin) {

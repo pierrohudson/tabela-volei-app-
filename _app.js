@@ -1597,9 +1597,12 @@
     publicarEstado();
   });
 
-  document.getElementById("btnPrint").addEventListener("click", function () {
-    window.print();
-  });
+  var btnPrintEl = document.getElementById("btnPrint");
+  if (btnPrintEl) {
+    btnPrintEl.addEventListener("click", function () {
+      window.print();
+    });
+  }
 
   document.getElementById("btnReset").addEventListener("click", function () {
     if (!esAdmin) {
