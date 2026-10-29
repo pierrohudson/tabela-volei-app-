@@ -526,7 +526,7 @@
     setLive("somente-leitura", "Modo leitura — acompanhando o placar ao vivo");
     var btn = document.getElementById("btnAdmin");
     if (btn) {
-      btn.textContent = "🔓 Área do Mesário";
+      btn.textContent = "🔓 Admin";
       btn.classList.remove("btn-admin-on");
     }
     renderAll();
@@ -536,10 +536,10 @@
     esAdmin = true;
     document.body.classList.remove("modo-leitura");
     document.body.classList.add("modo-admin");
-    setLive("conectado", "Modo Mesário — suas alterações vão ao vivo para todos");
+    setLive("conectado", "Modo Admin — suas alterações vão ao vivo para todos");
     var btn = document.getElementById("btnAdmin");
     if (btn) {
-      btn.textContent = "🔒 Sair do Modo Mesário";
+      btn.textContent = "🔒 Sair do Admin";
       btn.classList.add("btn-admin-on");
     }
     renderAll();
@@ -914,7 +914,7 @@
           '<strong>Nenhum jogador cadastrado</strong>' +
           (esAdmin
             ? 'Toque em <b>+ Adicionar jogador</b> para começar a montar o elenco.'
-            : 'O Mesário ainda não cadastrou o elenco.') +
+            : 'O Admin ainda não cadastrou o elenco.') +
         '</div>';
       var resumo = document.getElementById("jogResumo");
       if (resumo) resumo.textContent = "0 jogadores";
@@ -1479,7 +1479,7 @@
 
   function fazerSorteio() {
     if (!esAdmin) {
-      alert("Apenas o Mesário pode sortear os times.");
+      alert("Apenas o Admin pode sortear os times.");
       return;
     }
     if (!state.jogadores.length) {
@@ -1798,7 +1798,7 @@
 
   document.getElementById("btnReset").addEventListener("click", function () {
     if (!esAdmin) {
-      alert("Apenas o Mesário pode zerar o campeonato.");
+      alert("Apenas o Admin pode zerar o campeonato.");
       return;
     }
     if (confirm("Zerar os placares e resultados do campeonato? Os nomes dos times serão mantidos.")) {
@@ -2063,7 +2063,7 @@
   /* Girar Sorteio com efeito slot-machine suspense */
   function girarSorteio() {
     if (!esAdmin) {
-      alert("Apenas o Mesário pode realizar o sorteio.");
+      alert("Apenas o Admin pode realizar o sorteio.");
       return;
     }
     if (raffleGirando) return;
@@ -2474,7 +2474,7 @@
       dbRead().then(function (dados) {
         if (dados && Array.isArray(dados.teams) && dados.teams.length === NUM_TEAMS) {
           aplicarEstadoRemoto(dados);
-          setLive("conectado", "Modo Mesário — placar oficial carregado do banco");
+          setLive("conectado", "Modo Admin — placar oficial carregado do banco");
         } else {
           publicarEstado();
         }
@@ -2486,7 +2486,7 @@
       if (msg === "senha-fraca") {
         adminError.textContent = "Senha muito fraca para o Firebase. Use pelo menos 6 caracteres.";
       } else if (msg === "conta-existente-sem-senha") {
-        adminError.textContent = "Já existe uma conta de Mesário com outro e-mail. Verifique no Firebase Console > Authentication > Usuários.";
+        adminError.textContent = "Já existe uma conta de Admin com outro e-mail. Verifique no Firebase Console > Authentication > Usuários.";
       } else if (msg === "falha-auth") {
         adminError.textContent = "Não foi possível validar no servidor. Verifique sua internet e tente de novo.";
       } else {
@@ -2501,7 +2501,7 @@
   if (btnAdmin) {
     btnAdmin.addEventListener("click", function () {
       if (esAdmin) {
-        if (confirm("Sair do Modo Mesário? O app volta a ser somente leitura.")) {
+        if (confirm("Sair do modo Admin? O app volta a ser somente leitura.")) {
           sairMesario();
         }
       } else {
@@ -2533,7 +2533,7 @@
     document.body.classList.remove("modo-leitura");
     document.body.classList.add("modo-admin");
     if (btnAdmin) {
-      btnAdmin.textContent = "🔒 Sair do Modo Mesário";
+      btnAdmin.textContent = "🔒 Sair do Admin";
       btnAdmin.classList.add("btn-admin-on");
     }
   }

@@ -101,26 +101,19 @@
     text-transform: none; color: var(--muted); margin-left: auto;
   }
 
-  /* ===== Cabeçalho Premium ===== */
+  /* ===== Cabeçalho Minimalista (estilo Strava) ===== */
   .hero-header {
-    background: linear-gradient(135deg, rgba(14, 42, 82, 0.95) 0%, rgba(10, 31, 61, 0.95) 100%);
-    border-bottom: 2px solid var(--line-strong);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    background: transparent;
+    border-bottom: 1px solid var(--line);
     position: relative;
     overflow: hidden;
   }
-  .hero-header::before {
-    content: "";
-    position: absolute; top: -50%; left: -20%; width: 140%; height: 200%;
-    background: radial-gradient(circle at 50% 20%, rgba(47, 217, 208, 0.12), transparent 50%);
-    pointer-events: none;
-  }
   .hero-header .inner {
-    max-width: 1040px; margin: 0 auto; padding: 22px 16px 20px;
-    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    max-width: 1040px; margin: 0 auto; padding: 18px 16px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
     position: relative; z-index: 1;
   }
-  .brand-group { display: flex; align-items: center; gap: 18px; min-width: 0; }
+  .brand-group { display: flex; align-items: center; gap: 14px; min-width: 0; }
   /* texto da marca centralizado em bloco (titulo + subtitulo centralizados entre si) */
   .brand-text {
     display: flex; flex-direction: column; align-items: center;
@@ -130,40 +123,51 @@
     position: relative;
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    padding: 4px 10px 4px 4px;
+    padding: 0;
     transition: transform .25s ease;
   }
-  .brand-logo-wrap::after {
-    content: "";
-    position: absolute; inset: 18% 12%;
-    background: radial-gradient(circle, rgba(255, 207, 26, 0.32), transparent 72%);
-    filter: blur(12px);
-    pointer-events: none; z-index: 0;
-  }
-  .brand-logo-wrap:hover { transform: scale(1.06); }
+  .brand-logo-wrap::after { display: none; }
+  .brand-logo-wrap:hover { transform: scale(1.04); }
   .brand-logo {
     position: relative; z-index: 1;
-    height: 88px; width: auto; display: block;
-    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.55))
-            drop-shadow(0 0 14px rgba(255, 207, 26, 0.22));
+    height: 64px; width: auto; display: block;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
   }
   .brand-text h1 {
-    margin: 0; font-size: 1.9rem; font-weight: 900;
-    letter-spacing: .04em; text-transform: uppercase; line-height: 1.08;
+    margin: 0; font-size: 1.4rem; font-weight: 800;
+    letter-spacing: .02em; text-transform: uppercase; line-height: 1.1;
     text-align: center;
-    background: linear-gradient(90deg, #ffffff 0%, #fff4cc 55%, var(--yellow) 100%);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #ffffff;
   }
   .brand-subtitle {
-    margin-top: 6px; font-size: .78rem; font-weight: 800;
-    letter-spacing: .22em; color: var(--turquoise); text-transform: uppercase;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 4px; font-size: .68rem; font-weight: 700;
+    letter-spacing: .18em; color: var(--turquoise); text-transform: uppercase;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
   }
   .brand-subtitle::before, .brand-subtitle::after {
-    content: ""; display: inline-block; width: 20px; height: 2px; background: var(--turquoise);
+    content: ""; display: inline-block; width: 14px; height: 1.5px; background: var(--turquoise);
   }
-  .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  /* acoes do cabecalho: minimalistas, sem bordas pesadas */
+  .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .header-actions .btn {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--line); box-shadow: none;
+    padding: 8px 14px; font-size: .78rem;
+  }
+  .header-actions .btn:hover {
+    color: #ffffff; border-color: var(--line-strong);
+    background: rgba(255, 255, 255, 0.04); filter: none;
+  }
+  .header-actions .btn-primary {
+    background: transparent; color: var(--yellow);
+    border-color: rgba(255, 207, 26, 0.35);
+  }
+  .header-actions .btn-primary:hover {
+    background: rgba(255, 207, 26, 0.1); color: var(--yellow);
+    border-color: rgba(255, 207, 26, 0.55);
+  }
+  .header-actions .btn-danger { color: #ff9999; border-color: rgba(239, 68, 68, 0.28); }
+  .header-actions .btn-danger:hover { background: rgba(239, 68, 68, 0.14); color: #ffb3b3; }
 
   /* ===== Banner de instalacao PWA ===== */
   .install-banner {
@@ -176,10 +180,10 @@
     grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 14px;
-    background: linear-gradient(135deg, rgba(47, 217, 208, 0.16), rgba(14, 42, 82, 0.9));
-    border: 1px solid rgba(47, 217, 208, 0.45);
-    border-radius: var(--radius-sm);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(47, 217, 208, 0.14), rgba(26, 34, 52, 0.92));
+    border: 1px solid rgba(47, 217, 208, 0.35);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     position: relative;
     animation: bannerIn .45s ease;
   }
@@ -190,7 +194,7 @@
   .install-banner[hidden] { display: none; }
   .install-banner-icon {
     width: 42px; height: 42px; border-radius: 10px;
-    background: rgba(6, 21, 46, 0.6);
+    background: rgba(20, 22, 28, 0.7);
     border: 1px solid var(--line-strong);
     display: flex; align-items: center; justify-content: center;
     font-size: 1.25rem; flex-shrink: 0;
@@ -209,7 +213,7 @@
     grid-column: 1 / -1;
     margin-top: 4px;
     padding: 12px 14px;
-    background: rgba(6, 21, 46, 0.55);
+    background: rgba(20, 22, 28, 0.65);
     border: 1px dashed var(--line-strong);
     border-radius: 10px;
   }
@@ -227,23 +231,22 @@
     color: var(--yellow); font-weight: 700;
   }
 
-  /* ===== Barra de status ao vivo / modo leitura ===== */
+  /* ===== Barra de status ao vivo / modo leitura (minimalista) ===== */
   .live-bar {
     max-width: 1040px;
-    margin: 12px auto 0;
-    padding: 9px 16px;
+    margin: 10px auto 0;
+    padding: 6px 8px 6px 16px;
     padding-left: calc(16px + env(safe-area-inset-left, 0px));
-    padding-right: calc(16px + env(safe-area-inset-right, 0px));
-    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-    background: linear-gradient(135deg, rgba(47, 217, 208, 0.12), rgba(14, 42, 82, 0.85));
-    border: 1px solid rgba(47, 217, 208, 0.4);
-    border-radius: var(--radius-sm);
-    font-size: .8rem; color: var(--muted);
+    padding-right: calc(8px + env(safe-area-inset-right, 0px));
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: transparent;
+    border: none;
+    font-size: .78rem; color: var(--muted);
   }
   .live-dot {
-    width: 9px; height: 9px; border-radius: 50%;
+    width: 8px; height: 8px; border-radius: 50%;
     background: var(--turquoise); flex-shrink: 0;
-    box-shadow: 0 0 10px var(--turquoise);
+    box-shadow: 0 0 8px var(--turquoise);
     animation: livePulse 1.8s ease-in-out infinite;
   }
   @keyframes livePulse {
@@ -253,17 +256,19 @@
   .live-dot.offline {
     background: var(--muted-2); box-shadow: none; animation: none;
   }
-  .live-label { font-weight: 800; color: var(--turquoise); letter-spacing: .05em; }
+  .live-label { font-weight: 800; color: var(--turquoise); letter-spacing: .08em; font-size: .74rem; }
   .live-label.offline { color: var(--muted-2); }
-  .live-msg { font-weight: 600; }
+  .live-msg { font-weight: 600; font-size: .74rem; }
   .live-msg.admin { color: var(--yellow); }
   .live-spacer { flex: 1; }
   .btn-live {
-    background: rgba(255, 207, 26, 0.12); color: var(--yellow);
-    border: 1px solid rgba(255, 207, 26, 0.4);
-    padding: 7px 14px; font-size: .76rem;
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--line);
+    padding: 6px 14px; font-size: .74rem; font-weight: 700;
+    border-radius: var(--radius-pill);
   }
-  .btn-live:hover { background: rgba(255, 207, 26, 0.22); }
+  .btn-live:hover { background: rgba(255, 255, 255, 0.04); color: #ffffff; border-color: var(--line-strong); }
+  .btn-live.btn-admin-on { color: var(--yellow); border-color: rgba(255, 207, 26, 0.35); }
   .btn-live[hidden] { display: none; }
 
   /* ===== Modal do Mesario (login do organizador) ===== */
@@ -397,7 +402,7 @@
 
   /* ===== GAVETA EXPANSIVEL (details/summary) ===== */
   .gaveta {
-    background: linear-gradient(135deg, var(--panel) 0%, rgba(14, 35, 71, 0.85) 100%);
+    background: var(--panel);
     border: 1px solid var(--line); border-radius: var(--radius);
     box-shadow: var(--shadow); margin-bottom: 22px; overflow: hidden;
   }
@@ -409,7 +414,7 @@
   }
   .gaveta-head::-webkit-details-marker { display: none; }
   .gaveta-head::-moz-details-marker { display: none; }
-  .gaveta-head:hover { background: rgba(18, 44, 87, 0.5); }
+  .gaveta-head:hover { background: rgba(255, 255, 255, 0.04); }
   .gaveta-head:focus-visible {
     outline: 2px solid var(--yellow); outline-offset: -2px;
   }
@@ -459,7 +464,7 @@
     align-items: center;
     column-gap: 10px;
     row-gap: 4px;
-    background: linear-gradient(135deg, var(--panel) 0%, rgba(14, 35, 71, 0.85) 100%);
+    background: var(--panel);
     border: 1px solid var(--line); border-radius: var(--radius-sm);
     padding: 10px 12px;
     transition: border-color .18s ease, transform .12s ease, opacity .15s ease;
@@ -480,7 +485,7 @@
   .jog-item.arrastando {
     opacity: .35;
     border-color: var(--yellow);
-    background: rgba(18, 44, 87, 0.9);
+    background: rgba(38, 41, 51, 0.95);
   }
   .jog-item.drop-cima {
     border-top: 3px solid var(--yellow);
@@ -497,7 +502,7 @@
     font: inherit; font-weight: 700; font-size: .95rem;
     padding: 4px 6px; border-radius: 6px;
   }
-  .jog-nome:hover { background: rgba(18, 44, 87, 0.6); border-color: var(--line-strong); }
+  .jog-nome:hover { background: rgba(38, 41, 51, 0.8); border-color: var(--line-strong); }
   .jog-nome:focus {
     outline: none; background: var(--navy-800); border-color: var(--yellow);
     box-shadow: 0 0 10px rgba(255, 207, 26, 0.3);
@@ -533,7 +538,7 @@
     grid-area: check;
     width: 28px; height: 28px; flex-shrink: 0;
     border: 2px solid var(--line-strong); border-radius: 7px;
-    background: rgba(6, 21, 46, 0.6); cursor: pointer;
+    background: rgba(20, 22, 28, 0.7); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     font-size: 1rem; font-weight: 900; color: transparent;
     transition: background .15s ease, border-color .15s ease, color .15s ease;
@@ -628,7 +633,7 @@
   .flegar-secao:first-child { margin-top: 0; }
   .flegar-item {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    background: rgba(6, 21, 46, 0.65); border: 1px solid var(--line);
+    background: rgba(20, 22, 28, 0.75); border: 1px solid var(--line);
     border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 6px;
     transition: border-color .15s ease;
   }
@@ -663,7 +668,7 @@
   /* ===== SORTEIO / FORMACOES ===== */
   .sorteio-config {
     display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-    background: linear-gradient(135deg, rgba(14, 42, 82, 0.9), rgba(10, 31, 61, 0.9));
+    background: var(--panel-2);
     border: 1px solid var(--line); border-radius: var(--radius-sm);
     padding: 14px 16px; margin-bottom: 16px;
   }
@@ -683,7 +688,7 @@
 
   .times-resultado { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
   .time-card {
-    background: linear-gradient(145deg, var(--panel) 0%, rgba(10, 31, 61, 0.95) 100%);
+    background: var(--panel);
     border: 1px solid var(--line); border-radius: var(--radius-sm);
     padding: 13px 15px; position: relative; overflow: hidden;
     animation: timeCardIn .25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -731,7 +736,7 @@
 
   .sorteio-vazio {
     text-align: center; padding: 34px 18px; color: var(--muted);
-    background: rgba(6, 21, 46, 0.45);
+    background: rgba(20, 22, 28, 0.55);
     border: 1px dashed var(--line-strong); border-radius: var(--radius-sm);
   }
   .sorteio-vazio strong { color: var(--txt); display: block; margin-bottom: 6px; font-size: 1rem; }
@@ -739,7 +744,7 @@
   /* ===== Dashboard de Indicadores ===== */
   .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 22px 0 10px; }
   .stat-card {
-    background: linear-gradient(145deg, var(--panel) 0%, rgba(14, 35, 71, 0.6) 100%);
+    background: var(--panel);
     border: 1px solid var(--line); border-radius: var(--radius-sm);
     padding: 14px 16px; position: relative; overflow: hidden;
     transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
@@ -775,7 +780,7 @@
   .progress-title { color: var(--txt); display: flex; align-items: center; gap: 8px; }
   .progress-pct { color: var(--yellow); font-size: .95rem; font-weight: 900; }
   .progress-track {
-    width: 100%; height: 10px; background: rgba(6, 21, 46, 0.8);
+    width: 100%; height: 10px; background: rgba(20, 22, 28, 0.9);
     border-radius: 999px; overflow: hidden; border: 1px solid var(--line);
   }
   .progress-bar {
@@ -785,9 +790,9 @@
     transition: width .45s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  /* ===== Painéis ===== */
+  /* ===== Painéis (Cards grafite estilo Strava) ===== */
   .card {
-    background: linear-gradient(180deg, var(--panel) 0%, rgba(14, 35, 71, 0.85) 100%);
+    background: var(--panel);
     border: 1px solid var(--line); border-radius: var(--radius);
     padding: 18px; box-shadow: var(--shadow);
   }
@@ -834,7 +839,7 @@
     padding: 10px 6px; text-align: center; color: var(--muted);
     font-weight: 800; font-size: .72rem; letter-spacing: .06em;
     text-transform: uppercase; border-bottom: 2px solid var(--line-strong);
-    background: rgba(10, 31, 61, 0.55);
+    background: rgba(20, 22, 28, 0.8);
     white-space: nowrap;
   }
   table.standings-table td {
@@ -856,7 +861,7 @@
   .pos-cell.p1 { color: #1a1300; background: linear-gradient(135deg, var(--gold), #f59e0b); box-shadow: 0 0 14px rgba(255, 211, 77, 0.4); }
   .pos-cell.p2 { color: #0a1f3d; background: linear-gradient(135deg, #ffffff, var(--silver)); }
   .pos-cell.p3 { color: #200f00; background: linear-gradient(135deg, #fbd38d, var(--bronze)); }
-  .pos-cell.pn { color: var(--muted); background: rgba(18, 44, 87, 0.5); }
+  .pos-cell.pn { color: var(--muted); background: rgba(255, 255, 255, 0.04); }
 
   .team-input-row { display: flex; align-items: center; gap: 10px; }
   .team-color-bar { width: 6px; height: 30px; border-radius: 3px; flex-shrink: 0; }
@@ -872,7 +877,7 @@
     padding: 6px 8px; border-radius: 6px; width: 100%; min-width: 130px;
     transition: background .2s ease, border-color .2s ease;
   }
-  input.teamname:hover { background: rgba(18, 44, 87, 0.6); border-color: var(--line-strong); }
+  input.teamname:hover { background: rgba(38, 41, 51, 0.8); border-color: var(--line-strong); }
   input.teamname:focus {
     background: var(--navy-800); border-color: var(--yellow);
     box-shadow: 0 0 10px rgba(255, 207, 26, 0.3); outline: none;
@@ -964,7 +969,7 @@
   /* ===== Finais ===== */
   .finals-section { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .final-box {
-    background: linear-gradient(145deg, var(--panel) 0%, rgba(10, 31, 61, 0.95) 100%);
+    background: var(--panel);
     border: 2px solid var(--line); border-radius: var(--radius);
     padding: 16px 18px; position: relative; overflow: hidden; box-shadow: var(--shadow);
   }
@@ -1004,7 +1009,7 @@
   .podium-wrap { margin-top: 10px; }
   .podium { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 14px; align-items: end; }
   .podium-slot {
-    background: linear-gradient(180deg, var(--panel-2) 0%, rgba(10, 31, 61, 0.95) 100%);
+    background: var(--panel-2);
     border: 2px solid var(--line); border-radius: var(--radius);
     padding: 16px 12px; text-align: center;
     display: flex; flex-direction: column; align-items: center; gap: 9px;
@@ -1161,7 +1166,7 @@
 
   /* ===== SORTEIO DO CAMPEÃO (estilo Raffle Pro) ===== */
   .raffle-stage {
-    background: linear-gradient(135deg, rgba(6, 21, 46, 0.95), rgba(10, 31, 61, 0.95));
+    background: var(--panel-2);
     border: 2px solid var(--yellow); border-radius: var(--radius);
     padding: 24px 18px; text-align: center; box-shadow: 0 0 30px rgba(255, 207, 26, 0.22);
     position: relative; overflow: hidden; margin-bottom: 16px;
@@ -1181,7 +1186,7 @@
     min-height: 76px; display: flex; align-items: center; justify-content: center;
     font-size: 1.95rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase;
     color: #ffffff;
-    background: rgba(18, 44, 87, 0.6); border: 1px solid var(--line-strong); border-radius: 12px;
+    background: rgba(20, 22, 28, 0.8); border: 1px solid var(--line-strong); border-radius: 12px;
     padding: 12px 16px; margin: 12px 0 18px;
     text-shadow: 0 0 16px rgba(47, 217, 208, 0.7);
     transition: transform .08s ease;
@@ -1203,7 +1208,7 @@
 
   .winner-card {
     margin-top: 18px; padding: 22px 18px; border-radius: var(--radius);
-    background: linear-gradient(135deg, rgba(255, 207, 26, 0.15) 0%, rgba(14, 35, 71, 0.95) 100%);
+    background: linear-gradient(135deg, rgba(255, 207, 26, 0.14) 0%, var(--panel) 100%);
     border: 2px solid var(--yellow);
     text-align: center; box-shadow: 0 0 30px rgba(255, 207, 26, 0.35);
     animation: winnerPop .4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1233,7 +1238,7 @@
   }
   .raffle-chip {
     padding: 4px 10px; border-radius: 16px;
-    background: rgba(18, 44, 87, 0.7); border: 1px solid var(--line-strong);
+    background: rgba(38, 41, 51, 0.85); border: 1px solid var(--line-strong);
     font-size: .74rem; font-weight: 700; color: var(--txt);
   }
   #raffleCanvas {
@@ -1301,7 +1306,7 @@
   <span class="live-label" id="liveLabel">AO VIVO</span>
   <span class="live-msg" id="liveMsg" hidden></span>
   <span class="live-spacer"></span>
-  <button class="btn btn-live" id="btnAdmin" hidden>🔓 Área do Mesário</button>
+  <button class="btn btn-live" id="btnAdmin" hidden>🔓 Admin</button>
 </div>
 
 <!-- ===== BANNER DE INSTALACAO (PWA) ===== -->
@@ -1511,13 +1516,13 @@
   </div>
 </div>
 
-<!-- ===== MODAL: ACESSO DO MESARIO ===== -->
+<!-- ===== MODAL: ACESSO DO ADMIN ===== -->
 <div class="admin-modal" id="adminModal" hidden>
   <div class="admin-box">
-    <h3>🔐 Área do Mesário</h3>
-    <p>Digite a senha de organizador para habilitar a edição dos placares. O restante do time acompanha em tempo real.</p>
+    <h3>🔐 Admin</h3>
+    <p>Digite a senha de administrador para habilitar a edição dos placares. O restante do time acompanha em tempo real.</p>
     <div class="admin-field">
-      <label for="adminPass">Senha de organizador</label>
+      <label for="adminPass">Senha de administrador</label>
       <input type="password" id="adminPass" autocomplete="current-password" placeholder="••••••••••••">
     </div>
     <div class="admin-error" id="adminError">Senha incorreta. Tente novamente.</div>
@@ -1526,7 +1531,7 @@
       <button class="btn btn-ghost" id="btnAdminCancel">Cancelar</button>
     </div>
     <div class="admin-hint">
-      🔒 Apenas o Mesário altera os resultados. Todos os demais visualizam o placar ao vivo,
+      🔒 Apenas o Admin altera os resultados. Todos os demais visualizam o placar ao vivo,
       sem qualquer possibilidade de edição.
     </div>
   </div>
@@ -2060,7 +2065,7 @@
     setLive("somente-leitura", "Modo leitura — acompanhando o placar ao vivo");
     var btn = document.getElementById("btnAdmin");
     if (btn) {
-      btn.textContent = "🔓 Área do Mesário";
+      btn.textContent = "🔓 Admin";
       btn.classList.remove("btn-admin-on");
     }
     renderAll();
@@ -2070,10 +2075,10 @@
     esAdmin = true;
     document.body.classList.remove("modo-leitura");
     document.body.classList.add("modo-admin");
-    setLive("conectado", "Modo Mesário — suas alterações vão ao vivo para todos");
+    setLive("conectado", "Modo Admin — suas alterações vão ao vivo para todos");
     var btn = document.getElementById("btnAdmin");
     if (btn) {
-      btn.textContent = "🔒 Sair do Modo Mesário";
+      btn.textContent = "🔒 Sair do Admin";
       btn.classList.add("btn-admin-on");
     }
     renderAll();
@@ -2448,7 +2453,7 @@
           '<strong>Nenhum jogador cadastrado</strong>' +
           (esAdmin
             ? 'Toque em <b>+ Adicionar jogador</b> para começar a montar o elenco.'
-            : 'O Mesário ainda não cadastrou o elenco.') +
+            : 'O Admin ainda não cadastrou o elenco.') +
         '</div>';
       var resumo = document.getElementById("jogResumo");
       if (resumo) resumo.textContent = "0 jogadores";
@@ -3013,7 +3018,7 @@
 
   function fazerSorteio() {
     if (!esAdmin) {
-      alert("Apenas o Mesário pode sortear os times.");
+      alert("Apenas o Admin pode sortear os times.");
       return;
     }
     if (!state.jogadores.length) {
@@ -3332,7 +3337,7 @@
 
   document.getElementById("btnReset").addEventListener("click", function () {
     if (!esAdmin) {
-      alert("Apenas o Mesário pode zerar o campeonato.");
+      alert("Apenas o Admin pode zerar o campeonato.");
       return;
     }
     if (confirm("Zerar os placares e resultados do campeonato? Os nomes dos times serão mantidos.")) {
@@ -3597,7 +3602,7 @@
   /* Girar Sorteio com efeito slot-machine suspense */
   function girarSorteio() {
     if (!esAdmin) {
-      alert("Apenas o Mesário pode realizar o sorteio.");
+      alert("Apenas o Admin pode realizar o sorteio.");
       return;
     }
     if (raffleGirando) return;
@@ -4008,7 +4013,7 @@
       dbRead().then(function (dados) {
         if (dados && Array.isArray(dados.teams) && dados.teams.length === NUM_TEAMS) {
           aplicarEstadoRemoto(dados);
-          setLive("conectado", "Modo Mesário — placar oficial carregado do banco");
+          setLive("conectado", "Modo Admin — placar oficial carregado do banco");
         } else {
           publicarEstado();
         }
@@ -4020,7 +4025,7 @@
       if (msg === "senha-fraca") {
         adminError.textContent = "Senha muito fraca para o Firebase. Use pelo menos 6 caracteres.";
       } else if (msg === "conta-existente-sem-senha") {
-        adminError.textContent = "Já existe uma conta de Mesário com outro e-mail. Verifique no Firebase Console > Authentication > Usuários.";
+        adminError.textContent = "Já existe uma conta de Admin com outro e-mail. Verifique no Firebase Console > Authentication > Usuários.";
       } else if (msg === "falha-auth") {
         adminError.textContent = "Não foi possível validar no servidor. Verifique sua internet e tente de novo.";
       } else {
@@ -4035,7 +4040,7 @@
   if (btnAdmin) {
     btnAdmin.addEventListener("click", function () {
       if (esAdmin) {
-        if (confirm("Sair do Modo Mesário? O app volta a ser somente leitura.")) {
+        if (confirm("Sair do modo Admin? O app volta a ser somente leitura.")) {
           sairMesario();
         }
       } else {
@@ -4067,7 +4072,7 @@
     document.body.classList.remove("modo-leitura");
     document.body.classList.add("modo-admin");
     if (btnAdmin) {
-      btnAdmin.textContent = "🔒 Sair do Modo Mesário";
+      btnAdmin.textContent = "🔒 Sair do Admin";
       btnAdmin.classList.add("btn-admin-on");
     }
   }
