@@ -379,6 +379,54 @@
   }
   .star-input { display: none; }
 
+  /* ===== GAVETA EXPANSIVEL (details/summary) ===== */
+  .gaveta {
+    background: linear-gradient(135deg, var(--panel) 0%, rgba(14, 35, 71, 0.85) 100%);
+    border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); margin-bottom: 22px; overflow: hidden;
+  }
+  .gaveta-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 15px 18px; cursor: pointer; list-style: none;
+    -webkit-user-select: none; user-select: none;
+    transition: background .15s ease;
+  }
+  .gaveta-head::-webkit-details-marker { display: none; }
+  .gaveta-head::-moz-details-marker { display: none; }
+  .gaveta-head:hover { background: rgba(18, 44, 87, 0.5); }
+  .gaveta-head:focus-visible {
+    outline: 2px solid var(--yellow); outline-offset: -2px;
+  }
+  .gaveta-titulo {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 1.02rem; font-weight: 800; color: var(--txt);
+    letter-spacing: .02em; text-transform: uppercase;
+  }
+  .gaveta-icone { font-size: 1.1rem; }
+  .gaveta-info {
+    display: flex; align-items: center; gap: 10px;
+    font-size: .78rem; font-weight: 700; color: var(--muted);
+  }
+  .gaveta-seta {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 8px;
+    border: 1px solid var(--line-strong); color: var(--yellow);
+    font-size: .8rem; font-weight: 900; line-height: 1;
+    transition: transform .25s ease, background .15s ease;
+  }
+  .gaveta-seta:hover { background: rgba(255, 207, 26, 0.15); }
+  .gaveta[open] .gaveta-seta { transform: rotate(180deg); }
+  .gaveta-corpo {
+    padding: 0 18px 18px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+  .gaveta[open] .gaveta-corpo { animation: gavetaIn .22s ease; }
+  @keyframes gavetaIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
   /* ===== LISTA DE JOGADORES ===== */
   .jog-lista { display: flex; flex-direction: column; gap: 8px; }
   .jog-item {
@@ -1222,49 +1270,60 @@
   </div>
   </div>
 
-  <!-- ===== JOGADORES E NOTAS ===== -->
+  <!-- ===== JOGADORES E NOTAS (gaveta expansível) ===== -->
   <div class="tab-panel" id="tab-jogadores">
-    <h2 class="section-title">
-      Jogadores e Notas
-      <span class="hint">Toque nas estrelas para dar nota de 0 a 5</span>
-    </h2>
 
-    <div class="card">
-      <div class="jog-toolbar">
-        <button class="btn btn-add" id="btnAddJogador">+ Adicionar jogador</button>
-        <div style="flex:1"></div>
-        <span id="jogResumo" style="font-size:.78rem;color:var(--muted-2)"></span>
-      </div>
-      <div class="marcar-todos" id="marcarTodosBar">
-        <button class="btn-mini" id="btnMarcarTodos">✓ Marcar todos</button>
-        <button class="btn-mini amarelo" id="btnDesmarcarTodos">✕ Desmarcar todos</button>
-        <span class="contagem-jog" id="contagemJog"><b>0</b> para o sorteio</span>
-      </div>
-      <div class="jog-lista" id="jogLista"></div>
-      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <button class="btn btn-add" id="btnImportarElenco" hidden>📋 Importar elenco (27)</button>
-        <button class="btn btn-add" id="btnColarNomes" hidden>📝 Colar lista de nomes</button>
-        <span style="font-size:.72rem;color:var(--muted-2)" id="jogDica">
-          Dica: marque quem veio jogar hoje e toque nas estrelas para definir a nota.
+    <details class="gaveta" id="gavetaJogadores" open>
+      <summary class="gaveta-head">
+        <span class="gaveta-titulo">
+          <span class="gaveta-icone">🎽</span>
+          Jogadores e Notas
         </span>
-      </div>
-    </div>
+        <span class="gaveta-info">
+          <span id="gavetaResumo">0 jogadores</span>
+          <span class="gaveta-seta" aria-hidden="true">▾</span>
+        </span>
+      </summary>
 
-    <!-- COLAR LISTA DE NOMES -->
-    <div id="colarPainelWrap" hidden style="margin-top:12px">
-      <div class="card" style="padding:16px">
-        <div style="font-size:.85rem;font-weight:800;margin-bottom:4px">Colar lista de nomes</div>
-        <div style="font-size:.76rem;color:var(--muted);margin-bottom:10px">
-          Um nome por linha. As notas e a casa dos nomes que já existem são mantidas.
+      <div class="gaveta-corpo">
+        <div class="card">
+          <div class="jog-toolbar">
+            <button class="btn btn-add" id="btnAddJogador">+ Adicionar jogador</button>
+            <div style="flex:1"></div>
+            <span id="jogResumo" style="font-size:.78rem;color:var(--muted-2)"></span>
+          </div>
+          <div class="marcar-todos" id="marcarTodosBar">
+            <button class="btn-mini" id="btnMarcarTodos">✓ Marcar todos</button>
+            <button class="btn-mini amarelo" id="btnDesmarcarTodos">✕ Desmarcar todos</button>
+            <span class="contagem-jog" id="contagemJog"><b>0</b> para o sorteio</span>
+          </div>
+          <div class="jog-lista" id="jogLista"></div>
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-add" id="btnImportarElenco" hidden>📋 Importar elenco (27)</button>
+            <button class="btn btn-add" id="btnColarNomes" hidden>📝 Colar lista de nomes</button>
+            <span style="font-size:.72rem;color:var(--muted-2)" id="jogDica">
+              Dica: marque quem veio jogar hoje e toque nas estrelas para definir a nota.
+            </span>
+          </div>
         </div>
-        <textarea id="colarNomes" rows="8" placeholder="Lelê&#10;Gil&#10;Hugo&#10;Will&#10;..."
-          style="width:100%;background:var(--navy-900);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:11px;font:inherit;font-size:.9rem;resize:vertical"></textarea>
-        <div style="display:flex;gap:9px;margin-top:11px;flex-wrap:wrap">
-          <button class="btn btn-primary" id="btnColarConfirmar">Importar lista</button>
-          <button class="btn btn-ghost" id="btnColarCancelar">Cancelar</button>
+
+        <!-- COLAR LISTA DE NOMES -->
+        <div id="colarPainelWrap" hidden style="margin-top:12px">
+          <div class="card" style="padding:16px">
+            <div style="font-size:.85rem;font-weight:800;margin-bottom:4px">Colar lista de nomes</div>
+            <div style="font-size:.76rem;color:var(--muted);margin-bottom:10px">
+              Um nome por linha. As notas e a casa dos nomes que já existem são mantidas.
+            </div>
+            <textarea id="colarNomes" rows="8" placeholder="Lelê&#10;Gil&#10;Hugo&#10;Will&#10;..."
+              style="width:100%;background:var(--navy-900);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:11px;font:inherit;font-size:.9rem;resize:vertical"></textarea>
+            <div style="display:flex;gap:9px;margin-top:11px;flex-wrap:wrap">
+              <button class="btn btn-primary" id="btnColarConfirmar">Importar lista</button>
+              <button class="btn btn-ghost" id="btnColarCancelar">Cancelar</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </details>
 
     <h2 class="section-title">
       Formar Times
@@ -2347,6 +2406,12 @@
     if (c) {
       c.innerHTML = '<b style="color:var(--lime)">' + flegados + '</b> de ' + total + ' para o sorteio';
     }
+    /* resumo no cabecalho da gaveta (visivel mesmo com a gaveta fechada) */
+    var gResumo = document.getElementById("gavetaResumo");
+    if (gResumo) {
+      gResumo.textContent = total + (total === 1 ? " jogador" : " jogadores") +
+        " · " + flegados + " marcados";
+    }
   }
 
   function adicionarJogador() {
@@ -2361,6 +2426,9 @@
     save();
     renderJogadores();
     publicarEstado();
+    /* garante que a gaveta esteja aberta para o campo receber o foco */
+    var gav = document.getElementById("gavetaJogadores");
+    if (gav) gav.open = true;
     /* foca o ultimo campo recem-criado */
     var inputs = document.querySelectorAll("input.jog-nome");
     if (inputs.length) {
@@ -2971,6 +3039,19 @@
       var btn = bar.querySelector('[data-tab="' + salva + '"]');
       if (btn) btn.click();
     }
+  })();
+
+  /* ===== GAVETA DE JOGADORES: lembra se ficou aberta ou fechada ===== */
+  (function initGaveta() {
+    var gav = document.getElementById("gavetaJogadores");
+    if (!gav) return;
+    var salva = null;
+    try { salva = localStorage.getItem("volei_gaveta_jogadores"); } catch (e) {}
+    if (salva === "fechada") gav.open = false;
+    if (salva === "aberta") gav.open = true;
+    gav.addEventListener("toggle", function () {
+      try { localStorage.setItem("volei_gaveta_jogadores", gav.open ? "aberta" : "fechada"); } catch (e) {}
+    });
   })();
 
   /* ===== JOGADORES: botoes ===== */

@@ -1025,6 +1025,12 @@
     if (c) {
       c.innerHTML = '<b style="color:var(--lime)">' + flegados + '</b> de ' + total + ' para o sorteio';
     }
+    /* resumo no cabecalho da gaveta (visivel mesmo com a gaveta fechada) */
+    var gResumo = document.getElementById("gavetaResumo");
+    if (gResumo) {
+      gResumo.textContent = total + (total === 1 ? " jogador" : " jogadores") +
+        " · " + flegados + " marcados";
+    }
   }
 
   function adicionarJogador() {
@@ -1039,6 +1045,9 @@
     save();
     renderJogadores();
     publicarEstado();
+    /* garante que a gaveta esteja aberta para o campo receber o foco */
+    var gav = document.getElementById("gavetaJogadores");
+    if (gav) gav.open = true;
     /* foca o ultimo campo recem-criado */
     var inputs = document.querySelectorAll("input.jog-nome");
     if (inputs.length) {
@@ -1649,6 +1658,19 @@
       var btn = bar.querySelector('[data-tab="' + salva + '"]');
       if (btn) btn.click();
     }
+  })();
+
+  /* ===== GAVETA DE JOGADORES: lembra se ficou aberta ou fechada ===== */
+  (function initGaveta() {
+    var gav = document.getElementById("gavetaJogadores");
+    if (!gav) return;
+    var salva = null;
+    try { salva = localStorage.getItem("volei_gaveta_jogadores"); } catch (e) {}
+    if (salva === "fechada") gav.open = false;
+    if (salva === "aberta") gav.open = true;
+    gav.addEventListener("toggle", function () {
+      try { localStorage.setItem("volei_gaveta_jogadores", gav.open ? "aberta" : "fechada"); } catch (e) {}
+    });
   })();
 
   /* ===== JOGADORES: botoes ===== */
