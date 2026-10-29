@@ -18,11 +18,11 @@
 <title>Vôlei do Bosque — Championship Dashboard</title>
 <style>
   :root {
-    /* ===== Paleta Strava: Grafite profundo, cards limpos ===== */
-    --navy-900: #0F1015;
-    --navy-800: #14161C;
-    --navy-700: #1D1F26;
-    --navy-600: #262933;
+    /* ===== Paleta: fundo azul-marinho original + superficies Strava ===== */
+    --navy-900: #06152e;
+    --navy-800: #0a1f3d;
+    --navy-700: #0e2a52;
+    --navy-600: #143869;
     --panel: #1D1F26;
     --panel-2: #262933;
     --line: rgba(255, 255, 255, 0.07);
@@ -71,7 +71,11 @@
     margin: 0;
     font-family: var(--font);
     color: var(--txt);
-    background: #0F1015;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(47, 217, 208, 0.10), transparent 60%),
+      radial-gradient(900px 500px at 10% 0%, rgba(255, 207, 26, 0.08), transparent 55%),
+      linear-gradient(180deg, var(--navy-900) 0%, #071a36 40%, var(--navy-900) 100%);
+    background-attachment: fixed;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
