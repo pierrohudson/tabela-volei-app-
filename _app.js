@@ -83,7 +83,8 @@
         f12: { a: null, b: null }
       },
       jogadores: [],
-      formacao: null
+      formacao: null,
+      sorteioBrinde: null
     };
   }
 
@@ -103,6 +104,7 @@
           return j;
         }) : [];
         s.formacao = s.formacao || null;
+        s.sorteioBrinde = s.sorteioBrinde || null;
         return s;
       }
     } catch (err) {
@@ -244,6 +246,7 @@
     if (!state.finals.f12) state.finals.f12 = { a: null, b: null };
     state.jogadores = Array.isArray(dados.jogadores) ? dados.jogadores : [];
     state.formacao = dados.formacao || null;
+    state.sorteioBrinde = dados.sorteioBrinde || null;
     save();
     aplicandoRemoto = true;
     try {
@@ -271,6 +274,7 @@
         finals: state.finals,
         jogadores: state.jogadores,
         formacao: state.formacao,
+        sorteioBrinde: state.sorteioBrinde,
         atualizadoEm: agora
       };
       ultimoPublicadoEm = agora;
@@ -1709,6 +1713,7 @@
     renderFinals();
     renderPodium();
     renderJogadores();
+    renderSorteioBrinde();
     aplicarBloqueioEdicao();
   }
 
@@ -1749,6 +1754,13 @@
     if (btnSort) btnSort.hidden = travado;
     var sorteioInputs = document.querySelectorAll("#sorteioTimes,#sorteioPorTime");
     for (var i = 0; i < sorteioInputs.length; i++) sorteioInputs[i].disabled = travado;
+    /* sorteio do campeao: Mesario gira e configura; publico so assiste */
+    var btnRaf = document.getElementById("btnRaffle");
+    if (btnRaf) btnRaf.hidden = travado;
+    var rafOrig = document.getElementById("raffleOrigem");
+    if (rafOrig) rafOrig.disabled = travado;
+    var rafPrem = document.getElementById("rafflePremio");
+    if (rafPrem) rafPrem.readOnly = travado;
   }
 
   /* ===== EVENTOS ===== */
@@ -1794,11 +1806,323 @@
       state.finals = { f34: { a: null, b: null }, f12: { a: null, b: null } };
       state.jogadores = [];
       state.formacao = null;
+      state.sorteioBrinde = null;
       save();
       renderAll();
       publicarEstado();
     }
   });
+
+  /* ============================================================
+     SORTEIO DO CAMPEÃO — estilo Raffle Pro
+     Sorteio exclusivo entre os atletas do time vencedor
+     ============================================================ */
+  var raffleGirando = false;
+
+  function obterTimeCampeaoInfo() {
+    var r = ranked();
+    var ready = allMatchesPlayed();
+    if (ready) {
+      var f12 = resolveFinalWinner(state.finals.f12, r[0], r[1]);
+      if (f12.winner) {
+        return {
+          idx: f12.winner.idx,
+          nome: state.teams[f12.winner.idx] || ("Time " + (f12.winner.idx + 1)),
+          oficial: true
+        };
+      }
+    }
+    /* se a final ainda nao foi concluida, pega o 1o lugar provisorio da classificacao */
+    if (r && r.length && r[0]) {
+      return {
+        idx: r[0].idx,
+        nome: state.teams[r[0].idx] || ("Time " + (r[0].idx + 1)),
+        oficial: false
+      };
+    }
+    return null;
+  }
+
+  function obterElencoTime(timeIdx) {
+    if (state.formacao && state.formacao.times && state.formacao.times[timeIdx]) {
+      return state.formacao.times[timeIdx].jogadores || [];
+    }
+    return [];
+  }
+
+  function obterParticipantesRaffle() {
+    var sel = document.getElementById("raffleOrigem");
+    var valor = (sel && sel.value) ? String(sel.value) : "campeao";
+    var camp = obterTimeCampeaoInfo();
+
+    if (valor === "campeao") {
+      if (camp) {
+        var elenco = obterElencoTime(camp.idx);
+        if (elenco.length) {
+          return {
+            titulo: (camp.oficial ? "🏆 Time Campeão · " : "🥇 1º Colocado · ") +
+              "Time " + (camp.idx + 1) + " (" + camp.nome + ")",
+            timeNome: "Time " + (camp.idx + 1) + " - " + camp.nome,
+            jogadores: elenco
+          };
+        }
+      }
+      /* fallback caso times nao tenham sido sorteados ainda */
+      var marcados = state.jogadores.filter(function (j) { return j.ativo !== false; });
+      return {
+        titulo: "👥 Todos os jogadores participantes (" + marcados.length + ")",
+        timeNome: "Geral",
+        jogadores: marcados
+      };
+    }
+
+    if (valor === "todos") {
+      var todos = state.jogadores.filter(function (j) { return j.ativo !== false; });
+      return {
+        titulo: "👥 Todos os jogadores participantes (" + todos.length + ")",
+        timeNome: "Geral",
+        jogadores: todos
+      };
+    }
+
+    /* time especifico: time_0, time_1, etc. */
+    if (valor.indexOf("time_") === 0) {
+      var tidx = parseInt(valor.slice(5), 10);
+      var el = obterElencoTime(tidx);
+      var nomeT = state.teams[tidx] || ("Time " + (tidx + 1));
+      return {
+        titulo: "Time " + (tidx + 1) + " (" + nomeT + ")",
+        timeNome: "Time " + (tidx + 1) + " - " + nomeT,
+        jogadores: el.length ? el : state.jogadores
+      };
+    }
+
+    return {
+      titulo: "Jogadores",
+      timeNome: "Geral",
+      jogadores: state.jogadores
+    };
+  }
+
+  function atualizarOpcoesRaffleOrigem() {
+    var sel = document.getElementById("raffleOrigem");
+    if (!sel) return;
+    var atual = sel.value;
+    var camp = obterTimeCampeaoInfo();
+    var campNome = camp ? (camp.nome + " (Time " + (camp.idx + 1) + ")") : "(Aguardando Final)";
+
+    var html = '<option value="campeao">🏆 Time Campeão: ' + esc(campNome) + '</option>';
+    for (var i = 0; i < NUM_TEAMS; i++) {
+      var tNome = state.teams[i] || ("Time " + (i + 1));
+      var qtd = obterElencoTime(i).length;
+      html += '<option value="time_' + i + '">Time ' + (i + 1) + ' (' + esc(tNome) + ')' +
+        (qtd ? ' · ' + qtd + ' atletas' : '') + '</option>';
+    }
+    html += '<option value="todos">👥 Todos os jogadores cadastrados (' + state.jogadores.length + ')</option>';
+    sel.innerHTML = html;
+    if (atual) sel.value = atual;
+  }
+
+  function renderSorteioBrinde() {
+    atualizarOpcoesRaffleOrigem();
+    var dados = obterParticipantesRaffle();
+    var badge = document.getElementById("raffleTimeBadge");
+    if (badge) badge.textContent = dados.titulo;
+
+    var premioInput = document.getElementById("rafflePremio");
+    var premioTag = document.getElementById("rafflePremioTag");
+    var premioTxt = (premioInput && premioInput.value.trim()) || "Nome na lista da próxima semana";
+    if (premioTag) premioTag.textContent = premioTxt;
+
+    /* chips dos participantes */
+    var chipsWrap = document.getElementById("raffleChips");
+    if (chipsWrap) {
+      chipsWrap.innerHTML = dados.jogadores.map(function (j) {
+        return '<span class="raffle-chip">' + esc(j.nome || "(sem nome)") + '</span>';
+      }).join("");
+    }
+
+    /* card de vencedor salvo (se houver) */
+    var resWrap = document.getElementById("raffleResultado");
+    if (!resWrap) return;
+    var v = state.sorteioBrinde;
+    if (v && v.vencedor) {
+      resWrap.innerHTML =
+        '<div class="winner-card">' +
+          '<div class="winner-trophy">🏆</div>' +
+          '<div style="font-size:.78rem;font-weight:800;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">Ganhador do Sorteio</div>' +
+          '<div class="winner-name">' + esc(v.vencedor) + '</div>' +
+          '<div class="winner-sub">' + esc(v.timeNome || "") + ' · <b style="color:var(--turquoise)">' + esc(v.premio || "") + '</b></div>' +
+          '<button class="btn-wpp" id="btnRaffleWpp">📲 Copiar para WhatsApp</button>' +
+        '</div>';
+
+      var btnWpp = document.getElementById("btnRaffleWpp");
+      if (btnWpp) {
+        btnWpp.addEventListener("click", function () {
+          compartilharSorteioWhatsApp(v);
+        });
+      }
+    } else {
+      resWrap.innerHTML = "";
+    }
+  }
+
+  /* texto formatado oficial para WhatsApp */
+  function textoWhatsAppSorteio(v) {
+    return "🏐 VÔLEI DO BOSQUE — SORTEIO DO CAMPEÃO 🏆\n" +
+      "🎁 Prêmio: " + (v.premio || "Nome na lista da proxima semana") + "\n" +
+      "🥇 Vencedor: " + v.vencedor + " (" + (v.timeNome || "Time Campeão") + ")\n" +
+      "Parabéns! 🏐🎉";
+  }
+
+  function compartilharSorteioWhatsApp(v) {
+    var texto = textoWhatsAppSorteio(v);
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      navigator.clipboard.writeText(texto).then(function () {
+        alert("Texto copiado para a área de transferência! Cole no WhatsApp:\n\n" + texto);
+      }).catch(function () {
+        copiarFallback(texto);
+      });
+    } else {
+      copiarFallback(texto);
+    }
+  }
+
+  function copiarFallback(texto) {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = texto;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      alert("Texto copiado! Cole no WhatsApp:\n\n" + texto);
+    } catch (e) {
+      prompt("Copie o texto abaixo para enviar no WhatsApp:", texto);
+    }
+  }
+
+  /* Canvas de Confetes 🎉 (sem dependencias) */
+  function dispararConfetes() {
+    var canvas = document.getElementById("raffleCanvas");
+    if (!canvas || !canvas.getContext) return;
+    canvas.hidden = false;
+    var ctx = canvas.getContext("2d");
+    var w = canvas.width = window.innerWidth;
+    var h = canvas.height = window.innerHeight;
+
+    var cores = ["#ffcf1a", "#2fd9d0", "#a6e22e", "#ff4d4d", "#ffffff", "#ff9900", "#c084fc"];
+    var particulas = [];
+    for (var i = 0; i < 120; i++) {
+      particulas.push({
+        x: Math.random() * w,
+        y: -10 - Math.random() * (h * 0.5),
+        vx: (Math.random() - 0.5) * 4,
+        vy: Math.random() * 4 + 3,
+        size: Math.random() * 8 + 4,
+        cor: cores[Math.floor(Math.random() * cores.length)],
+        rot: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.15
+      });
+    }
+
+    var inicio = Date.now();
+    var duracao = 3800;
+
+    function frame() {
+      var decorrido = Date.now() - inicio;
+      if (decorrido > duracao) {
+        ctx.clearRect(0, 0, w, h);
+        canvas.hidden = true;
+        return;
+      }
+      ctx.clearRect(0, 0, w, h);
+      var fade = decorrido > (duracao - 800) ? (duracao - decorrido) / 800 : 1;
+      ctx.globalAlpha = Math.max(0, fade);
+
+      for (var p = 0; p < particulas.length; p++) {
+        var pt = particulas[p];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.rot += pt.vRot;
+        if (pt.y > h) pt.y = -10;
+
+        ctx.save();
+        ctx.translate(pt.x, pt.y);
+        ctx.rotate(pt.rot);
+        ctx.fillStyle = pt.cor;
+        ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size * 1.5);
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* Girar Sorteio com efeito slot-machine suspense */
+  function girarSorteio() {
+    if (!esAdmin) {
+      alert("Apenas o Mesário pode realizar o sorteio.");
+      return;
+    }
+    if (raffleGirando) return;
+
+    var dados = obterParticipantesRaffle();
+    if (!dados.jogadores || !dados.jogadores.length) {
+      alert("Nenhum participante disponível para o sorteio. Verifique se o elenco e os times estão cadastrados.");
+      return;
+    }
+
+    var btn = document.getElementById("btnRaffle");
+    var display = document.getElementById("raffleDisplay");
+    var premioInput = document.getElementById("rafflePremio");
+    var premioTxt = (premioInput && premioInput.value.trim()) || "Nome na lista da próxima semana";
+
+    raffleGirando = true;
+    if (btn) btn.disabled = true;
+    if (display) display.classList.add("spin");
+
+    var listaNomes = dados.jogadores.map(function (j) { return j.nome || "(sem nome)"; });
+    var vencedor = listaNomes[Math.floor(Math.random() * listaNomes.length)];
+
+    var passos = 0;
+    var totalPassos = 28;
+    var delay = 50;
+
+    function tick() {
+      passos++;
+      var randNome = listaNomes[Math.floor(Math.random() * listaNomes.length)];
+      if (display) display.textContent = randNome;
+
+      if (passos < totalPassos) {
+        /* desacelera gradualmente no final para criar tensao e suspense */
+        if (passos > totalPassos - 10) delay += 22;
+        else if (passos > totalPassos - 5) delay += 45;
+        setTimeout(tick, delay);
+      } else {
+        /* PAROU NO VENCEDOR */
+        if (display) {
+          display.textContent = vencedor;
+          display.classList.remove("spin");
+        }
+        raffleGirando = false;
+        if (btn) btn.disabled = false;
+
+        state.sorteioBrinde = {
+          vencedor: vencedor,
+          timeNome: dados.timeNome,
+          premio: premioTxt,
+          data: Date.now()
+        };
+        save();
+        renderSorteioBrinde();
+        publicarEstado();
+        dispararConfetes();
+      }
+    }
+    setTimeout(tick, delay);
+  }
 
   /* ===== ABAS: navegacao entre as secoes ===== */
   (function initTabs() {
@@ -1845,6 +2169,24 @@
       try { localStorage.setItem("volei_gaveta_jogadores", gav.open ? "aberta" : "fechada"); } catch (e) {}
     });
   })();
+
+  /* ===== SORTEIO DO CAMPEÃO: botoes e listeners ===== */
+  var btnRaffle = document.getElementById("btnRaffle");
+  if (btnRaffle) btnRaffle.addEventListener("click", girarSorteio);
+
+  var raffleOrigem = document.getElementById("raffleOrigem");
+  if (raffleOrigem) {
+    raffleOrigem.addEventListener("change", function () {
+      renderSorteioBrinde();
+    });
+  }
+
+  var rafflePremio = document.getElementById("rafflePremio");
+  if (rafflePremio) {
+    rafflePremio.addEventListener("input", function () {
+      renderSorteioBrinde();
+    });
+  }
 
   /* ===== JOGADORES: botoes ===== */
   var btnAddJogador = document.getElementById("btnAddJogador");

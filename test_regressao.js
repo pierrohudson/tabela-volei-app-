@@ -116,8 +116,8 @@ const LEGADO = {
     cartoes[0].textContent.indexOf("TIME - 1") >= 0, cartoes[0].textContent.slice(0, 40));
 
   // ---- ABAS ----
-  check("3 abas", A.document.querySelectorAll(".tab-btn").length === 3);
-  ["tab-classif", "tab-jogos", "tab-jogadores"].forEach(id => {
+  check("4 abas", A.document.querySelectorAll(".tab-btn").length === 4);
+  ["tab-classif", "tab-jogos", "tab-sorteio", "tab-jogadores"].forEach(id => {
     const btn = A.document.querySelector('[data-tab="' + id + '"]');
     btn.dispatchEvent(new A.window.Event("click"));
   });
@@ -133,6 +133,12 @@ const LEGADO = {
     A.document.querySelectorAll('[data-tab="tab-finais"],[data-tab="tab-premio"]').length === 0 &&
     A.document.getElementById("tab-finais") === null &&
     A.document.getElementById("tab-premio") === null);
+
+  // ---- SORTEIO DO CAMPEAO ----
+  check("aba de sorteio existe", A.document.getElementById("tab-sorteio") !== null);
+  check("display do sorteio existe", A.document.getElementById("raffleDisplay") !== null);
+  check("botao girar sorteio existe", A.document.getElementById("btnRaffle") !== null);
+  check("campo premio existe", A.document.getElementById("rafflePremio") !== null);
 
   // ---- MODO LEITURA ----
   const R = nova();
