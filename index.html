@@ -398,11 +398,16 @@
     outline: 2px solid var(--yellow); outline-offset: -2px;
   }
   .gaveta-titulo {
-    display: flex; align-items: center; gap: 9px;
-    font-size: 1.02rem; font-weight: 800; color: var(--txt);
-    letter-spacing: .02em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 1.05rem; font-weight: 800; color: var(--txt);
+    letter-spacing: .08em; text-transform: uppercase;
   }
-  .gaveta-icone { font-size: 1.1rem; }
+  .gaveta-barra {
+    width: 5px; height: 22px; flex-shrink: 0;
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--yellow), var(--turquoise));
+    box-shadow: 0 0 12px rgba(255, 207, 26, 0.5);
+  }
   .gaveta-info {
     display: flex; align-items: center; gap: 10px;
     font-size: .78rem; font-weight: 700; color: var(--muted);
@@ -1276,8 +1281,8 @@
     <details class="gaveta" id="gavetaJogadores" open>
       <summary class="gaveta-head">
         <span class="gaveta-titulo">
-          <span class="gaveta-icone">🎽</span>
-          Jogadores e Notas
+          <span class="gaveta-barra" aria-hidden="true"></span>
+          Jogadores
         </span>
         <span class="gaveta-info">
           <span id="gavetaResumo">0 jogadores</span>
