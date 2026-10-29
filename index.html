@@ -1196,8 +1196,6 @@
 <nav class="tabs-bar" id="tabsBar">
   <button class="tab-btn ativo" data-tab="tab-classif">Classificação</button>
   <button class="tab-btn" data-tab="tab-jogos">Jogos</button>
-  <button class="tab-btn" data-tab="tab-finais">Finais</button>
-  <button class="tab-btn" data-tab="tab-premio">Premiação</button>
   <button class="tab-btn" data-tab="tab-jogadores">⭐ Jogadores</button>
 </nav>
 
@@ -1242,27 +1240,21 @@
   </div>
   </div>
 
-  <!-- ===== TABELA DE JOGOS ===== -->
+  <!-- ===== TABELA DE JOGOS + FINAIS + PREMIAÇÃO ===== -->
   <div class="tab-panel" id="tab-jogos">
   <h2 class="section-title">
     Tabela de Jogos
     <span class="hint">10 confrontos da primeira fase</span>
   </h2>
   <div class="matches-grid" id="matches"></div>
-  </div>
 
-  <!-- ===== FINAIS ===== -->
-  <div class="tab-panel" id="tab-finais">
   <h2 class="section-title">
     Finais
     <span class="hint">Finalistas definidos automaticamente</span>
   </h2>
   <div id="finalNoticeWrap"></div>
   <div class="finals-section" id="finals"></div>
-  </div>
 
-  <!-- ===== PÓDIO ===== -->
-  <div class="tab-panel" id="tab-premio">
   <h2 class="section-title">
     Premiação
     <span class="hint">Atualizado conforme os resultados das finais</span>
@@ -3037,6 +3029,8 @@
     /* restaura a ultima aba usada */
     var salva = null;
     try { salva = localStorage.getItem("volei_aba_ativa"); } catch (e) {}
+    /* abas Finais e Premiacao foram unificadas em Jogos */
+    if (salva === "tab-finais" || salva === "tab-premio") salva = "tab-jogos";
     if (salva) {
       var btn = bar.querySelector('[data-tab="' + salva + '"]');
       if (btn) btn.click();

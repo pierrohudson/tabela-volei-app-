@@ -1659,6 +1659,8 @@
     /* restaura a ultima aba usada */
     var salva = null;
     try { salva = localStorage.getItem("volei_aba_ativa"); } catch (e) {}
+    /* abas Finais e Premiacao foram unificadas em Jogos */
+    if (salva === "tab-finais" || salva === "tab-premio") salva = "tab-jogos";
     if (salva) {
       var btn = bar.querySelector('[data-tab="' + salva + '"]');
       if (btn) btn.click();
