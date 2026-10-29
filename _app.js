@@ -1268,11 +1268,34 @@
       return (b.estrelas || 0) - (a.estrelas || 0);
     });
 
+    /* Embaralha de novo cada grupo de mesma nota para que cada clique
+       em "Sortear" gere uma combinacao diferente (mesmo com as mesmas notas). */
+    var i0 = 0;
+    while (i0 < jogadores.length) {
+      var i1 = i0 + 1;
+      while (i1 < jogadores.length &&
+             Math.abs((jogadores[i1].estrelas || 0) - (jogadores[i0].estrelas || 0)) < 0.01) {
+        i1++;
+      }
+      if (i1 - i0 > 1) {
+        var grupo = jogadores.slice(i0, i1);
+        embaralhar(grupo);
+        for (var g = 0; g < grupo.length; g++) jogadores[i0 + g] = grupo[g];
+      }
+      i0 = i1;
+    }
+
     var totalSlots = numTimes * porTime;
     var elenco = jogadores.slice(0, totalSlots);
     var sobrando = jogadores.slice(totalSlots);
 
-    /* --- fase 1: distribuicao "cobra" (equilibra naturalmente) --- */
+    /* --- fase 1: distribuicao "cobra" (equilibra naturalmente) ---
+       A ordem dos times tambem e embaralhada para que cada sorteio
+       tenha uma cara diferente (Time 1 nem sempre comeca). */
+    var ordemTimes = [];
+    for (var ot = 0; ot < numTimes; ot++) ordemTimes.push(ot);
+    embaralhar(ordemTimes);
+
     var times = [];
     for (var t = 0; t < numTimes; t++) {
       times.push({ jogadores: [], soma: 0 });
@@ -1281,7 +1304,7 @@
     for (var volta = 0; volta < porTime; volta++) {
       var linha = [];
       for (var i = 0; i < numTimes; i++) {
-        linha.push(volta % 2 === 0 ? i : (numTimes - 1 - i));
+        linha.push(volta % 2 === 0 ? ordemTimes[i] : ordemTimes[numTimes - 1 - i]);
       }
       ordem = ordem.concat(linha);
     }
@@ -1310,10 +1333,13 @@
     var melhor = desvio(times);
     for (var passo = 0; passo < 400 && melhor > 0.001; passo++) {
       var melhorou = false;
-      for (var a = 0; a < numTimes; a++) {
-        for (var b = a + 1; b < numTimes; b++) {
-          for (var x = 0; x < times[a].jogadores.length; x++) {
-            for (var y = 0; y < times[b].jogadores.length; y++) {
+      /* Procura a PRIMEIRA troca que melhora o desvio.
+         Todos os loops param assim que uma melhoria e aplicada
+         (evita acessar times[numTimes] e travar o sorteio). */
+      for (var a = 0; a < numTimes && !melhorou; a++) {
+        for (var b = a + 1; b < numTimes && !melhorou; b++) {
+          for (var x = 0; x < times[a].jogadores.length && !melhorou; x++) {
+            for (var y = 0; y < times[b].jogadores.length && !melhorou; y++) {
               var ja = times[a].jogadores[x], jb = times[b].jogadores[y];
               var na = times[a].soma - (ja.estrelas || 0) + (jb.estrelas || 0);
               var nb = times[b].soma - (jb.estrelas || 0) + (ja.estrelas || 0);
@@ -1321,7 +1347,7 @@
               times[a].jogadores[x] = jb; times[b].jogadores[y] = ja;
               var novo = desvio(times);
               if (novo < melhor - 0.001) {
-                melhor = novo; melhorou = true; a = numTimes; break;
+                melhor = novo; melhorou = true;
               } else {
                 /* desfaz */
                 times[a].soma = na - (jb.estrelas || 0) + (ja.estrelas || 0);
@@ -1467,6 +1493,20 @@
     save();
     renderFormacao();
     publicarEstado();
+
+    /* feedback visual: anima o botao e rola ate os times sorteados */
+    var btn = document.getElementById("btnSortear");
+    if (btn) {
+      var textoOriginal = btn.innerHTML;
+      btn.innerHTML = "✔ Sorteado!";
+      setTimeout(function () { btn.innerHTML = textoOriginal; }, 900);
+    }
+    try {
+      var elResultado = document.getElementById("sorteioResultado");
+      if (elResultado && typeof elResultado.scrollIntoView === "function") {
+        elResultado.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    } catch (e) {}
   }
 
   /* ============================================================
