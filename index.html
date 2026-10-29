@@ -382,7 +382,14 @@
   /* ===== LISTA DE JOGADORES ===== */
   .jog-lista { display: flex; flex-direction: column; gap: 8px; }
   .jog-item {
-    display: flex; align-items: center; gap: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "check nome remove"
+      "check stars remove";
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 4px;
     background: linear-gradient(135deg, var(--panel) 0%, rgba(14, 35, 71, 0.85) 100%);
     border: 1px solid var(--line); border-radius: var(--radius-sm);
     padding: 10px 12px;
@@ -390,17 +397,24 @@
   }
   .jog-item:hover { border-color: var(--line-strong); }
   .jog-nome {
-    flex: 1; min-width: 0;
+    grid-area: nome;
+    width: 100%; min-width: 0;
     background: transparent; border: 1px solid transparent; color: var(--txt);
-    font: inherit; font-weight: 700; font-size: .92rem;
-    padding: 6px 8px; border-radius: 6px;
+    font: inherit; font-weight: 700; font-size: .95rem;
+    padding: 4px 6px; border-radius: 6px;
   }
   .jog-nome:hover { background: rgba(18, 44, 87, 0.6); border-color: var(--line-strong); }
   .jog-nome:focus {
     outline: none; background: var(--navy-800); border-color: var(--yellow);
     box-shadow: 0 0 10px rgba(255, 207, 26, 0.3);
   }
+  .jog-stars {
+    grid-area: stars;
+    display: flex; align-items: center;
+    padding-left: 6px;
+  }
   .jog-remove {
+    grid-area: remove;
     background: rgba(239, 68, 68, 0.12); color: #ff9999;
     border: 1px solid rgba(239, 68, 68, 0.35);
     border-radius: 8px; width: 34px; height: 34px;
@@ -409,27 +423,24 @@
     transition: background .15s ease;
   }
   .jog-remove:hover { background: rgba(239, 68, 68, 0.28); color: #fff; }
+  body.modo-leitura .jog-item {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "nome"
+      "stars";
+  }
   body.modo-leitura .jog-remove,
   body.modo-leitura .jog-add { display: none; }
   body.modo-leitura .jog-nome { pointer-events: none; }
 
-  /* casa / numero do jogador (opcional) */
-  .jog-casa {
-    width: 46px; flex-shrink: 0; text-align: center;
-    background: rgba(6, 21, 46, 0.7); color: var(--muted);
-    border: 1px solid var(--line); border-radius: 7px;
-    padding: 6px 4px; font: inherit; font-size: .82rem; font-weight: 800;
-    font-variant-numeric: tabular-nums;
-  }
-  .jog-casa:focus { outline: none; border-color: var(--yellow); color: var(--txt); }
-
   /* ===== CHECKBOX: marcar quem JOGA na rodada ===== */
   .jog-check {
-    width: 26px; height: 26px; flex-shrink: 0;
+    grid-area: check;
+    width: 28px; height: 28px; flex-shrink: 0;
     border: 2px solid var(--line-strong); border-radius: 7px;
     background: rgba(6, 21, 46, 0.6); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    font-size: .95rem; font-weight: 900; color: transparent;
+    font-size: 1rem; font-weight: 900; color: transparent;
     transition: background .15s ease, border-color .15s ease, color .15s ease;
     user-select: none; -webkit-user-select: none;
   }
@@ -1206,7 +1217,7 @@
         <button class="btn btn-add" id="btnImportarElenco" hidden>📋 Importar elenco (27)</button>
         <button class="btn btn-add" id="btnColarNomes" hidden>📝 Colar lista de nomes</button>
         <span style="font-size:.72rem;color:var(--muted-2)" id="jogDica">
-          Dica: o número em <b>Casa</b> é a posição do atleta na lista do sorteio.
+          Dica: marque quem veio jogar hoje e toque nas estrelas para definir a nota.
         </span>
       </div>
     </div>
@@ -2211,11 +2222,6 @@
           ? '<span class="jog-check' + (ativo ? " on" : "") + '" data-i="' + i + '"' +
             ' title="Marcar para o sorteio" role="checkbox" aria-checked="' + (ativo ? "true" : "false") + '">✓</span>'
           : '') +
-        '<input class="jog-casa" data-i="' + i + '" value="' +
-          (jog.casa == null ? "" : esc(jog.casa)) + '"' +
-          ' placeholder="—" inputmode="numeric" maxlength="3"' +
-          ' aria-label="Casa do jogador ' + (i + 1) + '"' +
-          (esAdmin ? "" : " readonly") + '>' +
         '<input class="jog-nome" data-i="' + i + '" value="' + esc(jog.nome || "") + '"' +
           ' placeholder="Nome do jogador" maxlength="28"' +
           ' aria-label="Nome do jogador ' + (i + 1) + '"' +
@@ -2246,17 +2252,6 @@
     });
 
     /* eventos */
-    lista.querySelectorAll("input.jog-casa").forEach(function (inp) {
-      inp.addEventListener("change", function (e) {
-        if (!esAdmin) return;
-        var i = +e.target.dataset.i;
-        var v = parseInt(e.target.value, 10);
-        state.jogadores[i].casa = isNaN(v) ? null : v;
-        save();
-        publicarEstado();
-      });
-    });
-
     lista.querySelectorAll("input.jog-nome").forEach(function (inp) {
       inp.addEventListener("change", function (e) {
         if (!esAdmin) return;
