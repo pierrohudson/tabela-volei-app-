@@ -1,7 +1,7 @@
 {
   "name": "Vôlei do Bosque — Campeonato de Vôlei",
   "short_name": "Vôlei do Bosque",
-  "description": "Sistema de gerenciamento do Campeonato de Vôlei do Bosque: tabela de jogos, classificação automática, finais e pódio.",
+  "description": "Campeonato de Vôlei do Bosque: tabela de jogos, classificação automática, finais, pódio, elenco com notas e sorteio equilibrado de times em tempo real.",
   "lang": "pt-BR",
   "dir": "ltr",
   "start_url": "./index.html",
