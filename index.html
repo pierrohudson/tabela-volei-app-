@@ -12,43 +12,57 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <title>Vôlei do Bosque — Championship Dashboard</title>
 <style>
   :root {
-    /* ===== Identidade Vôlei do Bosque ===== */
-    --navy-900: #06152e;
-    --navy-800: #0a1f3d;
-    --navy-700: #0e2a52;
-    --navy-600: #143869;
-    --panel: #0e2347;
-    --panel-2: #122c57;
-    --line: rgba(120, 170, 230, 0.18);
-    --line-strong: rgba(120, 170, 230, 0.35);
+    /* ===== Paleta Strava: Grafite profundo, cards limpos ===== */
+    --navy-900: #0F1015;
+    --navy-800: #14161C;
+    --navy-700: #1D1F26;
+    --navy-600: #262933;
+    --panel: #1D1F26;
+    --panel-2: #262933;
+    --line: rgba(255, 255, 255, 0.07);
+    --line-strong: rgba(255, 255, 255, 0.15);
 
-    --yellow: #ffcf1a;
-    --yellow-soft: #ffe07a;
-    --turquoise: #2fd9d0;
-    --lime: #a6e22e;
+    /* Cores de Identidade Vôlei do Bosque (100% mantidas) */
+    --yellow: #FFCF1A;
+    --yellow-soft: #FFE07A;
+    --yellow-glow: rgba(255, 207, 26, 0.35);
+    --turquoise: #2FD9D0;
+    --turquoise-glow: rgba(47, 217, 208, 0.3);
+    --lime: #A6E22E;
+    --lime-glow: rgba(166, 226, 46, 0.35);
 
-    --txt: #f4f8ff;
-    --muted: #9fb6da;
-    --muted-2: #7893bb;
+    --txt: #FFFFFF;
+    --muted: #8E94A4;
+    --muted-2: #5C6272;
 
-    --gold: #ffd34d;
-    --silver: #d5dde9;
-    --bronze: #e0a06a;
+    --gold: #FFD34D;
+    --silver: #D5DDE9;
+    --bronze: #E0A06A;
 
-    /* Cores individuais dos times (preservadas) */
-    --t1-bg: #00b4d8; --t1-txt: #051923;
-    --t2-bg: #e61919; --t2-txt: #ffffff;
-    --t3-bg: #ff8c1a; --t3-txt: #241400;
-    --t4-bg: #0fa958; --t4-txt: #00240e;
-    --t5-bg: #9aa0a6; --t5-txt: #111417;
+    /* Cores dos 5 times — caixas 100% coloridas com gradiente e glow */
+    --t1-bg: linear-gradient(135deg, #00B4D8 0%, #0077B6 100%); --t1-txt: #03131D;
+    --t2-bg: linear-gradient(135deg, #FF334B 0%, #C9182B 100%); --t2-txt: #FFFFFF;
+    --t3-bg: linear-gradient(135deg, #FF9A26 0%, #D96500 100%); --t3-txt: #261100;
+    --t4-bg: linear-gradient(135deg, #10C968 0%, #088241 100%); --t4-txt: #00240E;
+    --t5-bg: linear-gradient(135deg, #B0B7C0 0%, #7A8189 100%); --t5-txt: #0F1216;
+    --t1-glow: rgba(0, 180, 216, 0.35);
+    --t2-glow: rgba(255, 51, 75, 0.35);
+    --t3-glow: rgba(255, 154, 38, 0.35);
+    --t4-glow: rgba(16, 201, 104, 0.35);
+    --t5-glow: rgba(176, 183, 192, 0.28);
 
     --radius: 16px;
-    --radius-sm: 11px;
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    --font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --radius-sm: 12px;
+    --radius-pill: 999px;
+    --shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    --font: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Space Grotesk', sans-serif;
   }
 
   * { box-sizing: border-box; }
@@ -57,11 +71,7 @@
     margin: 0;
     font-family: var(--font);
     color: var(--txt);
-    background:
-      radial-gradient(1200px 600px at 80% -10%, rgba(47, 217, 208, 0.10), transparent 60%),
-      radial-gradient(900px 500px at 10% 0%, rgba(255, 207, 26, 0.08), transparent 55%),
-      linear-gradient(180deg, var(--navy-900) 0%, #071a36 40%, var(--navy-900) 100%);
-    background-attachment: fixed;
+    background: #0F1015;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
@@ -322,33 +332,33 @@
   /* ===== ABAS DE NAVEGACAO ===== */
   .tabs-bar {
     position: sticky; top: 0; z-index: 50;
-    max-width: 1040px; margin: 0 auto 4px;
+    max-width: 1040px; margin: 0 auto 12px;
     display: flex; gap: 4px;
-    padding: 8px 12px;
+    padding: 6px 12px 0;
     padding-left: calc(12px + env(safe-area-inset-left, 0px));
     padding-right: calc(12px + env(safe-area-inset-right, 0px));
-    background: rgba(6, 21, 46, 0.92);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--line);
+    background: rgba(20, 22, 28, 0.94);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.08);
     overflow-x: auto; -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .tabs-bar::-webkit-scrollbar { display: none; }
   .tab-btn {
     flex: 1; min-width: max-content;
-    font: inherit; font-weight: 800; font-size: .78rem; letter-spacing: .04em;
+    font: inherit; font-weight: 800; font-size: .82rem; letter-spacing: .02em;
     text-transform: uppercase; white-space: nowrap;
     background: transparent; color: var(--muted);
-    border: 1px solid transparent; border-radius: 9px;
-    padding: 9px 14px; cursor: pointer;
-    transition: color .18s ease, background .18s ease, border-color .18s ease;
+    border: none; border-bottom: 3px solid transparent;
+    padding: 12px 14px 14px; cursor: pointer;
+    position: relative;
+    transition: color .18s ease, border-color .18s ease;
   }
-  .tab-btn:hover { color: var(--txt); background: rgba(18, 44, 87, 0.55); }
+  .tab-btn:hover { color: #ffffff; }
   .tab-btn.ativo {
-    color: var(--yellow);
-    background: rgba(255, 207, 26, 0.12);
-    border-color: rgba(255, 207, 26, 0.4);
-    box-shadow: 0 0 14px rgba(255, 207, 26, 0.18) inset;
+    color: #ffffff;
+    border-bottom-color: var(--yellow);
+    text-shadow: 0 0 14px var(--yellow-glow);
   }
   .tab-panel { display: none; }
   .tab-panel.ativo { display: block; animation: tabIn .25s ease; }
@@ -782,24 +792,27 @@
     padding: 18px; box-shadow: var(--shadow);
   }
 
-  /* ===== Badges dos Times ===== */
+  /* ===== Badges dos Times (Caixas 100% coloridas com gradiente vibrante) ===== */
   .team-badge {
     display: inline-flex; align-items: center; justify-content: center;
-    padding: 7px 12px; border-radius: 8px;
+    padding: 10px 14px; border-radius: 12px;
+    font-family: var(--font-display);
     font-weight: 800; font-size: .88rem; letter-spacing: .04em; text-transform: uppercase;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-    user-select: none; min-height: 34px; white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    user-select: none; min-height: 44px; white-space: nowrap;
     overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.16);
     transition: transform .15s ease, box-shadow .15s ease;
   }
-  .team-badge.t-0 { background: var(--t1-bg); color: var(--t1-txt); }
-  .team-badge.t-1 { background: var(--t2-bg); color: var(--t2-txt); }
-  .team-badge.t-2 { background: var(--t3-bg); color: var(--t3-txt); }
-  .team-badge.t-3 { background: var(--t4-bg); color: var(--t4-txt); }
-  .team-badge.t-4 { background: var(--t5-bg); color: var(--t5-txt); }
+  .team-badge:hover { transform: scale(1.02); }
+  .team-badge.t-0 { background: var(--t1-bg); color: var(--t1-txt); box-shadow: 0 4px 16px var(--t1-glow); }
+  .team-badge.t-1 { background: var(--t2-bg); color: var(--t2-txt); box-shadow: 0 4px 16px var(--t2-glow); }
+  .team-badge.t-2 { background: var(--t3-bg); color: var(--t3-txt); box-shadow: 0 4px 16px var(--t3-glow); }
+  .team-badge.t-3 { background: var(--t4-bg); color: var(--t4-txt); box-shadow: 0 4px 16px var(--t4-glow); }
+  .team-badge.t-4 { background: var(--t5-bg); color: var(--t5-txt); box-shadow: 0 4px 16px var(--t5-glow); }
   .team-badge.unknown {
-    background: rgba(18, 44, 87, 0.5); color: var(--muted);
-    border: 1px dashed var(--line-strong); font-weight: 600;
+    background: rgba(20, 22, 28, 0.6); color: var(--muted);
+    border: 1px dashed var(--line-strong); font-weight: 700;
   }
 
   /* ===== Classificação ===== */
@@ -874,12 +887,12 @@
   .val-saldo-neg { font-weight: 800; color: #ff6b6b; }
   .val-saldo-zero { font-weight: 700; color: var(--muted); }
 
-  /* ===== Jogos ===== */
+  /* ===== Jogos (Cards estilo Strava) ===== */
   .matches-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .match-card {
-    background: linear-gradient(135deg, var(--panel) 0%, rgba(14, 35, 71, 0.9) 100%);
-    border: 1px solid var(--line); border-radius: var(--radius-sm);
-    padding: 12px 14px 13px; position: relative; overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 16px 15px; position: relative; overflow: hidden;
     transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
   }
   .match-card:hover {
@@ -894,7 +907,7 @@
 
   .match-top {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 9px; gap: 8px;
+    margin-bottom: 10px; gap: 8px;
   }
   .match-pill {
     font-size: .67rem; font-weight: 800; text-transform: uppercase;
@@ -920,15 +933,17 @@
 
   .vs-badge {
     text-align: center; font-weight: 900;
-    color: var(--muted); font-size: .78rem; letter-spacing: .04em;
+    color: var(--muted-2); font-size: .78rem; letter-spacing: .04em;
   }
 
   input.score {
-    width: 100%; text-align: center;
-    font: inherit; font-size: 1.3rem; font-weight: 900;
-    background: rgba(6, 21, 46, 0.85);
-    border: 1.5px solid var(--line); color: var(--txt);
-    border-radius: 10px; padding: 8px 2px; -moz-appearance: textfield;
+    width: 100%; height: 44px; text-align: center;
+    font-family: var(--font-display);
+    font-size: 1.35rem; font-weight: 800;
+    background: var(--panel-2);
+    border: 1px solid var(--line-strong); color: var(--txt);
+    border-radius: 10px; padding: 6px 2px; -moz-appearance: textfield;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.4);
     transition: border-color .2s ease, box-shadow .2s ease, transform .12s ease;
   }
   input.score::-webkit-outer-spin-button,
@@ -937,7 +952,7 @@
   input.score:focus {
     outline: none; border-color: var(--yellow);
     box-shadow: 0 0 14px rgba(255, 207, 26, 0.35);
-    background: var(--navy-900); transform: scale(1.04);
+    background: var(--panel-2); transform: scale(1.04);
   }
   .match-card.winner-a .team-cell.left .team-badge {
     box-shadow: 0 0 14px rgba(166, 226, 46, 0.5); outline: 2px solid var(--lime);
@@ -1062,18 +1077,19 @@
   .config-inputs input:focus { border-color: var(--yellow); outline: none; }
 
   .btn {
-    font: inherit; font-weight: 800; font-size: .83rem; letter-spacing: .03em;
-    cursor: pointer; border-radius: 9px; padding: 10px 18px;
-    display: inline-flex; align-items: center; gap: 8px; border: 1px solid transparent;
+    font: inherit; font-weight: 800; font-size: .88rem; letter-spacing: .02em;
+    cursor: pointer; border-radius: var(--radius-pill); padding: 12px 24px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: 1px solid transparent;
     transition: transform .12s ease, box-shadow .15s ease, filter .15s ease;
   }
   .btn:active { transform: scale(0.98); }
   .btn-primary {
-    background: linear-gradient(135deg, var(--yellow) 0%, #e5a700 100%);
-    color: #1a1300; border-color: var(--yellow);
-    box-shadow: 0 4px 14px rgba(255, 207, 26, 0.35);
+    background: linear-gradient(135deg, var(--yellow) 0%, #FF9900 100%);
+    color: #170F00; border-color: var(--yellow);
+    box-shadow: 0 6px 20px rgba(255, 170, 0, 0.35);
   }
-  .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 6px 20px rgba(255, 207, 26, 0.5); }
+  .btn-primary:hover { filter: brightness(1.1); box-shadow: 0 8px 25px rgba(255, 170, 0, 0.5); }
   /* Botao de instalacao do app (PWA) — destaque turquesa */
   .btn-install {
     background: linear-gradient(135deg, var(--turquoise) 0%, var(--turquoise-dim, #1aa7a0) 100%);
