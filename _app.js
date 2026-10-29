@@ -296,9 +296,7 @@
       signal: streamCtrl.signal
     }).then(function (res) {
       if (!res.ok || !res.body) throw new Error("stream " + res.status);
-      setLive(esAdmin ? "conectado" : "somente-leitura",
-              esAdmin ? "Conectado — suas alterações vão ao vivo"
-                       : "Acompanhe os resultados em tempo real");
+      setLive(esAdmin ? "conectado" : "somente-leitura");
       var reader = res.body.getReader();
       var dec = new TextDecoder();
       var buffer = "";
@@ -348,6 +346,9 @@
   /* ---- indicador visual de status ---- */
   var avisoAuthDesativado = false;
 
+  /* Barra de status: mostra apenas "AO VIVO" / "OFFLINE".
+     Mensagens de status (conectado, publicado, etc.) ficam ocultas;
+     so avisos criticos (sem conexao / seguranca) continuam visiveis. */
   function setLive(st, msg) {
     liveState = st;
     var bar = document.getElementById("liveBar");
@@ -360,13 +361,17 @@
     dot.classList.toggle("offline", offline);
     lbl.classList.toggle("offline", offline);
     lbl.textContent = offline ? "OFFLINE" : "AO VIVO";
-    var texto = msg || "";
-    /* Preserva o aviso de seguranca: Firebase Auth desligado = escrita publica. */
+    /* so aparecer texto quando for um aviso relevante (erro/seguranca) */
+    var texto = "";
+    var original = msg || "";
+    var aviso = /Firebase Auth|Auth ainda|senha|nenhum nome|erro|n[aã]o foi poss[ií]vel|sem conex/i.test(original);
+    if (offline || aviso) texto = original;
     if (avisoAuthDesativado && !/Auth ainda/i.test(texto)) {
-      texto = texto + " · ⚠ Firebase Auth não ativado (escrita pública)";
+      texto = (texto ? texto + " · " : "") + "⚠ Firebase Auth não ativado (escrita pública)";
     }
     m.textContent = texto;
     m.classList.toggle("admin", esAdmin);
+    m.hidden = !texto;
   }
 
   /* ---- sessao do Mesario (Firebase Auth, email/senha) ---- */

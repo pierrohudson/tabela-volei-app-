@@ -4,7 +4,7 @@
    Garante funcionamento 100% offline após a primeira visita.
    ========================================================= */
 
-var CACHE_NAME = "volei-do-bosque-v8";
+var CACHE_NAME = "volei-do-bosque-v9";
 
 var ASSETS_TO_CACHE = [
   "./",
