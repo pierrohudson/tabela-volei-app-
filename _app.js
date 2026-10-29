@@ -922,9 +922,12 @@
       var ativo = jog.ativo !== false;
       var div = document.createElement("div");
       div.className = "jog-item" + (ativo ? "" : " desmarcado");
+      div.dataset.i = i;
+      if (esAdmin) div.draggable = true;
       div.innerHTML =
         (esAdmin
-          ? '<span class="jog-check' + (ativo ? " on" : "") + '" data-i="' + i + '"' +
+          ? '<span class="jog-drag" data-i="' + i + '" title="Arraste para reordenar" aria-label="Arraste para reordenar jogador">⋮⋮</span>' +
+            '<span class="jog-check' + (ativo ? " on" : "") + '" data-i="' + i + '"' +
             ' title="Marcar para o sorteio" role="checkbox" aria-checked="' + (ativo ? "true" : "false") + '">✓</span>'
           : '') +
         '<input class="jog-nome" data-i="' + i + '" value="' + esc(jog.nome || "") + '"' +
@@ -958,6 +961,8 @@
 
     /* eventos */
     lista.querySelectorAll("input.jog-nome").forEach(function (inp) {
+      /* impede que a selecao de texto no input ative o arrastar do item pai */
+      inp.addEventListener("dragstart", function (e) { e.stopPropagation(); });
       inp.addEventListener("change", function (e) {
         if (!esAdmin) return;
         var i = +e.target.dataset.i;
@@ -1012,6 +1017,127 @@
         publicarEstado();
       });
     });
+
+    /* ===== ARRASTAR E SOLTAR (Desktop HTML5 DnD + Celular Touch) ===== */
+    if (esAdmin) {
+      var dragSrcIdx = null;
+
+      function limparIndicadoresDrag() {
+        lista.querySelectorAll(".jog-item").forEach(function (el) {
+          el.classList.remove("arrastando", "drop-cima", "drop-baixo");
+        });
+      }
+
+      function moverJogador(origem, destino) {
+        if (origem === destino || origem == null || destino == null) return;
+        if (origem < 0 || destino < 0) return;
+        if (origem >= state.jogadores.length || destino >= state.jogadores.length) return;
+        var movido = state.jogadores.splice(origem, 1)[0];
+        state.jogadores.splice(destino, 0, movido);
+        save();
+        renderJogadores();
+        publicarEstado();
+      }
+
+      /* 1. Desktop: HTML5 drag & drop */
+      lista.querySelectorAll(".jog-item").forEach(function (item) {
+        item.addEventListener("dragstart", function (e) {
+          dragSrcIdx = +item.dataset.i;
+          item.classList.add("arrastando");
+          if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", String(dragSrcIdx));
+          }
+        });
+
+        item.addEventListener("dragover", function (e) {
+          e.preventDefault();
+          if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+          var alvoIdx = +item.dataset.i;
+          if (alvoIdx === dragSrcIdx) return;
+          var rect = item.getBoundingClientRect();
+          var meio = rect.top + rect.height / 2;
+          item.classList.toggle("drop-cima", e.clientY < meio);
+          item.classList.toggle("drop-baixo", e.clientY >= meio);
+        });
+
+        item.addEventListener("dragleave", function () {
+          item.classList.remove("drop-cima", "drop-baixo");
+        });
+
+        item.addEventListener("drop", function (e) {
+          e.preventDefault();
+          var alvoIdx = +item.dataset.i;
+          var rect = item.getBoundingClientRect();
+          var meio = rect.top + rect.height / 2;
+          var destino = (e.clientY >= meio) ? alvoIdx : Math.max(0, alvoIdx);
+          limparIndicadoresDrag();
+          if (dragSrcIdx != null && dragSrcIdx !== destino) {
+            moverJogador(dragSrcIdx, destino);
+          }
+          dragSrcIdx = null;
+        });
+
+        item.addEventListener("dragend", function () {
+          limparIndicadoresDrag();
+          dragSrcIdx = null;
+        });
+      });
+
+      /* 2. Celular: Touch Events no handle ⋮⋮ */
+      lista.querySelectorAll(".jog-drag").forEach(function (handle) {
+        var itemPai = handle.closest(".jog-item");
+        var touchSrcIdx = null;
+        var touchUltimoAlvo = null;
+
+        handle.addEventListener("touchstart", function (e) {
+          touchSrcIdx = +itemPai.dataset.i;
+          itemPai.classList.add("arrastando");
+        }, { passive: true });
+
+        handle.addEventListener("touchmove", function (e) {
+          if (touchSrcIdx == null) return;
+          e.preventDefault(); /* impede scroll enquanto arrasta o handle */
+          var touch = e.touches[0];
+          var elementoSob = document.elementFromPoint(touch.clientX, touch.clientY);
+          var itemSob = elementoSob ? elementoSob.closest(".jog-item") : null;
+
+          lista.querySelectorAll(".jog-item").forEach(function (el) {
+            if (el !== itemPai) el.classList.remove("drop-cima", "drop-baixo");
+          });
+
+          if (itemSob && itemSob !== itemPai) {
+            touchUltimoAlvo = itemSob;
+            var rect = itemSob.getBoundingClientRect();
+            var meio = rect.top + rect.height / 2;
+            itemSob.classList.toggle("drop-cima", touch.clientY < meio);
+            itemSob.classList.toggle("drop-baixo", touch.clientY >= meio);
+          } else {
+            touchUltimoAlvo = null;
+          }
+        }, { passive: false });
+
+        handle.addEventListener("touchend", function (e) {
+          if (touchSrcIdx == null) return;
+          itemPai.classList.remove("arrastando");
+          if (touchUltimoAlvo) {
+            var alvoIdx = +touchUltimoAlvo.dataset.i;
+            limparIndicadoresDrag();
+            moverJogador(touchSrcIdx, alvoIdx);
+          } else {
+            limparIndicadoresDrag();
+          }
+          touchSrcIdx = null;
+          touchUltimoAlvo = null;
+        });
+
+        handle.addEventListener("touchcancel", function () {
+          limparIndicadoresDrag();
+          touchSrcIdx = null;
+          touchUltimoAlvo = null;
+        });
+      });
+    }
 
     atualizarResumoJogadores();
     renderFormacao();
