@@ -524,6 +524,35 @@
   }
   .flegar-fechar:hover { color: var(--txt); border-color: var(--muted); }
 
+  .flegar-secao {
+    font-size: .74rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--yellow);
+    margin: 14px 0 6px; padding-bottom: 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .flegar-secao:first-child { margin-top: 0; }
+  .flegar-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: rgba(6, 21, 46, 0.65); border: 1px solid var(--line);
+    border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 6px;
+    transition: border-color .15s ease;
+  }
+  .flegar-item:hover { border-color: var(--line-strong); }
+  .flegar-item .flegar-info {
+    display: flex; flex-direction: column; min-width: 0; flex: 1;
+  }
+  .flegar-item .flegar-nome {
+    font-size: .9rem; font-weight: 700; color: var(--txt);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .flegar-item .flegar-meta {
+    font-size: .74rem; color: var(--muted); display: flex; align-items: center; gap: 8px; margin-top: 2px;
+  }
+  .flegar-item .flegar-btn-acao {
+    padding: 6px 12px; font-size: .75rem; font-weight: 800; border-radius: 7px;
+    white-space: nowrap; flex-shrink: 0; cursor: pointer;
+  }
+
   .jog-toolbar {
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     margin-bottom: 14px;
@@ -1248,12 +1277,6 @@
       </label>
       <label>Jogadores por time
         <input id="sorteioPorTime" type="number" min="1" max="20" value="4">
-      </label>
-      <label>Capitão
-        <select id="sorteioCapitao">
-          <option value="melhor">Melhor nota de cada time</option>
-          <option value="nenhum">Sem capitão</option>
-        </select>
       </label>
       <button class="btn btn-primary" id="btnSortear">🎲 Sortear</button>
     </div>
@@ -2618,11 +2641,10 @@
     }
     var nTimes = parseInt(document.getElementById("sorteioTimes").value, 10);
     var porTime = parseInt(document.getElementById("sorteioPorTime").value, 10);
-    var comCap = document.getElementById("sorteioCapitao").value === "melhor";
     if (isNaN(nTimes) || nTimes < 2) nTimes = 2;
     if (isNaN(porTime) || porTime < 1) porTime = 1;
 
-    var resultado = sortearTimes(nTimes, porTime, comCap);
+    var resultado = sortearTimes(nTimes, porTime, false);
     if (!resultado) return;
     state.formacao = resultado;
     save();
@@ -2631,7 +2653,8 @@
   }
 
   /* ============================================================
-     FLEGAR — trocar um jogador escalado por um da reserva
+     TROCA DE JOGADORES — permite trocar qualquer atleta escalado
+     por qualquer jogador (da reserva ou de outro time)
      ============================================================ */
   var flegarAlvo = null;   /* { timeIndex, jogadorId } */
 
@@ -2648,43 +2671,96 @@
 
     var doc = document.getElementById("flegarTitulo");
     var desc = document.getElementById("flegarDesc");
-    if (doc) doc.textContent = "Flegar: " + nomeTitular;
+    if (doc) doc.textContent = "Trocar: " + nomeTitular;
     if (desc) {
-      desc.textContent = "Escolha um atleta da reserva para entrar em campo no lugar de " +
-        nomeTitular + ". O titular volta para a reserva.";
+      desc.textContent = "Escolha qualquer jogador para entrar no Time " + (timeIndex + 1) +
+        " (troca direta com outro time ou entrada da reserva):";
     }
 
     var lista = document.getElementById("flegarLista");
     lista.innerHTML = "";
 
-    /* reservas: quem NAO esta escalado */
+    /* 1. Atletas na reserva */
     var escalados = {};
     f.times.forEach(function (t) {
       t.jogadores.forEach(function (j) { escalados[j.id] = true; });
     });
     var reservas = (f.sobrando || []).filter(function (j) { return !escalados[j.id]; });
 
-    if (!reservas.length) {
-      lista.innerHTML = '<div class="sorteio-vazio"><strong>Sem reservas</strong>' +
-        'Todos os atletas já estão em campo. Aumente a quantidade de jogadores por time.</div>';
-    } else {
-      reservas.forEach(function (j) {
+    /* Atletas cadastrados no elenco fora da escalacao */
+    var idConhecidos = {};
+    f.times.forEach(function (t) {
+      t.jogadores.forEach(function (j) { idConhecidos[j.id] = true; });
+    });
+    (f.sobrando || []).forEach(function (j) { idConhecidos[j.id] = true; });
+    var outrosElenco = (state.jogadores || []).filter(function (j) {
+      return !idConhecidos[j.id] && j.id !== jogadorId;
+    });
+
+    var totalReservas = reservas.concat(outrosElenco);
+    if (totalReservas.length) {
+      var secRes = document.createElement("div");
+      secRes.className = "flegar-secao";
+      secRes.textContent = "👥 Atletas na Reserva (" + totalReservas.length + ")";
+      lista.appendChild(secRes);
+
+      totalReservas.forEach(function (j) {
         var div = document.createElement("div");
-        div.className = "jog-item";
+        div.className = "flegar-item";
         div.innerHTML =
-          '<input class="jog-nome" value="' + esc(j.nome || "") + '" readonly>' +
-          '<span class="jog-stars">' + estrelasHtml(j.estrelas, "") + '</span>' +
-          '<button class="btn btn-primary" data-flegar="' + esc(j.id) + '"' +
-          ' style="padding:7px 12px;font-size:.75rem">Entrar</button>';
+          '<div class="flegar-info">' +
+            '<span class="flegar-nome">' + esc(j.nome || "(sem nome)") + '</span>' +
+            '<span class="flegar-meta">' +
+              '<span class="stars" style="pointer-events:none">' + estrelasHtml(j.estrelas, "") + '</span>' +
+              '<span style="color:var(--lime);font-weight:700">Reserva</span>' +
+            '</span>' +
+          '</div>' +
+          '<button class="btn btn-primary flegar-btn-acao" data-flegar="' + esc(j.id) + '">' +
+            'Entrar no Time ' + (timeIndex + 1) +
+          '</button>';
         lista.appendChild(div);
       });
+    }
+
+    /* 2. Atletas de outros times */
+    var temOutros = false;
+    f.times.forEach(function (t, i) {
+      if (i === timeIndex) return;
+      if (!t.jogadores.length) return;
+      temOutros = true;
+
+      var secTime = document.createElement("div");
+      secTime.className = "flegar-secao";
+      secTime.textContent = "🔄 Time " + (i + 1) + " (Troca direta)";
+      lista.appendChild(secTime);
+
+      t.jogadores.forEach(function (j) {
+        var div = document.createElement("div");
+        div.className = "flegar-item";
+        div.innerHTML =
+          '<div class="flegar-info">' +
+            '<span class="flegar-nome">' + esc(j.nome || "(sem nome)") + '</span>' +
+            '<span class="flegar-meta">' +
+              '<span class="stars" style="pointer-events:none">' + estrelasHtml(j.estrelas, "") + '</span>' +
+              '<span style="color:var(--yellow);font-weight:700">Time ' + (i + 1) + '</span>' +
+            '</span>' +
+          '</div>' +
+          '<button class="btn btn-primary flegar-btn-acao" style="background:rgba(255,207,26,0.15);color:var(--yellow);border-color:rgba(255,207,26,0.4)" data-flegar="' + esc(j.id) + '">' +
+            'Trocar com este' +
+          '</button>';
+        lista.appendChild(div);
+      });
+    });
+
+    if (!totalReservas.length && !temOutros) {
+      lista.innerHTML = '<div class="sorteio-vazio">Nenhum outro jogador disponível para troca.</div>';
     }
 
     document.getElementById("flegarPainel").hidden = false;
 
     lista.querySelectorAll("button[data-flegar]").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        trocarPorReserva(btn.dataset.flegar);
+        trocarPorQualquer(btn.dataset.flegar);
       });
     });
   }
@@ -2694,61 +2770,74 @@
     flegarAlvo = null;
   }
 
-  /* executa a troca: titular sai -> reserva; reserva entra em campo */
-  function trocarPorReserva(idReserva) {
+  /* executa a troca: permite trocar com reserva ou com jogador de outro time */
+  function trocarPorQualquer(idEscolhido) {
     var f = state.formacao;
     if (!flegarAlvo || !f) { fecharFlegar(); return; }
 
     var ti = flegarAlvo.timeIndex;
-    var time = f.times[ti];
-    if (!time) { fecharFlegar(); return; }
+    var timeA = f.times[ti];
+    if (!timeA) { fecharFlegar(); return; }
 
-    var idxTitular = -1;
-    for (var i = 0; i < time.jogadores.length; i++) {
-      if (time.jogadores[i].id === flegarAlvo.jogadorId) { idxTitular = i; break; }
+    var idxX = -1;
+    for (var i = 0; i < timeA.jogadores.length; i++) {
+      if (timeA.jogadores[i].id === flegarAlvo.jogadorId) { idxX = i; break; }
     }
-    if (idxTitular < 0) { fecharFlegar(); return; }
+    if (idxX < 0) { fecharFlegar(); return; }
 
-    var titular = time.jogadores[idxTitular];
+    var jogX = timeA.jogadores[idxX];
 
-    /* acha o jogador da reserva no estado completo (para manter casa e nivel) */
-    var original = null;
-    for (var k = 0; k < state.jogadores.length; k++) {
-      if (state.jogadores[k].id === idReserva) { original = state.jogadores[k]; break; }
+    /* verifica se o jogador escolhido esta em algum outro time */
+    var timeB = null;
+    var idxY = -1;
+    for (var t = 0; t < f.times.length; t++) {
+      for (var j = 0; j < f.times[t].jogadores.length; j++) {
+        if (f.times[t].jogadores[j].id === idEscolhido) {
+          timeB = f.times[t];
+          idxY = j;
+          break;
+        }
+      }
+      if (timeB) break;
     }
 
-    /* a reserva entra no lugar do titular */
-    time.jogadores[idxTitular] = {
-      id: idReserva,
-      nome: original ? original.nome : (idReserva || ""),
-      estrelas: original ? (original.estrelas || 0) : 0
-    };
+    if (timeB) {
+      /* troca direta entre os dois times */
+      var jogY = timeB.jogadores[idxY];
+      timeA.jogadores[idxX] = jogY;
+      timeB.jogadores[idxY] = jogX;
+    } else {
+      /* estava na reserva ou no elenco geral */
+      var original = null;
+      for (var k = 0; k < state.jogadores.length; k++) {
+        if (state.jogadores[k].id === idEscolhido) { original = state.jogadores[k]; break; }
+      }
+      if (!original) {
+        var sob = (f.sobrando || []).filter(function (s) { return s.id === idEscolhido; })[0];
+        if (sob) original = sob;
+      }
 
-    /* o titular volta para a reserva */
-    f.sobrando = (f.sobrando || []).filter(function (j) { return j.id !== idReserva; });
-    f.sobrando.push({
-      id: titular.id,
-      nome: titular.nome,
-      estrelas: titular.estrelas || 0
-    });
+      timeA.jogadores[idxX] = {
+        id: idEscolhido,
+        nome: original ? original.nome : (idEscolhido || ""),
+        estrelas: original ? (Number(original.estrelas) || 0) : 0
+      };
 
-    /* recalcula as somas dos times */
-    f.times.forEach(function (t) {
-      t.soma = Math.round(t.jogadores.reduce(function (s, j) {
-        return s + (j.estrelas || 0);
-      }, 0) * 10) / 10;
-    });
-
-    /* recalcula o capitao (pode ter mudado) */
-    if (f.comCapitao) {
-      f.times.forEach(function (t) {
-        var cap = null;
-        t.jogadores.forEach(function (j) {
-          if (!cap || (j.estrelas || 0) > (cap.estrelas || 0)) cap = j;
-        });
-        t.capitao = cap ? cap.id : null;
+      /* remove o escolhido da reserva e coloca o que saiu */
+      f.sobrando = (f.sobrando || []).filter(function (j) { return j.id !== idEscolhido; });
+      f.sobrando.push({
+        id: jogX.id,
+        nome: jogX.nome,
+        estrelas: Number(jogX.estrelas) || 0
       });
     }
+
+    /* recalcula as somas de todos os times */
+    f.times.forEach(function (t) {
+      t.soma = Math.round(t.jogadores.reduce(function (s, j) {
+        return s + (Number(j.estrelas) || 0);
+      }, 0) * 10) / 10;
+    });
 
     fecharFlegar();
     save();
@@ -2801,7 +2890,7 @@
     if (colarWrap && travado) colarWrap.hidden = true;
     var btnSort = document.getElementById("btnSortear");
     if (btnSort) btnSort.hidden = travado;
-    var sorteioInputs = document.querySelectorAll("#sorteioTimes,#sorteioPorTime,#sorteioCapitao");
+    var sorteioInputs = document.querySelectorAll("#sorteioTimes,#sorteioPorTime");
     for (var i = 0; i < sorteioInputs.length; i++) sorteioInputs[i].disabled = travado;
   }
 
