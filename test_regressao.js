@@ -184,9 +184,15 @@ const LEGADO = {
     A.document.querySelector(".info-linha-status")?.textContent.includes("CONFIRMADO"));
   check("botao de editar info existe", A.document.getElementById("infoJogoEditar") !== null);
   check("card do Google Maps existe", A.document.getElementById("mapaEmbed") !== null);
-  check("iframe do mapa com src do Google Maps apontando para Arena Family",
-    A.document.getElementById("mapaEmbed")?.src.includes("-3.7915037,-38.5619707") ||
-    A.document.getElementById("mapaEmbed")?.src.includes("maps.google.com"));
+  check("iframe do mapa usa OpenStreetMap com o pin da Arena Family",
+    A.document.getElementById("mapaEmbed")?.src.includes("openstreetmap.org") &&
+    A.document.getElementById("mapaEmbed")?.src.includes("-3.7915037%2C-38.5619707"),
+    A.document.getElementById("mapaEmbed")?.src);
+  check("botao para traçar rota no Google Maps",
+    A.document.getElementById("mapaBtnGoogle")?.href.includes("maps.app.goo.gl"));
+  check("botao para traçar rota no Waze",
+    A.document.getElementById("mapaBtnWaze")?.href.includes("waze.com"));
+  check("nome do local exibido", A.document.getElementById("mapaNomeLocal")?.textContent.includes("Arena Family"));
   check("campo de link do mapa existe", A.document.getElementById("mapaUrl") !== null);
 
   // ---- FINAIS E PREMIACAO DENTRO DA ABA DE JOGOS ----

@@ -1685,39 +1685,72 @@
     vis.innerHTML = linhas;
   }
 
-  /* extrai o URL de embed do Google Maps a partir de qualquer link do Google Maps */
-  function mapsEmbedUrl(link) {
-    if (!link) return "https://maps.google.com/maps?q=Arena+Family+Fortaleza&z=17&output=embed";
+  /* Coordenadas padrao: Arena Family (Fortaleza - CE) */
+  var MAPA_LAT = -3.7915037;
+  var MAPA_LNG = -38.5619707;
+  var MAPA_NOME = "Arena Family";
+
+  /* extrai as coordenadas de qualquer link do Google Maps */
+  function mapsCoordenadas(link) {
+    var lat = MAPA_LAT, lng = MAPA_LNG;
+    if (!link) return { lat: lat, lng: lng };
     link = String(link).trim();
-    /* short link padrao da Arena Family */
+
+    /* link curto padrao da Arena Family */
     if (link.indexOf("eM9BXU1Gom4VBpFN8") >= 0) {
-      return "https://maps.google.com/maps?q=-3.7915037,-38.5619707&z=17&output=embed";
+      return { lat: MAPA_LAT, lng: MAPA_LNG };
     }
-    /* coordenadas diretas @lat,lng */
+    /* formato @lat,lng */
     var m = link.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
-    if (m) {
-      return "https://maps.google.com/maps?q=" + m[1] + "," + m[2] + "&z=17&output=embed";
-    }
-    /* query parameters ?q= ou !3d!4d */
+    if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+
+    /* formato !3dlat!4dlng */
     var d3 = link.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
-    if (d3) {
-      return "https://maps.google.com/maps?q=" + d3[1] + "," + d3[2] + "&z=17&output=embed";
-    }
+    if (d3) return { lat: parseFloat(d3[1]), lng: parseFloat(d3[2]) };
+
+    /* formato ?q=lat,lng ou ?q=nome */
     var q = link.match(/[?&]q=([^&]+)/);
     if (q && q[1]) {
-      return "https://maps.google.com/maps?q=" + q[1] + "&z=16&output=embed";
+      var partes = decodeURIComponent(q[1]).split(",");
+      if (partes.length >= 2 && !isNaN(parseFloat(partes[0]))) {
+        return { lat: parseFloat(partes[0]), lng: parseFloat(partes[1]) };
+      }
     }
-    /* fallback por termo */
-    return "https://maps.google.com/maps?q=" + encodeURIComponent(link) + "&z=16&output=embed";
+    return { lat: lat, lng: lng };
+  }
+
+  /* URL de embed do OpenStreetMap (nao bloqueia iframe, ao contrario do Google Maps) */
+  function mapsEmbedUrl(link) {
+    var c = mapsCoordenadas(link);
+    /* caixa (bbox) de ~800m ao redor do ponto */
+    var d = 0.007;
+    var bbox = (c.lng - d) + "%2C" + (c.lat - d) + "%2C" + (c.lng + d) + "%2C" + (c.lat + d);
+    return "https://www.openstreetmap.org/export/embed.html?bbox=" + bbox +
+           "&layer=mapnik&marker=" + c.lat + "%2C" + c.lng;
   }
 
   function renderMapa() {
     var iframe = document.getElementById("mapaEmbed");
     var inpUrl = document.getElementById("mapaUrl");
+    var btnGoogle = document.getElementById("mapaBtnGoogle");
+    var btnWaze = document.getElementById("mapaBtnWaze");
+    var nomeLocal = document.getElementById("mapaNomeLocal");
     if (!iframe) return;
+
     var link = state.mapsUrl || "";
     iframe.src = mapsEmbedUrl(link);
     if (inpUrl) inpUrl.value = link;
+    if (nomeLocal) nomeLocal.innerHTML = "📍 " + esc(MAPA_NOME);
+
+    if (btnGoogle) {
+      /* usa o link curto salvo; se ausente, monta um link de busca do Google Maps */
+      btnGoogle.href = link ||
+        "https://www.google.com/maps/search/?api=1&query=" + MAPA_LAT + "," + MAPA_LNG;
+    }
+    if (btnWaze) {
+      var c = mapsCoordenadas(link);
+      btnWaze.href = "https://waze.com/ul?ll=" + c.lat + "," + c.lng + "&navigate=yes";
+    }
   }
 
   /* ===== INICIALIZACAO DOS WIDGETS DE INFO E MAPA ===== */

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://fonts.googleapis.com https://fonts.gstatic.com data:; connect-src 'self' https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://fonts.googleapis.com https://fonts.gstatic.com wss://*.firebaseio.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://fonts.googleapis.com https://fonts.gstatic.com data:; connect-src 'self' https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://fonts.googleapis.com https://fonts.gstatic.com wss://*.firebaseio.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; frame-src 'self' https://*.openstreetmap.org https://www.openstreetmap.org;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0a1f3d">
 <meta name="description" content="Sistema de gerenciamento do Campeonato de Vôlei do Bosque: tabela de jogos, classificação automática, finais e pódio.">
@@ -1486,10 +1486,41 @@
     border-radius: var(--radius); overflow: hidden;
     box-shadow: var(--shadow);
   }
-  .mapa-embed {
-    width: 100%; height: 220px; border: 0; display: block;
+  /* mapa do OpenStreetMap (nao bloqueia iframe, ao contrario do Google Maps) */
+  .mapa-frame {
+    width: 100%; height: 180px; border: 0; display: block;
     background: var(--navy-800);
+    filter: invert(90%) hue-rotate(180deg) contrast(105%) saturate(80%);
   }
+  .mapa-info { padding: 13px 15px 10px; }
+  .mapa-local {
+    font-family: var(--font-display); font-size: 1.12rem; font-weight: 800;
+    color: #ffffff; display: flex; align-items: center; gap: 8px;
+  }
+  .mapa-sub {
+    font-size: .76rem; color: var(--muted); line-height: 1.45; margin-top: 3px;
+  }
+  .mapa-botoes {
+    display: flex; gap: 8px; padding: 0 15px 14px; flex-wrap: wrap;
+  }
+  .btn-rota {
+    flex: 1; min-width: 132px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 10px 12px; border-radius: 12px;
+    font: inherit; font-size: .8rem; font-weight: 800;
+    text-decoration: none; cursor: pointer;
+    transition: transform .12s ease, filter .12s ease;
+  }
+  .btn-rota:hover { transform: scale(1.03); }
+  .btn-rota.maps {
+    background: linear-gradient(135deg, #00B4D8 0%, #0077B6 100%);
+    color: #ffffff; box-shadow: 0 4px 14px rgba(0, 180, 216, 0.35);
+  }
+  .btn-rota.waze {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--line-strong); color: #ffffff;
+  }
+  .btn-rota svg { width: 16px; height: 16px; flex: none; }
   .mapa-footer {
     display: flex; gap: 8px; padding: 10px 12px;
     border-top: 1px solid var(--line);
@@ -1839,11 +1870,24 @@
   <!-- ===== MAPA DO LOCAL ===== -->
   <h2 class="section-title">
     Local do Jogo
-    <span class="hint">Toque para abrir no Google Maps</span>
+    <span class="hint">Arena Family · Traçar rota</span>
   </h2>
   <div class="mapa-card">
-    <iframe id="mapaEmbed" class="mapa-embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-      title="Local do jogo no Google Maps" allowfullscreen></iframe>
+    <iframe id="mapaEmbed" class="mapa-frame" loading="lazy"
+      title="Mapa do local do jogo" allowfullscreen></iframe>
+    <div class="mapa-info">
+      <div class="mapa-local" id="mapaNomeLocal">📍 Arena Family</div>
+      <div class="mapa-sub">Fortaleza - CE · Toque para traçar a rota até o jogo:</div>
+    </div>
+    <div class="mapa-botoes">
+      <a class="btn-rota maps" id="mapaBtnGoogle" href="https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+        Abrir no Google Maps
+      </a>
+      <a class="btn-rota waze" id="mapaBtnWaze" href="https://waze.com/ul?ll=-3.7915037,-38.5619707&navigate=yes" target="_blank" rel="noopener noreferrer">
+        🚗 Waze
+      </a>
+    </div>
     <div class="mapa-footer">
       <input id="mapaUrl" class="mapa-url-input" maxlength="300" placeholder="Link do Google Maps">
       <button class="btn btn-primary mapa-salvar" id="mapaSalvar">Salvar</button>
@@ -3780,39 +3824,72 @@
     vis.innerHTML = linhas;
   }
 
-  /* extrai o URL de embed do Google Maps a partir de qualquer link do Google Maps */
-  function mapsEmbedUrl(link) {
-    if (!link) return "https://maps.google.com/maps?q=Arena+Family+Fortaleza&z=17&output=embed";
+  /* Coordenadas padrao: Arena Family (Fortaleza - CE) */
+  var MAPA_LAT = -3.7915037;
+  var MAPA_LNG = -38.5619707;
+  var MAPA_NOME = "Arena Family";
+
+  /* extrai as coordenadas de qualquer link do Google Maps */
+  function mapsCoordenadas(link) {
+    var lat = MAPA_LAT, lng = MAPA_LNG;
+    if (!link) return { lat: lat, lng: lng };
     link = String(link).trim();
-    /* short link padrao da Arena Family */
+
+    /* link curto padrao da Arena Family */
     if (link.indexOf("eM9BXU1Gom4VBpFN8") >= 0) {
-      return "https://maps.google.com/maps?q=-3.7915037,-38.5619707&z=17&output=embed";
+      return { lat: MAPA_LAT, lng: MAPA_LNG };
     }
-    /* coordenadas diretas @lat,lng */
+    /* formato @lat,lng */
     var m = link.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
-    if (m) {
-      return "https://maps.google.com/maps?q=" + m[1] + "," + m[2] + "&z=17&output=embed";
-    }
-    /* query parameters ?q= ou !3d!4d */
+    if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+
+    /* formato !3dlat!4dlng */
     var d3 = link.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
-    if (d3) {
-      return "https://maps.google.com/maps?q=" + d3[1] + "," + d3[2] + "&z=17&output=embed";
-    }
+    if (d3) return { lat: parseFloat(d3[1]), lng: parseFloat(d3[2]) };
+
+    /* formato ?q=lat,lng ou ?q=nome */
     var q = link.match(/[?&]q=([^&]+)/);
     if (q && q[1]) {
-      return "https://maps.google.com/maps?q=" + q[1] + "&z=16&output=embed";
+      var partes = decodeURIComponent(q[1]).split(",");
+      if (partes.length >= 2 && !isNaN(parseFloat(partes[0]))) {
+        return { lat: parseFloat(partes[0]), lng: parseFloat(partes[1]) };
+      }
     }
-    /* fallback por termo */
-    return "https://maps.google.com/maps?q=" + encodeURIComponent(link) + "&z=16&output=embed";
+    return { lat: lat, lng: lng };
+  }
+
+  /* URL de embed do OpenStreetMap (nao bloqueia iframe, ao contrario do Google Maps) */
+  function mapsEmbedUrl(link) {
+    var c = mapsCoordenadas(link);
+    /* caixa (bbox) de ~800m ao redor do ponto */
+    var d = 0.007;
+    var bbox = (c.lng - d) + "%2C" + (c.lat - d) + "%2C" + (c.lng + d) + "%2C" + (c.lat + d);
+    return "https://www.openstreetmap.org/export/embed.html?bbox=" + bbox +
+           "&layer=mapnik&marker=" + c.lat + "%2C" + c.lng;
   }
 
   function renderMapa() {
     var iframe = document.getElementById("mapaEmbed");
     var inpUrl = document.getElementById("mapaUrl");
+    var btnGoogle = document.getElementById("mapaBtnGoogle");
+    var btnWaze = document.getElementById("mapaBtnWaze");
+    var nomeLocal = document.getElementById("mapaNomeLocal");
     if (!iframe) return;
+
     var link = state.mapsUrl || "";
     iframe.src = mapsEmbedUrl(link);
     if (inpUrl) inpUrl.value = link;
+    if (nomeLocal) nomeLocal.innerHTML = "📍 " + esc(MAPA_NOME);
+
+    if (btnGoogle) {
+      /* usa o link curto salvo; se ausente, monta um link de busca do Google Maps */
+      btnGoogle.href = link ||
+        "https://www.google.com/maps/search/?api=1&query=" + MAPA_LAT + "," + MAPA_LNG;
+    }
+    if (btnWaze) {
+      var c = mapsCoordenadas(link);
+      btnWaze.href = "https://waze.com/ul?ll=" + c.lat + "," + c.lng + "&navigate=yes";
+    }
   }
 
   /* ===== INICIALIZACAO DOS WIDGETS DE INFO E MAPA ===== */
