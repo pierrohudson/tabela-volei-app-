@@ -83,14 +83,27 @@ const LEGADO = {
   check("2 finais", A.document.querySelectorAll(".final-box").length === 2);
   check("3 slots no podio", A.document.querySelectorAll(".podium-slot").length === 3);
 
-  // ---- CABECALHO: 4 icones minimalistas ----
-  check("cabecalho tem 5 botoes/links de acao",
-    A.document.querySelectorAll(".header-ico").length === 5,
+  // ---- CABECALHO: 6 icones minimalistas ----
+  check("cabecalho tem 6 botoes/links de acao",
+    A.document.querySelectorAll(".header-ico").length === 6,
     A.document.querySelectorAll(".header-ico").length);
   check("icone do WhatsApp com link correto",
     (A.document.getElementById("btnWpp") || {}).href?.includes("chat.whatsapp.com"));
   check("icone do Instagram com link correto",
     (A.document.getElementById("btnInstagram") || {}).href?.includes("instagram.com/voleidobosque_"));
+  check("icone do Pix existe", A.document.getElementById("btnPix") !== null);
+  check("Pix e o primeiro icone do cabecalho",
+    A.document.querySelector(".header-actions .header-ico").id === "btnPix",
+    A.document.querySelector(".header-actions .header-ico").id);
+  check("modal do Pix existe", A.document.getElementById("pixModal") !== null);
+  check("modal do Pix com QR Code",
+    A.document.querySelector("#pixModal .pix-qr img") !== null);
+  check("codigo Pix copia e cola presente",
+    (A.document.getElementById("pixCodigo")?.textContent || "").startsWith("00020126450014br.gov.bcb.pix"));
+  check("botao copiar codigo Pix existe",
+    A.document.getElementById("btnPixCopiar") !== null);
+  check("modal do Pix começa fechado",
+    A.document.getElementById("pixModal").hidden === true);
   check("icone de instalar existe",
     A.document.getElementById("btnInstall") !== null);
   check("icone de admin existe",

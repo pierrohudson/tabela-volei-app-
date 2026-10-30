@@ -186,6 +186,78 @@
     background: rgba(255, 207, 26, 0.14);
     box-shadow: 0 0 12px var(--yellow-glow);
   }
+  /* icone do Pix */
+  .header-ico#btnPix { color: #29B5E8; border-color: rgba(41, 181, 232, 0.35); }
+  .header-ico#btnPix:hover {
+    color: #29B5E8; border-color: rgba(41, 181, 232, 0.6);
+    background: rgba(41, 181, 232, 0.12);
+  }
+
+  /* ===== Modal do Pix (QR Code + copia e cola) ===== */
+  .pix-modal {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(3, 10, 24, 0.88);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 18px;
+  }
+  .pix-modal[hidden] { display: none; }
+  .pix-box {
+    width: 100%; max-width: 380px;
+    background: var(--panel); border: 1px solid var(--line-strong);
+    border-radius: var(--radius); padding: 20px 18px 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    max-height: 92vh; overflow-y: auto;
+    animation: pixIn .22s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: center;
+  }
+  @keyframes pixIn { from { opacity: 0; transform: scale(.94) translateY(10px); } to { opacity: 1; transform: none; } }
+  .pix-box h3 {
+    margin: 0 0 4px; font-size: 1.05rem; font-weight: 800;
+    letter-spacing: .05em; text-transform: uppercase;
+  }
+  .pix-box .pix-sub { font-size: .78rem; color: var(--muted); margin: 0 0 16px; }
+  .pix-qr {
+    background: #ffffff; padding: 12px; border-radius: 14px;
+    display: inline-block; line-height: 0;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4);
+  }
+  .pix-qr img { width: min(240px, 62vw); height: auto; display: block; }
+  .pix-chave { margin-top: 12px; font-size: .74rem; color: var(--muted); }
+  .pix-chave b { color: var(--turquoise); }
+  .pix-campo { margin-top: 14px; text-align: left; }
+  .pix-campo label {
+    display: block; font-size: .68rem; font-weight: 800;
+    letter-spacing: .05em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .pix-campo-box {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--navy-900); border: 1px solid var(--line);
+    border-radius: 10px; padding: 9px 9px 9px 12px;
+  }
+  .pix-campo-box code {
+    flex: 1; min-width: 0; font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: .68rem; color: var(--muted); line-height: 1.4;
+    word-break: break-all; max-height: 62px; overflow-y: auto;
+  }
+  .pix-copiar {
+    flex: none; width: 38px; height: 38px; border-radius: 9px;
+    background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line);
+    color: var(--muted); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background .16s ease, color .16s ease;
+  }
+  .pix-copiar:hover { color: #ffffff; background: rgba(255, 255, 255, 0.12); }
+  .pix-copiar svg { width: 17px; height: 17px; display: block; }
+  .pix-copiar.ok { color: var(--lime); border-color: rgba(166, 226, 46, 0.4); }
+  .pix-fechar {
+    margin-top: 16px; width: 100%;
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--line); border-radius: var(--radius-pill);
+    padding: 11px; font: inherit; font-size: .84rem; font-weight: 700; cursor: pointer;
+  }
+  .pix-fechar:hover { color: #ffffff; border-color: var(--line-strong); }
 
   /* ===== Banner de instalacao PWA ===== */
   .install-banner {
@@ -865,6 +937,11 @@
     margin: -4px 0 8px;
   }
   table.standings-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 100%; }
+  /* a coluna do time e a unica que cresce: as numericas ficam estreitas */
+  table.standings-table th.team-col,
+  table.standings-table td.team-col { width: 100%; min-width: 96px; }
+  table.standings-table th:not(.team-col),
+  table.standings-table td:not(.team-col) { width: 1%; white-space: nowrap; }
   table.standings-table th {
     padding: 10px 6px; text-align: center; color: var(--muted);
     font-weight: 800; font-size: .72rem; letter-spacing: .06em;
@@ -1163,11 +1240,14 @@
       font-size: .8rem;
     }
     table.standings-table th { font-size: .62rem; letter-spacing: 0; }
+    /* a coluna do time absorve a largura extra */
+    table.standings-table th.team-col,
+    table.standings-table td.team-col { min-width: 88px; }
     .pos-cell { min-width: 26px; height: 24px; font-size: .78rem; border-radius: 5px; }
     .team-color-bar { width: 4px; height: 24px; }
     .team-input-row { gap: 6px; }
     input.teamname {
-      min-width: 90px; font-size: .82rem; padding: 4px 4px;
+      min-width: 72px; font-size: .82rem; padding: 4px 4px;
     }
     .total-pts { font-size: .95rem; }
 
@@ -1525,10 +1605,17 @@
       </div>
     </div>
     <div class="header-actions">
+      <button class="header-ico" id="btnPix" aria-label="Doar via Pix">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2.2 3.6 10.6a1.3 1.3 0 0 0 0 1.85l8.4 8.4a1.3 1.3 0 0 0 1.85 0l8.4-8.4a1.3 1.3 0 0 0 0-1.85L12 2.2z"></path>
+          <path d="M8.6 12.2h6.8"></path>
+          <path d="m10.4 9.4 5.6 5.6"></path>
+          <path d="m16 9.4-5.6 5.6"></path>
+        </svg>
+      </button>
       <a class="header-ico" id="btnWpp" href="https://chat.whatsapp.com/EgywTC7wJUO2Nncz8hT884?s=cl&amp;p=i&amp;mlu=4&amp;ilr=4&amp;iAm=" target="_blank" rel="noopener noreferrer" aria-label="Grupo do WhatsApp">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 2.2a9.3 9.3 0 0 0-7.9 14L2.6 21.4l5.4-1.45A9.3 9.3 0 1 0 12 2.2z"></path>
-          <path d="M8.6 7.2c.15-.35.3-.36.5-.37.13-.01.3-.02.47.36.17.38.57 1.4.62 1.5.05.1.08.22.02.35-.06.13-.09.21-.18.33-.09.11-.19.25-.27.34-.09.09-.19.2-.08.39.11.19.49.8 1.05 1.3.72.64 1.33.84 1.52.94.19.09.3.08.41-.05.11-.13.47-.55.6-.73.13-.19.25-.16.42-.09.17.07 1.06.5 1.24.6.19.09.31.13.36.21.05.08.05.46-.11.9-.16.45-.96.86-1.33.92-.36.05-.82.07-1.32-.13-.3-.12-.71-.23-1.22-.45-.72-.31-1.35-.71-1.95-1.4-.5-.56-.84-1.19-1.03-1.52-.19-.32-.29-.44-.4-.34-.1.1-.38.45-.47.55-.09.1-.18.12-.33.06-.15-.06-.65-.24-1.24-.77-.46-.41-.77-.92-.86-1.21-.09-.29-.01-.44.07-.54z" fill="currentColor" stroke="none"></path>
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.063-.967-.305-.099-.527-.148-.792.15-.264.297-.966.966-1.184 1.164-.218.199-.437.218-.733.077-.297-.148-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.457.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.148-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.988 2.896 9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"></path>
         </svg>
       </a>
       <a class="header-ico" id="btnInstagram" href="https://www.instagram.com/voleidobosque_?obrf=dm8yOGxmMTFoYjJr" target="_blank" rel="noopener noreferrer" aria-label="Instagram do Vôlei do Bosque">
@@ -1567,6 +1654,34 @@
     </div>
   </div>
 </header>
+
+<!-- ===== MODAL PIX (QR CODE) ===== -->
+<div class="pix-modal" id="pixModal" hidden>
+  <div class="pix-box" role="dialog" aria-modal="true" aria-label="Doar via Pix">
+    <h3>PIX</h3>
+    <p class="pix-sub">Escaneie o QR Code ou copie o código</p>
+
+    <div class="pix-qr">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAagAAAGoAQAAAAA7yUxtAAAD+0lEQVR4nO1c4c6kIAyk5N7/lXvpzBQwX75cbn+Isu1mV0RJVseWdlo0bx9I/2RQq1Gr1N34hrvRPBXMo+2x6/ygpS92x5n+/Ovqh476I0SaxdY8NuYttrHjhgNoLGc+/7r6wXg1YAUxjz1iFxsAGL1s5JnPv65+Ml4UN6EWWAVAgCi0jTj6m66rnz/KUqmADpqhWM3QWuF613Wdp1+OpsPiBUbQKZcd5AmWjdv/Ya9Rv/iH/s9PDql7uMqdd8MWM2f41bxF/Zrty5mF10Z7aPAvILB/NHyWffQ/hBgd/sLrIrc/vcZw2AMXehwQTmIxdwE+OI3sLv1a5f67YallRkToZzAY4wmgNxBBh4YVXqvcfjccHqEFGQViY4RbQossVQbMNX9txsvgW7SkNrSJDrn46GF4xhNKvzbzvQ4dUju5XjDA133ulD+/FS9XqxEwWL9B0guxBIuAlX5tt4c+VM1g+uAp0qsHVOFxyNsoe7g1/vLYypsQ20Ffg20EzZzggF58S79WufluGDFppHeVS2EeBdZvoXtzkiu8NvJR5tcUWFvzK/iCllJMBte/8NrLbzTNTCZNmvNZ5sKohtFX9nC/v2FMmFh6iUxU2sJA0Y9M76P0ays/b5laNjJQqNdI+7dy9cnWF14b4y+fqX73HzFZOozZUfHXA/wNUza5LXVS1CntZQKs6m2eMH+ZKPqmioCBHA7QDuocRM1lD3fz803xVfoXIugVb02rqN+av/bOXxIfEI2+Ue67dhR/uJffcDoYPo0ic2Hw7KV8yfvu+IcfSD+ZP7QAxsVCLZMVhalm8VMVfz3A33DRTo1p/+DiSR2OcoAxv1W+8kHrU5oMX+YwR7/mtTHk+XajHzzKM8Hl0UMacSaWoVtkescio3dc14mjmlyNucprpTd0RpYMjHTz86+rHz3KWTVvbIPQGKv1kGdOv178/Vuu68hRLhxsxs1yK6RnjKFRIhUeSfEbm+ux26w2tOgTXyhsVMQx6zje8hweOaqpGGpdpHypl1rDZDEfNX/ttYc+PECbJb1SN2aWR5E2yzte8Bz2g0fZmrP0WQ9AOirgVG0vpeav7fUbNktCjctVRmkbXxjAnqRAXvIcnjjKFBDP4ift4ug4uIyo+qjt9RsUG0uYR/GGiEX0jZ7Sr93+PMRHMcCoYkM/U5dy9OXsP99u9C94v02bZdjaY50U67SH2Sz92oxXy3SJpcvORbBpH1VAP9davuA57N8xyphZhiguwzIVKhz5+tKv3fpFcf3CY8/iKPQppYLoGYC97jk88f02LV/moNdGZamUloKlm3j3P+w16vf3H7a52IF04aV+qup7nxR//YfUM79K3Y1V6m60Rf4CoEePXeKeXmsAAAAASUVORK5CYII=" alt="QR Code Pix para doar ao Vôlei do Bosque" width="240" height="240">
+    </div>
+
+    <div class="pix-chave">
+      Chave: <b>pagarmeuvolei@gmail.com</b>
+    </div>
+
+    <div class="pix-campo">
+      <label for="pixCodigo">Código Pix (copia e cola)</label>
+      <div class="pix-campo-box">
+        <code id="pixCodigo">00020126450014br.gov.bcb.pix0123pagarmeuvolei@gmail.com5204000053039865802BR5911PIHU12180506009Sao Paulo610901227-20062230519daqr4499084206053936304FA1D</code>
+        <button class="pix-copiar" id="btnPixCopiar" type="button" aria-label="Copiar código Pix">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="pix-fechar" id="btnPixFechar" type="button">Fechar</button>
+  </div>
+</div>
 
 <!-- ===== BANNER DE INSTALACAO (PWA) ===== -->
 <div class="install-banner" id="installBanner" hidden>
@@ -1639,7 +1754,7 @@
         <thead>
           <tr>
             <th>#</th>
-            <th style="text-align:left;">Time</th>
+            <th class="team-col" style="text-align:left;">Time</th>
             <th>J</th>
             <th>V</th>
             <th>D</th>
@@ -4534,6 +4649,91 @@
     var b = document.getElementById("chatLimpar");
     if (b) b.hidden = !esAdmin;
   }
+
+  /* ============================================================
+     PIX — QR Code + copia e cola
+     ============================================================ */
+  (function initPix() {
+    var modal = document.getElementById("pixModal");
+    var btn = document.getElementById("btnPix");
+    var btnFechar = document.getElementById("btnPixFechar");
+    var btnCopiar = document.getElementById("btnPixCopiar");
+    var codigo = document.getElementById("pixCodigo");
+    if (!modal || !btn) return;
+
+    function abrir() {
+      modal.hidden = false;
+      try { document.body.style.overflow = "hidden"; } catch (e) {}
+    }
+    function fechar() {
+      modal.hidden = true;
+      try { document.body.style.overflow = ""; } catch (e) {}
+    }
+
+    btn.addEventListener("click", abrir);
+    if (btnFechar) btnFechar.addEventListener("click", fechar);
+
+    /* fecha clicando fora da caixa */
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) fechar();
+    });
+
+    /* ESC fecha */
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !modal.hidden) fechar();
+    });
+
+    /* marca o botao como "copiado" por um instante */
+    function marcarOk() {
+      btnCopiar.classList.add("ok");
+      var svg = btnCopiar.querySelector("svg");
+      if (svg) svg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+      btnCopiar.setAttribute("aria-label", "Código copiado");
+      setTimeout(function () {
+        btnCopiar.classList.remove("ok");
+        if (svg) {
+          svg.innerHTML = '<rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
+        }
+        btnCopiar.setAttribute("aria-label", "Copiar código Pix");
+      }, 1600);
+    }
+
+    /* metodo alternativo: area de transferencia temporaria + execCommand */
+    function fallbackCopiar(texto) {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = texto;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.top = "-1000px";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, texto.length);
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (ok) { marcarOk(); return; }
+      } catch (e) {}
+      /* ultimo recurso: mostra o codigo para copia manual */
+      try { window.prompt("Copie o código Pix:", texto); } catch (e) {}
+    }
+
+    /* copia e cola do codigo Pix */
+    if (btnCopiar && codigo) {
+      btnCopiar.addEventListener("click", function () {
+        var texto = codigo.textContent || "";
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(texto).then(function () {
+            marcarOk();
+          }).catch(function () {
+            fallbackCopiar(texto);
+          });
+        } else {
+          fallbackCopiar(texto);
+        }
+      });
+    }
+  })();
 
   /* ===== ABAS: navegacao entre as secoes ===== */
   (function initTabs() {

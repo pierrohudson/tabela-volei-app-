@@ -2661,6 +2661,91 @@
     if (b) b.hidden = !esAdmin;
   }
 
+  /* ============================================================
+     PIX — QR Code + copia e cola
+     ============================================================ */
+  (function initPix() {
+    var modal = document.getElementById("pixModal");
+    var btn = document.getElementById("btnPix");
+    var btnFechar = document.getElementById("btnPixFechar");
+    var btnCopiar = document.getElementById("btnPixCopiar");
+    var codigo = document.getElementById("pixCodigo");
+    if (!modal || !btn) return;
+
+    function abrir() {
+      modal.hidden = false;
+      try { document.body.style.overflow = "hidden"; } catch (e) {}
+    }
+    function fechar() {
+      modal.hidden = true;
+      try { document.body.style.overflow = ""; } catch (e) {}
+    }
+
+    btn.addEventListener("click", abrir);
+    if (btnFechar) btnFechar.addEventListener("click", fechar);
+
+    /* fecha clicando fora da caixa */
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) fechar();
+    });
+
+    /* ESC fecha */
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !modal.hidden) fechar();
+    });
+
+    /* marca o botao como "copiado" por um instante */
+    function marcarOk() {
+      btnCopiar.classList.add("ok");
+      var svg = btnCopiar.querySelector("svg");
+      if (svg) svg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+      btnCopiar.setAttribute("aria-label", "Código copiado");
+      setTimeout(function () {
+        btnCopiar.classList.remove("ok");
+        if (svg) {
+          svg.innerHTML = '<rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>';
+        }
+        btnCopiar.setAttribute("aria-label", "Copiar código Pix");
+      }, 1600);
+    }
+
+    /* metodo alternativo: area de transferencia temporaria + execCommand */
+    function fallbackCopiar(texto) {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = texto;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.top = "-1000px";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, texto.length);
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (ok) { marcarOk(); return; }
+      } catch (e) {}
+      /* ultimo recurso: mostra o codigo para copia manual */
+      try { window.prompt("Copie o código Pix:", texto); } catch (e) {}
+    }
+
+    /* copia e cola do codigo Pix */
+    if (btnCopiar && codigo) {
+      btnCopiar.addEventListener("click", function () {
+        var texto = codigo.textContent || "";
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(texto).then(function () {
+            marcarOk();
+          }).catch(function () {
+            fallbackCopiar(texto);
+          });
+        } else {
+          fallbackCopiar(texto);
+        }
+      });
+    }
+  })();
+
   /* ===== ABAS: navegacao entre as secoes ===== */
   (function initTabs() {
     var bar = document.getElementById("tabsBar");
