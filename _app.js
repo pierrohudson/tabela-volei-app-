@@ -1801,12 +1801,11 @@
       alert("Apenas o Admin pode zerar o campeonato.");
       return;
     }
-    if (confirm("Zerar os placares e resultados do campeonato? Os nomes dos times serão mantidos.")) {
+    if (confirm("Zerar apenas os placares e resultados do campeonato?\n\nOs nomes dos times, os jogadores cadastrados e os times sorteados serão MANTIDOS.")) {
       state.scores = {};
       state.finals = { f34: { a: null, b: null }, f12: { a: null, b: null } };
-      state.jogadores = [];
-      state.formacao = null;
-      state.sorteioBrinde = null;
+      /* NAO apaga os jogadores cadastrados, a formacao de times nem o sorteio:
+         zerar o campeonato = so limpar os numeros do placar. */
       save();
       renderAll();
       publicarEstado();
