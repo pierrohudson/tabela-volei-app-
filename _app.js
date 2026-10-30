@@ -526,8 +526,9 @@
     setLive("somente-leitura", "Modo leitura — acompanhando o placar ao vivo");
     var btn = document.getElementById("btnAdmin");
     if (btn) {
-      btn.textContent = "🔓 Admin";
+      btn.setAttribute("aria-label", "Login Admin");
       btn.classList.remove("btn-admin-on");
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
     }
     if (typeof chatAtualizarBotao === "function") chatAtualizarBotao();
     renderAll();
@@ -540,8 +541,10 @@
     setLive("conectado", "Modo Admin — suas alterações vão ao vivo para todos");
     var btn = document.getElementById("btnAdmin");
     if (btn) {
-      btn.textContent = "🔒 Sair do Admin";
+      btn.setAttribute("aria-label", "Sair do Admin");
       btn.classList.add("btn-admin-on");
+      /* cadeado aberto */
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>';
     }
     if (typeof chatAtualizarBotao === "function") chatAtualizarBotao();
     renderAll();
@@ -3063,8 +3066,10 @@
     document.body.classList.remove("modo-leitura");
     document.body.classList.add("modo-admin");
     if (btnAdmin) {
-      btnAdmin.textContent = "🔒 Sair do Admin";
+      btnAdmin.setAttribute("aria-label", "Sair do Admin");
       btnAdmin.classList.add("btn-admin-on");
+      /* cadeado aberto */
+      btnAdmin.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>';
     }
   }
   if (btnAdmin) btnAdmin.hidden = false;

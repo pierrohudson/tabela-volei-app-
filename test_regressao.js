@@ -83,6 +83,24 @@ const LEGADO = {
   check("2 finais", A.document.querySelectorAll(".final-box").length === 2);
   check("3 slots no podio", A.document.querySelectorAll(".podium-slot").length === 3);
 
+  // ---- CABECALHO: 4 icones minimalistas ----
+  check("cabecalho tem 5 botoes/links de acao",
+    A.document.querySelectorAll(".header-ico").length === 5,
+    A.document.querySelectorAll(".header-ico").length);
+  check("icone do WhatsApp com link correto",
+    (A.document.getElementById("btnWpp") || {}).href?.includes("chat.whatsapp.com"));
+  check("icone do Instagram com link correto",
+    (A.document.getElementById("btnInstagram") || {}).href?.includes("instagram.com/voleidobosque_"));
+  check("icone de instalar existe",
+    A.document.getElementById("btnInstall") !== null);
+  check("icone de admin existe",
+    A.document.getElementById("btnAdmin") !== null);
+  check("icone de zerar existe",
+    A.document.getElementById("btnReset") !== null);
+  check("ao vivo nao tem mais botao admin duplicado",
+    A.document.querySelectorAll("#btnAdmin").length === 1,
+    A.document.querySelectorAll("#btnAdmin").length);
+
   // placar: time 1 x time 2 = 3x1
   const sc = A.document.querySelectorAll("input.score");
   sc[0].value = "3"; sc[0].dispatchEvent(new A.window.Event("input"));
