@@ -1447,6 +1447,65 @@
     position: fixed; inset: 0; pointer-events: none; z-index: 9999;
   }
 
+  /* ===== INFORMACOES DO JOGO + MAPA ===== */
+  .info-jogo-card {
+    position: relative;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .info-jogo-visual {
+    font-family: var(--font-display);
+    font-size: 1.02rem; font-weight: 700; line-height: 1.75;
+    white-space: pre-wrap; color: var(--txt);
+    min-height: 80px;
+  }
+  .info-jogo-visual .info-linha-status { color: var(--lime); font-weight: 800; letter-spacing: .04em; }
+  .info-jogo-edit textarea {
+    width: 100%; background: var(--navy-900); color: var(--txt);
+    border: 1px solid var(--line-strong); border-radius: 10px;
+    padding: 10px 12px; font: inherit; font-family: var(--font-display);
+    font-size: .92rem; line-height: 1.6; resize: vertical;
+  }
+  .info-jogo-edit textarea:focus { border-color: var(--turquoise); outline: none; }
+  .info-jogo-acoes { display: flex; gap: 8px; margin-top: 10px; }
+  .btn-editar-info {
+    position: absolute; top: 10px; right: 10px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,.06); border: 1px solid var(--line);
+    color: var(--muted); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0;
+    transition: all .18s ease;
+  }
+  .btn-editar-info:hover { color: var(--yellow); border-color: var(--yellow); background: rgba(255,207,26,.12); }
+  .btn-editar-info svg { width: 16px; height: 16px; display: block; }
+
+  .mapa-card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .mapa-embed {
+    width: 100%; height: 220px; border: 0; display: block;
+    background: var(--navy-800);
+  }
+  .mapa-footer {
+    display: flex; gap: 8px; padding: 10px 12px;
+    border-top: 1px solid var(--line);
+    background: var(--panel-2);
+  }
+  .mapa-url-input {
+    flex: 1; min-width: 0; background: var(--navy-900);
+    border: 1px solid var(--line); color: var(--muted);
+    border-radius: 10px; padding: 8px 10px;
+    font: inherit; font-size: .78rem;
+  }
+  .mapa-url-input:focus { border-color: var(--turquoise); outline: none; color: var(--txt); }
+  .mapa-salvar { padding: 8px 14px; font-size: .78rem; flex: none; }
+  .body.modo-leitura .btn-editar-info,
+  body.modo-leitura .mapa-footer { display: none; }
+
   /* ===== CHAT AO VIVO ===== */
   .chat-card {
     background: var(--panel); border: 1px solid var(--line);
@@ -1753,6 +1812,44 @@
 
   <!-- ===== CLASSIFICAÇÃO ===== -->
   <div class="tab-panel ativo" id="tab-classif">
+
+  <!-- ===== MURAL DE INFORMACOES DO JOGO ===== -->
+  <h2 class="section-title">
+    Informações do Jogo
+    <span class="hint">Local, horário e status</span>
+  </h2>
+  <div class="info-jogo-card">
+    <div class="info-jogo-visual" id="infoJogoVisual"></div>
+    <div class="info-jogo-edit" id="infoJogoEdit" hidden>
+      <textarea id="infoJogoInput" maxlength="200" rows="4"
+        placeholder="Ex.: VOLEI QUARTA FEIRA 20:30 as 22:30&#10;CONFIRMADO&#10;ARENA FAMILY"></textarea>
+      <div class="info-jogo-acoes">
+        <button class="btn btn-primary" id="infoJogoSalvar">Salvar</button>
+        <button class="btn btn-ghost" id="infoJogoCancelar">Cancelar</button>
+      </div>
+    </div>
+    <button class="btn-editar-info" id="infoJogoEditar" aria-label="Editar informações do jogo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ===== MAPA DO LOCAL ===== -->
+  <h2 class="section-title">
+    Local do Jogo
+    <span class="hint">Toque para abrir no Google Maps</span>
+  </h2>
+  <div class="mapa-card">
+    <iframe id="mapaEmbed" class="mapa-embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+      title="Local do jogo no Google Maps" allowfullscreen></iframe>
+    <div class="mapa-footer">
+      <input id="mapaUrl" class="mapa-url-input" maxlength="300" placeholder="Link do Google Maps">
+      <button class="btn btn-primary mapa-salvar" id="mapaSalvar">Salvar</button>
+    </div>
+  </div>
+
   <h2 class="section-title">
     Classificação
     <span class="hint">Toque no nome do time para renomear</span>
@@ -2079,7 +2176,9 @@
       },
       jogadores: [],
       formacao: null,
-      sorteioBrinde: null
+      sorteioBrinde: null,
+      infoJogo: "VOLEI QUARTA FEIRA 20:30 as 22:30\nCONFIRMADO\nARENA FAMILY",
+      mapsUrl: "https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8"
     };
   }
 
@@ -2100,6 +2199,8 @@
         }) : [];
         s.formacao = s.formacao || null;
         s.sorteioBrinde = s.sorteioBrinde || null;
+        s.infoJogo = (typeof s.infoJogo === "string") ? s.infoJogo : "VOLEI QUARTA FEIRA 20:30 as 22:30\nCONFIRMADO\nARENA FAMILY";
+        s.mapsUrl = (typeof s.mapsUrl === "string" && s.mapsUrl) ? s.mapsUrl : "https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8";
         return s;
       }
     } catch (err) {
@@ -2177,6 +2278,8 @@
     state.jogadores = Array.isArray(dados.jogadores) ? dados.jogadores : [];
     state.formacao = dados.formacao || null;
     state.sorteioBrinde = dados.sorteioBrinde || null;
+    if (typeof dados.infoJogo === "string") state.infoJogo = dados.infoJogo;
+    if (typeof dados.mapsUrl === "string" && dados.mapsUrl) state.mapsUrl = dados.mapsUrl;
     save();
     aplicandoRemoto = true;
     try {
@@ -2205,6 +2308,8 @@
         jogadores: state.jogadores,
         formacao: state.formacao,
         sorteioBrinde: state.sorteioBrinde,
+        infoJogo: state.infoJogo,
+        mapsUrl: state.mapsUrl,
         atualizadoEm: agora
       };
       ultimoPublicadoEm = agora;
@@ -3653,7 +3758,122 @@
     renderPodium();
     renderJogadores();
     renderSorteioBrinde();
+    renderInfoJogo();
+    renderMapa();
     aplicarBloqueioEdicao();
+  }
+
+  /* ===== INFORMACOES DO JOGO (mural editavel) ===== */
+  function renderInfoJogo() {
+    var vis = document.getElementById("infoJogoVisual");
+    if (!vis) return;
+    var texto = state.infoJogo || "";
+    /* destaca linhas de status (CONFIRMADO, CANCELADO, etc.) */
+    var linhas = String(texto).split("\n").map(function (ln) {
+      var limpa = ln.trim();
+      if (!limpa) return '<div style="height:6px"></div>';
+      if (/confirmado|cancelado|adiado|em\s+andamento|encerrado/i.test(limpa)) {
+        return '<div class="info-linha-status">' + esc(limpa) + '</div>';
+      }
+      return '<div>' + esc(limpa) + '</div>';
+    }).join("");
+    vis.innerHTML = linhas;
+  }
+
+  /* extrai o URL de embed do Google Maps a partir de qualquer link do Google Maps */
+  function mapsEmbedUrl(link) {
+    if (!link) return "https://maps.google.com/maps?q=Arena+Family+Fortaleza&z=17&output=embed";
+    link = String(link).trim();
+    /* short link padrao da Arena Family */
+    if (link.indexOf("eM9BXU1Gom4VBpFN8") >= 0) {
+      return "https://maps.google.com/maps?q=-3.7915037,-38.5619707&z=17&output=embed";
+    }
+    /* coordenadas diretas @lat,lng */
+    var m = link.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+    if (m) {
+      return "https://maps.google.com/maps?q=" + m[1] + "," + m[2] + "&z=17&output=embed";
+    }
+    /* query parameters ?q= ou !3d!4d */
+    var d3 = link.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+    if (d3) {
+      return "https://maps.google.com/maps?q=" + d3[1] + "," + d3[2] + "&z=17&output=embed";
+    }
+    var q = link.match(/[?&]q=([^&]+)/);
+    if (q && q[1]) {
+      return "https://maps.google.com/maps?q=" + q[1] + "&z=16&output=embed";
+    }
+    /* fallback por termo */
+    return "https://maps.google.com/maps?q=" + encodeURIComponent(link) + "&z=16&output=embed";
+  }
+
+  function renderMapa() {
+    var iframe = document.getElementById("mapaEmbed");
+    var inpUrl = document.getElementById("mapaUrl");
+    if (!iframe) return;
+    var link = state.mapsUrl || "";
+    iframe.src = mapsEmbedUrl(link);
+    if (inpUrl) inpUrl.value = link;
+  }
+
+  /* ===== INICIALIZACAO DOS WIDGETS DE INFO E MAPA ===== */
+  function initInfoJogoWidgets() {
+    var btnEditar = document.getElementById("infoJogoEditar");
+    var btnSalvar = document.getElementById("infoJogoSalvar");
+    var btnCancelar = document.getElementById("infoJogoCancelar");
+    var edit = document.getElementById("infoJogoEdit");
+    var vis = document.getElementById("infoJogoVisual");
+    var inp = document.getElementById("infoJogoInput");
+
+    if (btnEditar && edit && vis) {
+      btnEditar.addEventListener("click", function () {
+        if (!esAdmin) return;
+        if (inp) inp.value = state.infoJogo || "";
+        edit.hidden = false;
+        vis.style.display = "none";
+        btnEditar.hidden = true;
+      });
+    }
+    if (btnSalvar && edit && vis) {
+      btnSalvar.addEventListener("click", function () {
+        if (!esAdmin) return;
+        state.infoJogo = (inp ? inp.value : "").slice(0, 200);
+        save();
+        renderInfoJogo();
+        publicarEstado();
+        edit.hidden = true;
+        vis.style.display = "";
+        if (btnEditar) btnEditar.hidden = false;
+      });
+    }
+    if (btnCancelar && edit && vis) {
+      btnCancelar.addEventListener("click", function () {
+        edit.hidden = true;
+        vis.style.display = "";
+        if (btnEditar) btnEditar.hidden = false;
+      });
+    }
+
+    /* mapa: salvar link */
+    var btnMapaSalvar = document.getElementById("mapaSalvar");
+    var inpMapa = document.getElementById("mapaUrl");
+    if (btnMapaSalvar && inpMapa) {
+      btnMapaSalvar.addEventListener("click", function () {
+        if (!esAdmin) return;
+        var novo = (inpMapa.value || "").trim();
+        if (novo && novo !== state.mapsUrl) {
+          state.mapsUrl = novo;
+          save();
+          renderMapa();
+          publicarEstado();
+        }
+      });
+      inpMapa.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          btnMapaSalvar.click();
+        }
+      });
+    }
   }
 
   /* No modo leitura os campos ficam realmente travados (readonly),
@@ -5156,6 +5376,7 @@
 
   /* CHAT AO VIVO: liga o chat (cria a sessao temporaria e abre o stream) */
   try { chatInit(); } catch (e) { /* chat nao bloqueia o resto do app */ }
+  try { initInfoJogoWidgets(); } catch (e) {}
 
   /* renova o token do Mesario periodicamente */
   setInterval(function () {

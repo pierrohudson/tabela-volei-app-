@@ -81,7 +81,9 @@
       },
       jogadores: [],
       formacao: null,
-      sorteioBrinde: null
+      sorteioBrinde: null,
+      infoJogo: "VOLEI QUARTA FEIRA 20:30 as 22:30\nCONFIRMADO\nARENA FAMILY",
+      mapsUrl: "https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8"
     };
   }
 
@@ -102,6 +104,8 @@
         }) : [];
         s.formacao = s.formacao || null;
         s.sorteioBrinde = s.sorteioBrinde || null;
+        s.infoJogo = (typeof s.infoJogo === "string") ? s.infoJogo : "VOLEI QUARTA FEIRA 20:30 as 22:30\nCONFIRMADO\nARENA FAMILY";
+        s.mapsUrl = (typeof s.mapsUrl === "string" && s.mapsUrl) ? s.mapsUrl : "https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8";
         return s;
       }
     } catch (err) {
@@ -179,6 +183,8 @@
     state.jogadores = Array.isArray(dados.jogadores) ? dados.jogadores : [];
     state.formacao = dados.formacao || null;
     state.sorteioBrinde = dados.sorteioBrinde || null;
+    if (typeof dados.infoJogo === "string") state.infoJogo = dados.infoJogo;
+    if (typeof dados.mapsUrl === "string" && dados.mapsUrl) state.mapsUrl = dados.mapsUrl;
     save();
     aplicandoRemoto = true;
     try {
@@ -207,6 +213,8 @@
         jogadores: state.jogadores,
         formacao: state.formacao,
         sorteioBrinde: state.sorteioBrinde,
+        infoJogo: state.infoJogo,
+        mapsUrl: state.mapsUrl,
         atualizadoEm: agora
       };
       ultimoPublicadoEm = agora;
@@ -1655,7 +1663,122 @@
     renderPodium();
     renderJogadores();
     renderSorteioBrinde();
+    renderInfoJogo();
+    renderMapa();
     aplicarBloqueioEdicao();
+  }
+
+  /* ===== INFORMACOES DO JOGO (mural editavel) ===== */
+  function renderInfoJogo() {
+    var vis = document.getElementById("infoJogoVisual");
+    if (!vis) return;
+    var texto = state.infoJogo || "";
+    /* destaca linhas de status (CONFIRMADO, CANCELADO, etc.) */
+    var linhas = String(texto).split("\n").map(function (ln) {
+      var limpa = ln.trim();
+      if (!limpa) return '<div style="height:6px"></div>';
+      if (/confirmado|cancelado|adiado|em\s+andamento|encerrado/i.test(limpa)) {
+        return '<div class="info-linha-status">' + esc(limpa) + '</div>';
+      }
+      return '<div>' + esc(limpa) + '</div>';
+    }).join("");
+    vis.innerHTML = linhas;
+  }
+
+  /* extrai o URL de embed do Google Maps a partir de qualquer link do Google Maps */
+  function mapsEmbedUrl(link) {
+    if (!link) return "https://maps.google.com/maps?q=Arena+Family+Fortaleza&z=17&output=embed";
+    link = String(link).trim();
+    /* short link padrao da Arena Family */
+    if (link.indexOf("eM9BXU1Gom4VBpFN8") >= 0) {
+      return "https://maps.google.com/maps?q=-3.7915037,-38.5619707&z=17&output=embed";
+    }
+    /* coordenadas diretas @lat,lng */
+    var m = link.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+    if (m) {
+      return "https://maps.google.com/maps?q=" + m[1] + "," + m[2] + "&z=17&output=embed";
+    }
+    /* query parameters ?q= ou !3d!4d */
+    var d3 = link.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+    if (d3) {
+      return "https://maps.google.com/maps?q=" + d3[1] + "," + d3[2] + "&z=17&output=embed";
+    }
+    var q = link.match(/[?&]q=([^&]+)/);
+    if (q && q[1]) {
+      return "https://maps.google.com/maps?q=" + q[1] + "&z=16&output=embed";
+    }
+    /* fallback por termo */
+    return "https://maps.google.com/maps?q=" + encodeURIComponent(link) + "&z=16&output=embed";
+  }
+
+  function renderMapa() {
+    var iframe = document.getElementById("mapaEmbed");
+    var inpUrl = document.getElementById("mapaUrl");
+    if (!iframe) return;
+    var link = state.mapsUrl || "";
+    iframe.src = mapsEmbedUrl(link);
+    if (inpUrl) inpUrl.value = link;
+  }
+
+  /* ===== INICIALIZACAO DOS WIDGETS DE INFO E MAPA ===== */
+  function initInfoJogoWidgets() {
+    var btnEditar = document.getElementById("infoJogoEditar");
+    var btnSalvar = document.getElementById("infoJogoSalvar");
+    var btnCancelar = document.getElementById("infoJogoCancelar");
+    var edit = document.getElementById("infoJogoEdit");
+    var vis = document.getElementById("infoJogoVisual");
+    var inp = document.getElementById("infoJogoInput");
+
+    if (btnEditar && edit && vis) {
+      btnEditar.addEventListener("click", function () {
+        if (!esAdmin) return;
+        if (inp) inp.value = state.infoJogo || "";
+        edit.hidden = false;
+        vis.style.display = "none";
+        btnEditar.hidden = true;
+      });
+    }
+    if (btnSalvar && edit && vis) {
+      btnSalvar.addEventListener("click", function () {
+        if (!esAdmin) return;
+        state.infoJogo = (inp ? inp.value : "").slice(0, 200);
+        save();
+        renderInfoJogo();
+        publicarEstado();
+        edit.hidden = true;
+        vis.style.display = "";
+        if (btnEditar) btnEditar.hidden = false;
+      });
+    }
+    if (btnCancelar && edit && vis) {
+      btnCancelar.addEventListener("click", function () {
+        edit.hidden = true;
+        vis.style.display = "";
+        if (btnEditar) btnEditar.hidden = false;
+      });
+    }
+
+    /* mapa: salvar link */
+    var btnMapaSalvar = document.getElementById("mapaSalvar");
+    var inpMapa = document.getElementById("mapaUrl");
+    if (btnMapaSalvar && inpMapa) {
+      btnMapaSalvar.addEventListener("click", function () {
+        if (!esAdmin) return;
+        var novo = (inpMapa.value || "").trim();
+        if (novo && novo !== state.mapsUrl) {
+          state.mapsUrl = novo;
+          save();
+          renderMapa();
+          publicarEstado();
+        }
+      });
+      inpMapa.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          btnMapaSalvar.click();
+        }
+      });
+    }
   }
 
   /* No modo leitura os campos ficam realmente travados (readonly),
@@ -3158,6 +3281,7 @@
 
   /* CHAT AO VIVO: liga o chat (cria a sessao temporaria e abre o stream) */
   try { chatInit(); } catch (e) { /* chat nao bloqueia o resto do app */ }
+  try { initInfoJogoWidgets(); } catch (e) {}
 
   /* renova o token do Mesario periodicamente */
   setInterval(function () {

@@ -176,6 +176,19 @@ const LEGADO = {
     A.document.querySelectorAll(".tab-btn .tab-ico").length === 5,
     A.document.querySelectorAll(".tab-btn .tab-ico").length);
 
+  // ---- WIDGETS INFO DO JOGO + GOOGLE MAPS ----
+  check("card de informacoes do jogo existe", A.document.getElementById("infoJogoVisual") !== null);
+  check("texto padrao de info do jogo carregado",
+    A.document.getElementById("infoJogoVisual")?.textContent.includes("ARENA FAMILY"));
+  check("status CONFIRMADO com classe destacada",
+    A.document.querySelector(".info-linha-status")?.textContent.includes("CONFIRMADO"));
+  check("botao de editar info existe", A.document.getElementById("infoJogoEditar") !== null);
+  check("card do Google Maps existe", A.document.getElementById("mapaEmbed") !== null);
+  check("iframe do mapa com src do Google Maps apontando para Arena Family",
+    A.document.getElementById("mapaEmbed")?.src.includes("-3.7915037,-38.5619707") ||
+    A.document.getElementById("mapaEmbed")?.src.includes("maps.google.com"));
+  check("campo de link do mapa existe", A.document.getElementById("mapaUrl") !== null);
+
   // ---- FINAIS E PREMIACAO DENTRO DA ABA DE JOGOS ----
   check("finais dentro da aba de jogos",
     A.document.getElementById("tab-jogos").contains(A.document.getElementById("finals")) &&
