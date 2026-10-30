@@ -1158,27 +1158,33 @@
     /* Config de pontos compacta: 2 colunas, rótulo acima do numero */
     .config-bar {
       display: grid; grid-template-columns: 1fr 1fr;
-      gap: 8px 10px; margin: 20px 0 8px; padding: 10px 12px;
+      gap: 6px 10px; margin: 18px 0 8px; padding: 9px 12px;
     }
     .config-inputs {
       display: grid; grid-template-columns: 1fr 1fr;
-      gap: 8px 10px; grid-column: 1 / -1;
+      gap: 6px 10px; grid-column: 1 / -1;
     }
     .config-inputs label {
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      font-size: .68rem; font-weight: 700; text-align: center;
-      letter-spacing: .02em; text-transform: uppercase; line-height: 1.25;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: .58rem; font-weight: 700; text-align: center;
+      letter-spacing: .02em; text-transform: uppercase; line-height: 1.2;
       color: var(--muted);
     }
     .config-inputs input {
-      width: 100%; max-width: 92px; height: 38px;
-      font-size: 1.05rem; font-family: var(--font-display);
-      border-radius: 10px; padding: 0;
+      width: 100%; max-width: 62px; height: 32px;
+      font-size: 1rem; font-family: var(--font-display);
+      border-radius: 9px; padding: 0;
+      -moz-appearance: textfield;
+    }
+    /* remove as setinhas do input number (gastam largura) */
+    .config-inputs input::-webkit-outer-spin-button,
+    .config-inputs input::-webkit-inner-spin-button {
+      -webkit-appearance: none; margin: 0;
     }
     .cfg-tiebreak {
       grid-column: 1 / -1;
-      font-size: .68rem; line-height: 1.4; text-align: center;
-      padding-top: 6px; border-top: 1px solid var(--line);
+      font-size: .62rem; line-height: 1.4; text-align: center;
+      padding-top: 5px; border-top: 1px solid var(--line);
     }
 
     /* Banner de instalacao em tela pequena */
