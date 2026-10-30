@@ -1,0 +1,9 @@
+node_modules/
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# arquivos de apoio locais (nao fazem parte do app publicado)
+_preview.html
+_preview.css
+_preview_css.css
