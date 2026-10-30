@@ -937,11 +937,15 @@
     margin: -4px 0 8px;
   }
   table.standings-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 100%; }
-  /* a coluna do time e a unica que cresce: as numericas ficam estreitas */
+  /* a coluna do time tem largura propria; as numericas ficam agrupadas
+     a esquerda com folga entre elas (sem padding gigante no fim) */
   table.standings-table th.team-col,
-  table.standings-table td.team-col { width: 100%; min-width: 96px; }
+  table.standings-table td.team-col { width: 38%; min-width: 110px; padding-left: 8px; padding-right: 10px; }
   table.standings-table th:not(.team-col),
   table.standings-table td:not(.team-col) { width: 1%; white-space: nowrap; }
+  /* respiro entre as colunas numericas */
+  table.standings-table th:not(.team-col),
+  table.standings-table td:not(.team-col) { padding-left: 5px; padding-right: 5px; }
   table.standings-table th {
     padding: 10px 6px; text-align: center; color: var(--muted);
     font-weight: 800; font-size: .72rem; letter-spacing: .06em;
@@ -1242,9 +1246,14 @@
       font-size: .8rem;
     }
     table.standings-table th { font-size: .6rem; letter-spacing: 0; }
-    /* a coluna do time absorve a largura extra */
+    /* coluna do time: largura propria, numeros agrupados a esquerda */
     table.standings-table th.team-col,
-    table.standings-table td.team-col { min-width: 96px; }
+    table.standings-table td.team-col {
+      width: auto; min-width: 104px;
+      padding-left: 6px; padding-right: 8px;
+    }
+    table.standings-table th:not(.team-col),
+    table.standings-table td:not(.team-col) { padding-left: 4px; padding-right: 4px; }
     .pos-cell { min-width: 26px; height: 24px; font-size: .78rem; border-radius: 5px; }
     .team-color-bar { width: 4px; height: 24px; }
     .team-input-row { gap: 5px; }
