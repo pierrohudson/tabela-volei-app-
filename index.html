@@ -369,6 +369,7 @@
     border-bottom-color: var(--yellow);
     text-shadow: 0 0 14px var(--yellow-glow);
   }
+  .tab-ico { margin-right: 5px; }
   .tab-panel { display: none; }
   .tab-panel.ativo { display: block; animation: tabIn .25s ease; }
   @keyframes tabIn {
@@ -1155,6 +1156,20 @@
     .header-actions .btn { flex: 1; justify-content: center; }
     h2.section-title .hint { display: none; }
 
+    /* ABAS: as 4 cabem na tela, sem rolagem lateral */
+    .tabs-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0; padding: 4px 6px 0;
+      overflow-x: visible;
+    }
+    .tab-btn {
+      min-width: 0; flex: none;
+      font-size: .66rem; letter-spacing: 0;
+      padding: 10px 2px 12px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tab-ico { display: none; }
+
     /* Config de pontos compacta: 2 colunas, rótulo acima do numero */
     .config-bar {
       display: grid; grid-template-columns: 1fr 1fr;
@@ -1367,8 +1382,8 @@
 <nav class="tabs-bar" id="tabsBar">
   <button class="tab-btn ativo" data-tab="tab-classif">Classificação</button>
   <button class="tab-btn" data-tab="tab-jogos">Jogos</button>
-  <button class="tab-btn" data-tab="tab-jogadores">⭐ Jogadores</button>
-  <button class="tab-btn" data-tab="tab-sorteio">🎁 Sorteio</button>
+  <button class="tab-btn" data-tab="tab-jogadores"><span class="tab-ico">⭐</span><span>Jogadores</span></button>
+  <button class="tab-btn" data-tab="tab-sorteio"><span class="tab-ico">🎁</span><span>Sorteio</span></button>
 </nav>
 
 <main class="wrap">
