@@ -1078,12 +1078,14 @@
   }
   .config-inputs { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
   .config-inputs label { display: flex; gap: 6px; align-items: center; font-weight: 600; }
+  .cfg-caption { white-space: nowrap; }
   .config-inputs input {
     width: 54px; text-align: center; background: var(--navy-900);
     border: 1px solid var(--line); color: var(--txt); border-radius: 6px;
     padding: 5px; font-weight: 800; font-size: .9rem;
   }
   .config-inputs input:focus { border-color: var(--yellow); outline: none; }
+  .cfg-tiebreak { line-height: 1.4; }
 
   .btn {
     font: inherit; font-weight: 800; font-size: .88rem; letter-spacing: .02em;
@@ -1152,6 +1154,32 @@
     .podium-slot.third { order: 3; }
     .header-actions .btn { flex: 1; justify-content: center; }
     h2.section-title .hint { display: none; }
+
+    /* Config de pontos compacta: 2 colunas, rótulo acima do numero */
+    .config-bar {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px 10px; margin: 20px 0 8px; padding: 10px 12px;
+    }
+    .config-inputs {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px 10px; grid-column: 1 / -1;
+    }
+    .config-inputs label {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: .68rem; font-weight: 700; text-align: center;
+      letter-spacing: .02em; text-transform: uppercase; line-height: 1.25;
+      color: var(--muted);
+    }
+    .config-inputs input {
+      width: 100%; max-width: 92px; height: 38px;
+      font-size: 1.05rem; font-family: var(--font-display);
+      border-radius: 10px; padding: 0;
+    }
+    .cfg-tiebreak {
+      grid-column: 1 / -1;
+      font-size: .68rem; line-height: 1.4; text-align: center;
+      padding-top: 6px; border-top: 1px solid var(--line);
+    }
 
     /* Banner de instalacao em tela pequena */
     .install-banner {
@@ -1366,14 +1394,14 @@
     </div>
     <div class="config-bar">
       <div class="config-inputs">
-        <label>Pontos por vitória
-          <input id="cfgWin" type="number" min="1">
+        <label class="cfg-caption">Pontos por vitória
+          <input id="cfgWin" type="number" min="1" aria-label="Pontos por vitória">
         </label>
-        <label>Pontos por derrota
-          <input id="cfgLoss" type="number" min="0">
+        <label class="cfg-caption">Pontos por derrota
+          <input id="cfgLoss" type="number" min="0" aria-label="Pontos por derrota">
         </label>
       </div>
-      <div>Desempate: Pontos → Vitórias → Saldo → Sets Pró</div>
+      <div class="cfg-tiebreak">Desempate: Pontos → Vitórias → Saldo → Sets Pró</div>
     </div>
   </div>
   </div>
