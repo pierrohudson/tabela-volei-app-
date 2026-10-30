@@ -149,7 +149,14 @@ const LEGADO = {
   check("campo de mensagem existe", A.document.getElementById("chatInput") !== null);
   check("botao enviar existe", A.document.getElementById("chatEnviar") !== null);
   check("campo de apelido existe", A.document.getElementById("chatNick") !== null);
-  check("indicador de status do chat existe", A.document.getElementById("chatStatus") !== null);
+  check("indicador de status do chat existe (bolinha)",
+    A.document.getElementById("chatDot") !== null);
+  check("chatTopo mostra apenas 'Chat'",
+    A.document.querySelector(".chat-topo h3") !== null &&
+    A.document.querySelector(".chat-topo h3").textContent.trim() === "Chat",
+    A.document.querySelector(".chat-topo h3")?.textContent);
+  check("sem texto 'ao vivo' ao lado da bolinha",
+    A.document.getElementById("chatStatus") === null);
   check("chat aparece na barra de abas",
     A.document.querySelector('[data-tab="tab-chat"]') !== null);
   check("cada aba tem um icone svg",
@@ -179,6 +186,8 @@ const LEGADO = {
   check("sem botao adicionar", R.document.getElementById("btnAddJogador").hidden === true);
   check("sem botao importar elenco", R.document.getElementById("btnImportarElenco").hidden === true);
   check("sem botao sortear", R.document.getElementById("btnSortear").hidden === true);
+  check("sem botao limpar chat para espectador",
+    R.document.getElementById("chatLimpar").hidden === true);
 
   // espectador nao edita o placar
   const antes = R.localStorage.getItem("tabela_volei_cores_v2");

@@ -2434,19 +2434,22 @@
   function chatStatus(st) {
     var el = document.getElementById("chatStatus");
     var dot = document.getElementById("chatDot");
-    if (!el || !dot) return;
+    if (!dot) return;
     if (st === "conectado") {
-      el.textContent = "ao vivo";
+      if (el) el.textContent = "ao vivo";
       dot.style.background = "var(--lime)";
       dot.style.boxShadow = "0 0 8px var(--lime-glow)";
+      dot.setAttribute("title", "Conectado ao vivo");
     } else if (st === "offline") {
-      el.textContent = "offline";
+      if (el) el.textContent = "offline";
       dot.style.background = "var(--muted-2)";
       dot.style.boxShadow = "none";
+      dot.setAttribute("title", "Offline");
     } else {
-      el.textContent = "conectando…";
+      if (el) el.textContent = "conectando…";
       dot.style.background = "var(--yellow)";
       dot.style.boxShadow = "0 0 8px var(--yellow-glow)";
+      dot.setAttribute("title", "Conectando…");
     }
   }
 
@@ -2557,6 +2560,7 @@
   function chatInit() {
     var lista = document.getElementById("chatLista");
     if (!lista) return;
+    chatAtualizarBotao();
 
     /* apelido salvo? */
     var nickSalvo = "";

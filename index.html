@@ -350,7 +350,8 @@
     box-shadow: none !important; cursor: default;
   }
   body.modo-leitura .btn-danger,
-  body.modo-leitura .header-ico#btnReset { display: none !important; }
+  body.modo-leitura .header-ico#btnReset,
+  body.modo-leitura #chatLimpar { display: none !important; }
   body.modo-leitura .section-title .hint { display: none; }
   /* ===== ABAS DE NAVEGACAO (estilo WhatsApp: icone em cima, rotulo embaixo) ===== */
   .tabs-bar {
@@ -1358,7 +1359,7 @@
     box-shadow: var(--shadow);
   }
   .chat-topo {
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: 8px;
     padding: 11px 14px;
     background: var(--panel-2);
     border-bottom: 1px solid var(--line);
@@ -1366,12 +1367,11 @@
   }
   .chat-topo h3 {
     margin: 0; font-size: .92rem; font-weight: 800;
-    letter-spacing: .04em; text-transform: uppercase;
-    display: flex; align-items: center; gap: 7px;
+    letter-spacing: .06em; text-transform: uppercase;
+    margin-right: auto;
   }
   .chat-online {
-    margin-left: auto; display: flex; align-items: center; gap: 6px;
-    font-size: .72rem; color: var(--muted); font-weight: 700;
+    display: inline-flex; align-items: center;
   }
   .chat-online .live-dot { width: 8px; height: 8px; border-radius: 50%; }
   .chat-lista {
@@ -1798,10 +1798,9 @@
 
     <div class="chat-card">
       <div class="chat-topo">
-        <h3><span>💬</span> Conversa ao Vivo</h3>
-        <span class="chat-online">
+        <h3>Chat</h3>
+        <span class="chat-online" aria-label="Status da conexão">
           <span class="live-dot" id="chatDot"></span>
-          <span id="chatStatus">conectando…</span>
         </span>
         <button class="btn btn-ghost" id="chatTrocar" hidden
           style="padding:5px 11px;font-size:.72rem;border-radius:20px">Trocar nome</button>
@@ -4304,19 +4303,22 @@
   function chatStatus(st) {
     var el = document.getElementById("chatStatus");
     var dot = document.getElementById("chatDot");
-    if (!el || !dot) return;
+    if (!dot) return;
     if (st === "conectado") {
-      el.textContent = "ao vivo";
+      if (el) el.textContent = "ao vivo";
       dot.style.background = "var(--lime)";
       dot.style.boxShadow = "0 0 8px var(--lime-glow)";
+      dot.setAttribute("title", "Conectado ao vivo");
     } else if (st === "offline") {
-      el.textContent = "offline";
+      if (el) el.textContent = "offline";
       dot.style.background = "var(--muted-2)";
       dot.style.boxShadow = "none";
+      dot.setAttribute("title", "Offline");
     } else {
-      el.textContent = "conectando…";
+      if (el) el.textContent = "conectando…";
       dot.style.background = "var(--yellow)";
       dot.style.boxShadow = "0 0 8px var(--yellow-glow)";
+      dot.setAttribute("title", "Conectando…");
     }
   }
 
@@ -4427,6 +4429,7 @@
   function chatInit() {
     var lista = document.getElementById("chatLista");
     if (!lista) return;
+    chatAtualizarBotao();
 
     /* apelido salvo? */
     var nickSalvo = "";
