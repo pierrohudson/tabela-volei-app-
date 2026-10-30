@@ -13,8 +13,9 @@
     },
     "chat-apelidos": {
       ".read": true,
+      ".write": "auth != null && auth.token.email == 'mesario@voleidobosque.app'",
       "$nick": {
-        ".write": "auth != null && (!data.exists() || data.val() == auth.uid)"
+        ".write": "auth != null && (auth.token.email == 'mesario@voleidobosque.app' || !data.exists() || data.val() == auth.uid || data.child('uid').val() == auth.uid || !data.child('em').exists() || (now - data.child('em').val() > 2700000))"
       }
     },
     ".read": true,

@@ -2080,10 +2080,11 @@
   var chatMensagens = {};        /* id -> mensagem */
   var chatMeuId = null;          /* id da ultima mensagem enviada por mim */
   var chatNick = "";
-  var chatApelidos = {};         /* apelido em minusculas -> dono (uid) */
+  var chatApelidos = {};         /* apelido em minusculas -> { uid, em } */
   var CHAT_SESSION_KEY = "volei_chat_session";
   var CHAT_NICK_KEY = "volei_chat_nick";
   var CHAT_NICKS_PATH = "chat-apelidos";
+  var CHAT_NICK_TTL = 45 * 60 * 1000; /* apelido inativo por 45 min fica livre */
 
   /* ---------- apelidos reservados (garante que ninguem repete o nome) ---------- */
   function chatNormalizarNick(n) {
@@ -2100,39 +2101,79 @@
     }).then(function (d) {
       chatApelidos = {};
       if (d && typeof d === "object") {
+        var agora = Date.now();
         Object.keys(d).forEach(function (k) {
-          chatApelidos[k] = d[k];   /* apelido normalizado -> uid dono */
+          var reg = d[k];
+          /* suporte retroativo: se era so string, assume registro recente */
+          if (typeof reg === "string") reg = { uid: reg, em: agora };
+          if (reg && reg.uid) {
+            /* se expirou (inativo por > 45 min), nem considera ocupado */
+            if (!reg.em || (agora - reg.em) < CHAT_NICK_TTL) {
+              chatApelidos[k] = reg;
+            }
+          }
         });
       }
-    }).catch(function () { /* offline: segue sem registro */
+      return chatApelidos;
+    }).catch(function () {
       chatApelidos = {};
+      return chatApelidos;
     });
   }
 
-  /* reserva o apelido; se outro aparelho ja usa, devolve false */
+  /* reserva o apelido; se outro aparelho ja usa ativamente, devolve false */
   function chatReservarNick(nick) {
     if (!chatSessao || !chatSessao.idToken) return Promise.resolve(false);
     var chave = chatNormalizarNick(nick);
     if (!chave) return Promise.resolve(false);
 
-    /* ja e meu? (mesmo aparelho, recarregou a pagina) */
-    if (chatApelidos[chave] && chatApelidos[chave] === chatSessao.uid) {
-      return Promise.resolve(true);
-    }
-    /* outro aparelho ja pegou esse nome? */
-    if (chatApelidos[chave]) return Promise.resolve(false);
+    /* sempre recarrega do banco antes de decidir para ter o estado mais fresco */
+    return chatCarregarApelidos().then(function (lista) {
+      var existente = lista[chave];
+      var agora = Date.now();
 
+      /* ja e meu? (mesmo aparelho, recarregou a pagina) -> renova o timestamp */
+      if (existente && existente.uid === chatSessao.uid) {
+        chatTocarNick(chave);
+        return true;
+      }
+
+      /* ocupado ativamente por outro aparelho? */
+      if (existente && existente.uid !== chatSessao.uid) {
+        var idade = agora - (existente.em || 0);
+        if (idade < CHAT_NICK_TTL) {
+          return false; /* realmente em uso ativo por outro */
+        }
+      }
+
+      /* livre ou expirado: grava meu uid e timestamp */
+      var payload = { uid: chatSessao.uid, em: agora };
+      var url = DB_URL + "/" + CHAT_NICKS_PATH + "/" + encodeURIComponent(chave) +
+                ".json?auth=" + encodeURIComponent(chatSessao.idToken);
+      return fetch(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(function (r) {
+        if (!r.ok) throw new Error("falha-reserva:" + r.status);
+        chatApelidos[chave] = payload;
+        return true;
+      }).catch(function () {
+        return false;
+      });
+    });
+  }
+
+  /* atualiza o timestamp do meu apelido para nao expirar enquanto estou usando */
+  function chatTocarNick(chave) {
+    if (!chatSessao || !chatSessao.idToken || !chave) return;
     var url = DB_URL + "/" + CHAT_NICKS_PATH + "/" + encodeURIComponent(chave) +
-              ".json?auth=" + encodeURIComponent(chatSessao.idToken);
-    return fetch(url, {
+              "/em.json?auth=" + encodeURIComponent(chatSessao.idToken);
+    fetch(url, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(chatSessao.uid)
-    }).then(function (r) {
-      if (!r.ok) throw new Error("falha-reserva");
-      chatApelidos[chave] = chatSessao.uid;
-      return true;
-    }).catch(function () { return false; });
+      body: JSON.stringify(Date.now())
+    }).catch(function () {});
   }
 
   /* devolve o apelido quando a pessoa desiste (ou troca de nome) */
@@ -2140,7 +2181,8 @@
     if (!chatSessao || !chatSessao.idToken) return;
     var chave = chatNormalizarNick(nick);
     if (!chave) return;
-    if (chatApelidos[chave] && chatApelidos[chave] !== chatSessao.uid) return;
+    var reg = chatApelidos[chave];
+    if (reg && reg.uid && reg.uid !== chatSessao.uid) return;
     delete chatApelidos[chave];
     fetch(DB_URL + "/" + CHAT_NICKS_PATH + "/" + encodeURIComponent(chave) +
           ".json?auth=" + encodeURIComponent(chatSessao.idToken), { method: "DELETE" })
@@ -2250,6 +2292,7 @@
       chatMensagens[msg.id] = msg;
       chatRender();
       chatLimparAntigas();
+      chatTocarNick(chatNormalizarNick(chatNick));
       return msg;
     });
   }
