@@ -116,14 +116,27 @@ const LEGADO = {
     cartoes[0].textContent.indexOf("TIME - 1") >= 0, cartoes[0].textContent.slice(0, 40));
 
   // ---- ABAS ----
-  check("4 abas", A.document.querySelectorAll(".tab-btn").length === 4);
-  ["tab-classif", "tab-jogos", "tab-sorteio", "tab-jogadores"].forEach(id => {
+  check("5 abas", A.document.querySelectorAll(".tab-btn").length === 5);
+  ["tab-classif", "tab-jogos", "tab-sorteio", "tab-chat", "tab-jogadores"].forEach(id => {
     const btn = A.document.querySelector('[data-tab="' + id + '"]');
     btn.dispatchEvent(new A.window.Event("click"));
   });
   await wait(150);
   check("aba de jogadores ativa apos clicar",
     A.document.getElementById("tab-jogadores").classList.contains("ativo"));
+
+  // ---- CHAT (estrutura) ----
+  check("aba do chat existe", A.document.getElementById("tab-chat") !== null);
+  check("lista do chat existe", A.document.getElementById("chatLista") !== null);
+  check("campo de mensagem existe", A.document.getElementById("chatInput") !== null);
+  check("botao enviar existe", A.document.getElementById("chatEnviar") !== null);
+  check("campo de apelido existe", A.document.getElementById("chatNick") !== null);
+  check("indicador de status do chat existe", A.document.getElementById("chatStatus") !== null);
+  check("chat aparece na barra de abas",
+    A.document.querySelector('[data-tab="tab-chat"]') !== null);
+  check("cada aba tem um icone svg",
+    A.document.querySelectorAll(".tab-btn .tab-ico").length === 5,
+    A.document.querySelectorAll(".tab-btn .tab-ico").length);
 
   // ---- FINAIS E PREMIACAO DENTRO DA ABA DE JOGOS ----
   check("finais dentro da aba de jogos",

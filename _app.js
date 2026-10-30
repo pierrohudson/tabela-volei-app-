@@ -529,6 +529,7 @@
       btn.textContent = "🔓 Admin";
       btn.classList.remove("btn-admin-on");
     }
+    if (typeof chatAtualizarBotao === "function") chatAtualizarBotao();
     renderAll();
   }
 
@@ -542,6 +543,7 @@
       btn.textContent = "🔒 Sair do Admin";
       btn.classList.add("btn-admin-on");
     }
+    if (typeof chatAtualizarBotao === "function") chatAtualizarBotao();
     renderAll();
   }
 
@@ -2123,6 +2125,398 @@
     setTimeout(tick, delay);
   }
 
+  /* ============================================================
+     CHAT AO VIVO — todos conversam sem fazer login
+     ------------------------------------------------------------
+     Cada visitante recebe uma identidade temporaria (conta Firebase
+     criada automaticamente, sem senha para o usuario). Isso permite
+     escrever no path /chat usando o token, enquanto a leitura e
+     publica (todo mundo ve as mensagens).
+     ============================================================ */
+  var CHAT_PATH = "chat";
+  var chatRef = DB_URL + "/" + CHAT_PATH + ".json";
+  var chatLimite = 100;          /* quantas mensagens ficam guardadas */
+  var chatSessao = null;         /* { idToken, refreshToken, expiraEm, uid } */
+  var chatStreamCtrl = null;
+  var chatMensagens = {};        /* id -> mensagem */
+  var chatMeuId = null;          /* id da ultima mensagem enviada por mim */
+  var chatNick = "";
+  var CHAT_SESSION_KEY = "volei_chat_session";
+  var CHAT_NICK_KEY = "volei_chat_nick";
+
+  function chatSalvarSessao(s) {
+    try { localStorage.setItem(CHAT_SESSION_KEY, JSON.stringify(s)); } catch (e) {}
+  }
+  function chatCarregarSessao() {
+    try {
+      var raw = localStorage.getItem(CHAT_SESSION_KEY);
+      if (!raw) return null;
+      var s = JSON.parse(raw);
+      return (s && s.idToken && s.refreshToken) ? s : null;
+    } catch (e) { return null; }
+  }
+  function chatApagarSessao() {
+    try { localStorage.removeItem(CHAT_SESSION_KEY); } catch (e) {}
+  }
+
+  /* ---------- identidade temporaria (criada sem intervencao do usuario) ---------- */
+  function chatGarantirSessao() {
+    var s = chatCarregarSessao();
+    if (s && s.expiraEm > Date.now() + 60000) {
+      chatSessao = s;
+      return Promise.resolve(s);
+    }
+    /* token expirado: tenta renovar antes de criar outra conta */
+    if (s && s.refreshToken) {
+      return fetch("https://securetoken.googleapis.com/v1/token?key=" + API_KEY, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ grant_type: "refresh_token", refresh_token: s.refreshToken })
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (d && d.id_token) {
+          s.idToken = d.id_token;
+          s.expiraEm = Date.now() + (Number(d.expires_in || 3600) - 60) * 1000;
+          chatSessao = s;
+          chatSalvarSessao(s);
+          return s;
+        }
+        return chatCriarSessao();
+      }).catch(function () { return chatCriarSessao(); });
+    }
+    return chatCriarSessao();
+  }
+
+  function chatCriarSessao() {
+    /* e-mail descartavel unico por aparelho; a senha nunca e mostrada nem usada */
+    var uid = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    var email = "chat-" + uid + "@visitante.voleidobosque.app";
+    var senha = "V" + Math.random().toString(36).slice(2, 10) + "a1!";
+
+    return authPost("signUp", { email: email, password: senha, returnSecureToken: true })
+      .then(function (d) {
+        if (d.__status === 200 && d.idToken) {
+          var s = {
+            idToken: d.idToken,
+            refreshToken: d.refreshToken,
+            expiraEm: Date.now() + (Number(d.expiresIn || 3600) - 60) * 1000,
+            uid: uid
+          };
+          chatSessao = s;
+          chatSalvarSessao(s);
+          return s;
+        }
+        var msg = (d.error && d.error.message) || "";
+        if (/EMAIL_EXISTS/i.test(msg)) {
+          /* ja existe: tenta entrar */
+          return authPost("signInWithPassword", { email: email, password: senha, returnSecureToken: true })
+            .then(function (d2) {
+              if (d2.__status === 200 && d2.idToken) {
+                var s2 = {
+                  idToken: d2.idToken, refreshToken: d2.refreshToken,
+                  expiraEm: Date.now() + (Number(d2.expiresIn || 3600) - 60) * 1000, uid: uid
+                };
+                chatSessao = s2; chatSalvarSessao(s2);
+                return s2;
+              }
+              throw new Error("sem-sessao");
+            });
+        }
+        throw new Error("sem-sessao");
+      });
+  }
+
+  /* ---------- escrita ---------- */
+  function chatEnviar(texto) {
+    if (!chatSessao || !chatSessao.idToken) return Promise.reject(new Error("sem-sessao"));
+    var msg = {
+      id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      texto: String(texto),
+      autor: chatNick,
+      em: Date.now(),
+      dono: chatSessao.uid
+    };
+    chatMeuId = msg.id;
+    var url = DB_URL + "/" + CHAT_PATH + "/" + msg.id + ".json?auth=" +
+              encodeURIComponent(chatSessao.idToken);
+    return fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(msg)
+    }).then(function (r) {
+      if (!r.ok) throw new Error("falha-envio");
+      chatMensagens[msg.id] = msg;
+      chatRender();
+      chatLimparAntigas();
+      return msg;
+    });
+  }
+
+  /* ---------- leitura inicial ---------- */
+  function chatCarregarHistorico() {
+    return fetch(chatRef).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(function (d) {
+      chatMensagens = {};
+      if (d && typeof d === "object") {
+        Object.keys(d).forEach(function (k) {
+          var m = d[k];
+          if (m && m.id && m.texto) chatMensagens[m.id] = m;
+        });
+      }
+      chatRender();
+    }).catch(function () { /* offline: mostra o que tem no cache local */ });
+  }
+
+  /* ---------- tempo real (SSE) ---------- */
+  function chatIniciarStream() {
+    if (chatStreamCtrl) return;
+    if (typeof fetch === "undefined" || typeof ReadableStream === "undefined") return;
+
+    chatStreamCtrl = new AbortController();
+    var url = chatRef + "?print=silent";
+
+    fetch(url, {
+      headers: { "Accept": "text/event-stream" },
+      signal: chatStreamCtrl.signal
+    }).then(function (res) {
+      if (!res.ok || !res.body) throw new Error("stream " + res.status);
+      chatStatus("conectado");
+      var reader = res.body.getReader();
+      var dec = new TextDecoder();
+      var buffer = "";
+
+      function processar(bloco) {
+        var linhas = bloco.split("\n");
+        for (var i = 0; i < linhas.length; i++) {
+          var ln = linhas[i].trim();
+          if (ln.indexOf("data:") !== 0) continue;
+          var json = ln.slice(5).trim();
+          if (!json || json === "null") continue;
+          try {
+            var ev = JSON.parse(json);
+            if (!ev || !ev.path) continue;
+            /* caminho "/<id>" = uma mensagem isolada */
+            if (ev.path.length > 1 && ev.path.indexOf("/", 1) === -1) {
+              var id = ev.path.slice(1);
+              if (ev.data && ev.data.id) {
+                chatMensagens[ev.data.id] = ev.data;
+                chatRender();
+              } else if (ev.data === null) {
+                delete chatMensagens[id];
+                chatRender();
+              }
+            }
+            /* caminho "/" = recarrega tudo (usado pelo botao limpar) */
+            else if (ev.path === "/") {
+              chatMensagens = {};
+              if (ev.data && typeof ev.data === "object") {
+                Object.keys(ev.data).forEach(function (k) {
+                  var m = ev.data[k];
+                  if (m && m.id && m.texto) chatMensagens[m.id] = m;
+                });
+              }
+              chatRender();
+            }
+          } catch (e) { /* payload malformado: ignora */ }
+        }
+      }
+
+      (function pump() {
+        return reader.read().then(function (r) {
+          if (r.done) return;
+          buffer += dec.decode(r.value, { stream: true });
+          var partes = buffer.split("\n\n");
+          buffer = partes.pop();
+          for (var p = 0; p < partes.length; p++) processar(partes[p]);
+          return pump();
+        });
+      })().catch(function () { /* encerrado: reconecta abaixo */ });
+    }).catch(function () {
+      chatStatus("offline");
+      chatStreamCtrl = null;
+      setTimeout(function () { if (!chatStreamCtrl) chatIniciarStream(); }, 5000);
+    });
+  }
+
+  function chatPararStream() {
+    if (chatStreamCtrl) {
+      try { chatStreamCtrl.abort(); } catch (e) {}
+      chatStreamCtrl = null;
+    }
+  }
+
+  /* ---------- limpeza do historico (mantem as N mais recentes) ---------- */
+  function chatLimparAntigas() {
+    var ids = Object.keys(chatMensagens);
+    if (ids.length <= chatLimite) return;
+    ids.sort(function (a, b) {
+      var ma = chatMensagens[a], mb = chatMensagens[b];
+      return (ma.em || 0) - (mb.em || 0);
+    });
+    var excessos = ids.slice(0, ids.length - chatLimite);
+    if (!chatSessao || !chatSessao.idToken) return;
+    excessos.forEach(function (id) {
+      fetch(DB_URL + "/" + CHAT_PATH + "/" + id + ".json?auth=" +
+            encodeURIComponent(chatSessao.idToken), { method: "DELETE" })
+        .catch(function () {});
+    });
+  }
+
+  /* ---------- render ---------- */
+  function chatStatus(st) {
+    var el = document.getElementById("chatStatus");
+    var dot = document.getElementById("chatDot");
+    if (!el || !dot) return;
+    if (st === "conectado") {
+      el.textContent = "ao vivo";
+      dot.style.background = "var(--lime)";
+      dot.style.boxShadow = "0 0 8px var(--lime-glow)";
+    } else if (st === "offline") {
+      el.textContent = "offline";
+      dot.style.background = "var(--muted-2)";
+      dot.style.boxShadow = "none";
+    } else {
+      el.textContent = "conectando…";
+      dot.style.background = "var(--yellow)";
+      dot.style.boxShadow = "0 0 8px var(--yellow-glow)";
+    }
+  }
+
+  function chatHora(ts) {
+    try {
+      var d = new Date(ts || Date.now());
+      var h = d.getHours(), m = d.getMinutes();
+      return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+    } catch (e) { return ""; }
+  }
+
+  function chatRender() {
+    var lista = document.getElementById("chatLista");
+    if (!lista) return;
+    var vazio = document.getElementById("chatVazio");
+
+    var ids = Object.keys(chatMensagens);
+    ids.sort(function (a, b) {
+      var ma = chatMensagens[a], mb = chatMensagens[b];
+      return (ma.em || 0) - (mb.em || 0);
+    });
+
+    if (!ids.length) {
+      if (vazio) vazio.hidden = false;
+      lista.innerHTML = "";
+      if (vazio) lista.appendChild(vazio);
+      return;
+    }
+    if (vazio) vazio.hidden = true;
+
+    /* reconstroi a lista (poucas mensagens: leve e simples) */
+    var html = "";
+    ids.forEach(function (id) {
+      var m = chatMensagens[id];
+      var minha = (m.dono && chatSessao && m.dono === chatSessao.uid);
+      html += '<div class="chat-msg' + (minha ? " minha" : "") + '">' +
+                '<div class="chat-autor">' + esc(m.autor || "Anônimo") + '</div>' +
+                '<div class="chat-texto">' + esc(m.texto || "") + '</div>' +
+                '<div class="chat-hora">' + chatHora(m.em) + '</div>' +
+              '</div>';
+    });
+    lista.innerHTML = html;
+
+    /* rola para o fim se o usuario ja estava no fim */
+    try {
+      var pertoDoFim = lista.scrollHeight - lista.scrollTop - lista.clientHeight < 140;
+      if (pertoDoFim) lista.scrollTop = lista.scrollHeight;
+    } catch (e) {}
+  }
+
+  /* ---------- nickname ---------- */
+  function chatDefinirNick(nick) {
+    chatNick = String(nick || "").trim().slice(0, 18) || "Anônimo";
+    try { localStorage.setItem(CHAT_NICK_KEY, chatNick); } catch (e) {}
+    var box = document.getElementById("chatNickBox");
+    if (box) box.hidden = true;
+    var inp = document.getElementById("chatInput");
+    if (inp) inp.disabled = false;
+    var btn = document.getElementById("chatEnviar");
+    if (btn) btn.disabled = false;
+    try { if (inp) inp.focus(); } catch (e) {}
+  }
+
+  /* ---------- inicializacao ---------- */
+  function chatInit() {
+    var lista = document.getElementById("chatLista");
+    if (!lista) return;
+
+    /* apelido salvo? */
+    var nickSalvo = "";
+    try { nickSalvo = localStorage.getItem(CHAT_NICK_KEY) || ""; } catch (e) {}
+
+    /* garante a sessao (cria a conta temporaria se preciso) */
+    chatGarantirSessao().then(function () {
+      chatStatus("conectado");
+      chatCarregarHistorico();
+      chatIniciarStream();
+      if (nickSalvo) chatDefinirNick(nickSalvo);
+    }).catch(function () {
+      chatStatus("offline");
+    });
+
+    /* botao "Entrar" do apelido */
+    var btnNick = document.getElementById("chatNickBtn");
+    var inpNick = document.getElementById("chatNick");
+    if (btnNick && inpNick) {
+      btnNick.addEventListener("click", function () {
+        chatDefinirNick(inpNick.value);
+      });
+      inpNick.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); chatDefinirNick(inpNick.value); }
+      });
+    }
+
+    /* envio */
+    var form = document.getElementById("chatForm");
+    var inp = document.getElementById("chatInput");
+    var btn = document.getElementById("chatEnviar");
+    if (form && inp) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var texto = (inp.value || "").trim();
+        if (!texto) return;
+        inp.value = "";
+        if (btn) btn.disabled = true;
+        chatEnviar(texto).catch(function () {
+          inp.value = texto; /* devolve o texto se falhar */
+        }).then(function () {
+          if (btn) btn.disabled = false;
+          try { inp.focus(); } catch (e) {}
+        });
+      });
+    }
+
+    /* admin pode limpar o chat */
+    var btnLimpar = document.getElementById("chatLimpar");
+    if (btnLimpar) {
+      btnLimpar.addEventListener("click", function () {
+        if (!confirm("Limpar todas as mensagens do chat?")) return;
+        if (!chatSessao || !chatSessao.idToken) return;
+        fetch(chatRef + "?auth=" + encodeURIComponent(chatSessao.idToken), { method: "DELETE" })
+          .then(function () {
+            chatMensagens = {};
+            chatRender();
+          }).catch(function () {
+            alert("Não foi possível limpar o chat.");
+          });
+      });
+    }
+  }
+
+  /* atualiza o botao "Limpar" conforme o modo (admin/espectador) */
+  function chatAtualizarBotao() {
+    var b = document.getElementById("chatLimpar");
+    if (b) b.hidden = !esAdmin;
+  }
+
   /* ===== ABAS: navegacao entre as secoes ===== */
   (function initTabs() {
     var bar = document.getElementById("tabsBar");
@@ -2548,6 +2942,9 @@
     setLive("offline", "Sem conexão — mostrando os dados salvos neste aparelho");
     iniciarStream();
   });
+
+  /* CHAT AO VIVO: liga o chat (cria a sessao temporaria e abre o stream) */
+  try { chatInit(); } catch (e) { /* chat nao bloqueia o resto do app */ }
 
   /* renova o token do Mesario periodicamente */
   setInterval(function () {
