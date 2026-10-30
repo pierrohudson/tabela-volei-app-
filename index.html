@@ -338,7 +338,7 @@
   }
   body.modo-leitura .btn-danger { display: none; }
   body.modo-leitura .section-title .hint { display: none; }
-  /* ===== ABAS DE NAVEGACAO ===== */
+  /* ===== ABAS DE NAVEGACAO (estilo WhatsApp: icone em cima, rotulo embaixo) ===== */
   .tabs-bar {
     position: sticky; top: 0; z-index: 50;
     max-width: 1040px; margin: 0 auto 12px;
@@ -355,6 +355,7 @@
   .tabs-bar::-webkit-scrollbar { display: none; }
   .tab-btn {
     flex: 1; min-width: max-content;
+    display: inline-flex; align-items: center; justify-content: center;
     font: inherit; font-weight: 800; font-size: .82rem; letter-spacing: .02em;
     text-transform: uppercase; white-space: nowrap;
     background: transparent; color: var(--muted);
@@ -369,7 +370,11 @@
     border-bottom-color: var(--yellow);
     text-shadow: 0 0 14px var(--yellow-glow);
   }
-  .tab-ico { margin-right: 5px; }
+  .tab-ico {
+    display: block; width: 17px; height: 17px;
+    stroke-width: 2; flex: none; margin-right: 7px;
+  }
+  .tab-txt { display: inline; }
   .tab-panel { display: none; }
   .tab-panel.ativo { display: block; animation: tabIn .25s ease; }
   @keyframes tabIn {
@@ -1156,19 +1161,47 @@
     .header-actions .btn { flex: 1; justify-content: center; }
     h2.section-title .hint { display: none; }
 
-    /* ABAS: as 4 cabem na tela, sem rolagem lateral */
+    /* ABAS estilo WhatsApp: barra flutuante no rodape, icone em cima, rotulo embaixo */
     .tabs-bar {
+      position: fixed; top: auto; bottom: 0; left: 0; right: 0;
+      z-index: 60; max-width: none; margin: 0;
       display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 0; padding: 4px 6px 0;
+      gap: 0;
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+      padding-left: calc(8px + env(safe-area-inset-left, 0px));
+      padding-right: calc(8px + env(safe-area-inset-right, 0px));
+      background: rgba(20, 22, 28, 0.92);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border-bottom: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
       overflow-x: visible;
     }
     .tab-btn {
       min-width: 0; flex: none;
-      font-size: .66rem; letter-spacing: 0;
-      padding: 10px 2px 12px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 3px;
+      font-size: .62rem; font-weight: 700; letter-spacing: 0;
+      text-transform: none; line-height: 1.1;
+      padding: 7px 2px 6px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      border-bottom: none; border-radius: 12px;
+      text-shadow: none;
+      transition: background .18s ease, color .18s ease;
     }
-    .tab-ico { display: none; }
+    .tab-btn.ativo {
+      background: rgba(255, 207, 26, 0.14);
+      color: var(--yellow);
+      border-bottom-color: transparent;
+      text-shadow: 0 0 12px var(--yellow-glow);
+    }
+    .tab-ico {
+      display: block; width: 23px; height: 23px;
+      stroke-width: 2; flex: none; margin: 0 0 0;
+    }
+    .tab-txt { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+    /* espaco extra no fim do conteudo para a barra flutuante nao cobrir */
+    .wrap { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
 
     /* Config de pontos compacta: 2 colunas, rótulo acima do numero */
     .config-bar {
@@ -1379,11 +1412,38 @@
 </div>
 
 <!-- ===== ABAS ===== -->
-<nav class="tabs-bar" id="tabsBar">
-  <button class="tab-btn ativo" data-tab="tab-classif">Classificação</button>
-  <button class="tab-btn" data-tab="tab-jogos">Jogos</button>
-  <button class="tab-btn" data-tab="tab-jogadores"><span class="tab-ico">⭐</span><span>Jogadores</span></button>
-  <button class="tab-btn" data-tab="tab-sorteio"><span class="tab-ico">🎁</span><span>Sorteio</span></button>
+
+
+<nav class="tabs-bar" id="tabsBar" aria-label="Navegação principal">
+  <button class="tab-btn ativo" data-tab="tab-classif" aria-label="Classificação">
+    <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+      <path d="M3 10h18M8 4v16"></path>
+    </svg>
+    <span class="tab-txt">Classificação</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-jogos" aria-label="Jogos">
+    <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M12 3a9 9 0 0 0 0 18M12 3a9 9 0 0 1 0 18M3.6 9h16.8M3.6 15h16.8"></path>
+    </svg>
+    <span class="tab-txt">Jogos</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-jogadores" aria-label="Jogadores">
+    <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </svg>
+    <span class="tab-txt">Jogadores</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-sorteio" aria-label="Sorteio">
+    <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="8" width="18" height="13" rx="2"></rect>
+      <path d="M12 8v13M3 12h18M12 8H7.5a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8zM12 8h4.5a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8z"></path>
+    </svg>
+    <span class="tab-txt">Sorteio</span>
+  </button>
 </nav>
 
 <main class="wrap">
@@ -1556,6 +1616,8 @@
   </div>
 
 </main>
+
+
 
 <canvas id="raffleCanvas" hidden></canvas>
 
