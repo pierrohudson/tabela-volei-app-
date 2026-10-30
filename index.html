@@ -1423,7 +1423,7 @@
   .chat-enviar svg {
     width: 19px; height: 19px; flex: none;
     display: block; margin: 0; padding: 0;
-    position: relative; left: 1px;   /* compensa o overshoot optico da bolinha */
+    position: relative; left: 1px;  /* compensa a ponta da flecha na horizontal */
   }
   .chat-nick {
     display: flex; gap: 8px; padding: 12px;
@@ -1780,7 +1780,7 @@
       <form class="chat-form" id="chatForm">
         <input class="chat-input" id="chatInput" maxlength="300" placeholder="Escreva sua mensagem…"
           autocomplete="off" disabled>
-        <button class="chat-enviar" id="chatEnviar" type="submit" disabled aria-label="Enviar mensagem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4 20-7z"></path></svg></button>
+        <button class="chat-enviar" id="chatEnviar" type="submit" disabled aria-label="Enviar mensagem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 3 9-3 9 19-9Z"></path><path d="M6 12h16"></path></svg></button>
       </form>
     </div>
   </div>
