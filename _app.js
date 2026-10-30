@@ -2141,8 +2141,72 @@
   var chatMensagens = {};        /* id -> mensagem */
   var chatMeuId = null;          /* id da ultima mensagem enviada por mim */
   var chatNick = "";
+  var chatApelidos = {};         /* apelido em minusculas -> dono (uid) */
   var CHAT_SESSION_KEY = "volei_chat_session";
   var CHAT_NICK_KEY = "volei_chat_nick";
+  var CHAT_NICKS_PATH = "chat-apelidos";
+
+  /* ---------- apelidos reservados (garante que ninguem repete o nome) ---------- */
+  function chatNormalizarNick(n) {
+    /* sem acentos, minusculo, sem espacos extras: "Joao Silva" == "joao silva" */
+    var s = String(n || "").trim().toLowerCase();
+    if (s.normalize) s = s.normalize("NFD").replace(/[̀-ͯ]/g, "");
+    return s.replace(/\s+/g, " ");
+  }
+
+  function chatCarregarApelidos() {
+    return fetch(DB_URL + "/" + CHAT_NICKS_PATH + ".json").then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(function (d) {
+      chatApelidos = {};
+      if (d && typeof d === "object") {
+        Object.keys(d).forEach(function (k) {
+          chatApelidos[k] = d[k];   /* apelido normalizado -> uid dono */
+        });
+      }
+    }).catch(function () { /* offline: segue sem registro */
+      chatApelidos = {};
+    });
+  }
+
+  /* reserva o apelido; se outro aparelho ja usa, devolve false */
+  function chatReservarNick(nick) {
+    if (!chatSessao || !chatSessao.idToken) return Promise.resolve(false);
+    var chave = chatNormalizarNick(nick);
+    if (!chave) return Promise.resolve(false);
+
+    /* ja e meu? (mesmo aparelho, recarregou a pagina) */
+    if (chatApelidos[chave] && chatApelidos[chave] === chatSessao.uid) {
+      return Promise.resolve(true);
+    }
+    /* outro aparelho ja pegou esse nome? */
+    if (chatApelidos[chave]) return Promise.resolve(false);
+
+    var url = DB_URL + "/" + CHAT_NICKS_PATH + "/" + encodeURIComponent(chave) +
+              ".json?auth=" + encodeURIComponent(chatSessao.idToken);
+    return fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(chatSessao.uid)
+    }).then(function (r) {
+      if (!r.ok) throw new Error("falha-reserva");
+      chatApelidos[chave] = chatSessao.uid;
+      return true;
+    }).catch(function () { return false; });
+  }
+
+  /* devolve o apelido quando a pessoa desiste (ou troca de nome) */
+  function chatLiberarNick(nick) {
+    if (!chatSessao || !chatSessao.idToken) return;
+    var chave = chatNormalizarNick(nick);
+    if (!chave) return;
+    if (chatApelidos[chave] && chatApelidos[chave] !== chatSessao.uid) return;
+    delete chatApelidos[chave];
+    fetch(DB_URL + "/" + CHAT_NICKS_PATH + "/" + encodeURIComponent(chave) +
+          ".json?auth=" + encodeURIComponent(chatSessao.idToken), { method: "DELETE" })
+      .catch(function () {});
+  }
 
   function chatSalvarSessao(s) {
     try { localStorage.setItem(CHAT_SESSION_KEY, JSON.stringify(s)); } catch (e) {}
@@ -2431,16 +2495,59 @@
   }
 
   /* ---------- nickname ---------- */
-  function chatDefinirNick(nick) {
-    chatNick = String(nick || "").trim().slice(0, 18) || "Anônimo";
-    try { localStorage.setItem(CHAT_NICK_KEY, chatNick); } catch (e) {}
+  function chatMostrarErroNick(texto) {
+    var m = document.getElementById("chatNickMsg");
     var box = document.getElementById("chatNickBox");
-    if (box) box.hidden = true;
-    var inp = document.getElementById("chatInput");
-    if (inp) inp.disabled = false;
-    var btn = document.getElementById("chatEnviar");
-    if (btn) btn.disabled = false;
-    try { if (inp) inp.focus(); } catch (e) {}
+    if (!m) return;
+    if (texto) {
+      m.textContent = texto;
+      m.classList.add("show");
+      if (box) box.classList.add("erro");
+    } else {
+      m.textContent = "";
+      m.classList.remove("show");
+      if (box) box.classList.remove("erro");
+    }
+  }
+
+  function chatDefinirNick(nick) {
+    var limpo = String(nick || "").trim().slice(0, 18);
+    if (!limpo) {
+      chatMostrarErroNick("Digite um apelido para entrar no chat.");
+      return;
+    }
+    var btn = document.getElementById("chatNickBtn");
+    if (btn) btn.disabled = true;
+    chatMostrarErroNick("");
+
+    chatReservarNick(limpo).then(function (ok) {
+      if (btn) btn.disabled = false;
+      if (!ok) {
+        chatMostrarErroNick("Esse apelido já está sendo usado. Escolha outro.");
+        var inp = document.getElementById("chatNick");
+        if (inp) { inp.value = ""; try { inp.focus(); } catch (e) {} }
+        return;
+      }
+      /* só agora assume o apelido */
+      var anterior = chatNick;
+      if (anterior && chatNormalizarNick(anterior) !== chatNormalizarNick(limpo)) {
+        chatLiberarNick(anterior);
+      }
+      chatNick = limpo;
+      try { localStorage.setItem(CHAT_NICK_KEY, chatNick); } catch (e) {}
+      var box = document.getElementById("chatNickBox");
+      if (box) box.hidden = true;
+      var inp2 = document.getElementById("chatInput");
+      if (inp2) inp2.disabled = false;
+      var btn2 = document.getElementById("chatEnviar");
+      if (btn2) btn2.disabled = false;
+      var btnTrocar = document.getElementById("chatTrocar");
+      if (btnTrocar) btnTrocar.hidden = false;
+      try { if (inp2) inp2.focus(); } catch (e) {}
+    }).catch(function () {
+      if (btn) btn.disabled = false;
+      chatMostrarErroNick("Não foi possível conectar. Tente de novo.");
+    });
   }
 
   /* ---------- inicializacao ---------- */
@@ -2457,10 +2564,40 @@
       chatStatus("conectado");
       chatCarregarHistorico();
       chatIniciarStream();
-      if (nickSalvo) chatDefinirNick(nickSalvo);
+      /* so entra com o apelido salvo DEPOIS de carregar a lista de nomes
+         reservados -- caso outro aparelho ja tenha ficado com ele,
+         a pessoa escolhe outro. */
+      if (nickSalvo) {
+        chatCarregarApelidos().then(function () {
+          chatDefinirNick(nickSalvo);
+        }).catch(function () {
+          chatDefinirNick(nickSalvo);
+        });
+      }
     }).catch(function () {
       chatStatus("offline");
     });
+
+    /* botao "Trocar nome" (mostra a caixa de apelido de novo) */
+    var btnTrocar = document.getElementById("chatTrocar");
+    if (btnTrocar) {
+      btnTrocar.addEventListener("click", function () {
+        /* devolve o apelido atual para que ele possa ser usado por outro */
+        if (chatNick) chatLiberarNick(chatNick);
+        chatNick = "";
+        try { localStorage.removeItem(CHAT_NICK_KEY); } catch (e) {}
+        var box = document.getElementById("chatNickBox");
+        if (box) box.hidden = false;
+        var inp = document.getElementById("chatInput");
+        if (inp) inp.disabled = true;
+        var btn = document.getElementById("chatEnviar");
+        if (btn) btn.disabled = true;
+        btnTrocar.hidden = true;
+        chatMostrarErroNick("");
+        var inpNick = document.getElementById("chatNick");
+        if (inpNick) { inpNick.value = ""; try { inpNick.focus(); } catch (e) {} }
+      });
+    }
 
     /* botao "Entrar" do apelido */
     var btnNick = document.getElementById("chatNickBtn");
