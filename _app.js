@@ -414,7 +414,7 @@
   var loginBloqueadoAte = 0;
 
   /* login do Mesario: a senha e validada pelo Firebase Auth no servidor
-     do Claude Opus 5.5 (HTTPS). Nenhum hash fica exposto no codigo-fonte. */
+     do Firebase Auth (HTTPS). Nenhum hash fica exposto no codigo-fonte. */
   function loginMesario(senha) {
     /* rate limiting: 5 tentativas em 2 minutos -> bloqueio com backoff */
     var agora = Date.now();
@@ -1767,7 +1767,12 @@
     var link = state.mapsUrl || "";
     iframe.src = mapsEmbedUrl(link);
     if (inpUrl) inpUrl.value = link;
-    if (nomeLocal) nomeLocal.innerHTML = "📍 " + esc(MAPA_NOME);
+    if (nomeLocal) {
+      /* atualiza so o texto: o icone de pin fica intacto */
+      var spanNome = nomeLocal.querySelector("span");
+      if (spanNome) spanNome.textContent = MAPA_NOME;
+      else nomeLocal.textContent = MAPA_NOME;
+    }
 
     if (btnGoogle) {
       /* usa o link curto salvo; se ausente, monta um link de busca do Google Maps */

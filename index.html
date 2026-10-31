@@ -1441,6 +1441,10 @@
     .gaveta-pill { padding: 2px 6px; font-size: .62rem; }
     .gaveta-pill b { font-size: .7rem; }
     .gaveta-seta { width: 22px; height: 22px; font-size: .72rem; }
+    /* botoes de rota: labels mais curtas cabem em telas estreitas */
+    .mapa-botoes { gap: 8px; padding: 0 12px 13px; }
+    .btn-rota { font-size: .68rem; padding: 9px 6px; gap: 5px; }
+    .btn-rota svg { width: 15px; height: 15px; }
   }
 
   /* ===== SORTEIO DO CAMPEÃO (estilo Raffle Pro) ===== */
@@ -1601,35 +1605,58 @@
     background: var(--navy-800);
     filter: invert(90%) hue-rotate(180deg) contrast(105%) saturate(80%);
   }
-  .mapa-info { padding: 13px 15px 10px; }
+  .mapa-info { padding: 14px 15px 12px; }
   .mapa-local {
     font-family: var(--font-display); font-size: 1.12rem; font-weight: 800;
-    color: #ffffff; display: flex; align-items: center; gap: 8px;
+    color: #ffffff; display: flex; align-items: center; gap: 9px;
+    line-height: 1.2;
+  }
+  .mapa-pin {
+    width: 20px; height: 20px; flex: none;
+    color: var(--turquoise);
+    filter: drop-shadow(0 0 7px var(--turquoise-glow));
   }
   .mapa-sub {
-    font-size: .76rem; color: var(--muted); line-height: 1.45; margin-top: 3px;
+    font-size: .76rem; color: var(--muted); line-height: 1.45; margin-top: 5px;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   }
+  .mapa-sub .mapa-cidade { color: var(--txt); font-weight: 700; }
+  .mapa-sub .mapa-sep { color: var(--muted-2); }
   .mapa-botoes {
-    display: flex; gap: 8px; padding: 0 15px 14px; flex-wrap: wrap;
+    display: flex; gap: 10px; padding: 0 15px 15px;
   }
   .btn-rota {
-    flex: 1; min-width: 132px;
-    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-    padding: 10px 12px; border-radius: 12px;
-    font: inherit; font-size: .8rem; font-weight: 800;
+    flex: 1 1 0; min-width: 0;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 10px; border-radius: 13px;
+    font: inherit; font-size: .82rem; font-weight: 800;
     text-decoration: none; cursor: pointer;
-    transition: transform .12s ease, filter .12s ease;
+    white-space: nowrap; overflow: hidden;
+    transition: transform .12s ease, filter .12s ease, box-shadow .18s ease;
   }
-  .btn-rota:hover { transform: scale(1.03); }
+  .btn-rota .rota-txt {
+    /* quebra em 2 linhas limpas em vez de cortar o texto */
+    white-space: normal; line-height: 1.15;
+    overflow-wrap: break-word; hyphens: auto;
+  }
+  .btn-rota:hover { transform: translateY(-2px); }
+  .btn-rota:active { transform: translateY(0) scale(.98); }
   .btn-rota.maps {
     background: linear-gradient(135deg, #00B4D8 0%, #0077B6 100%);
-    color: #ffffff; box-shadow: 0 4px 14px rgba(0, 180, 216, 0.35);
+    color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 5px 16px rgba(0, 180, 216, 0.35);
   }
+  .btn-rota.maps:hover { box-shadow: 0 8px 22px rgba(0, 180, 216, 0.48); }
   .btn-rota.waze {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid var(--line-strong); color: #ffffff;
+    background: rgba(67, 177, 233, 0.10);
+    border: 1px solid rgba(67, 177, 233, 0.32); color: #ffffff;
   }
-  .btn-rota svg { width: 16px; height: 16px; flex: none; }
+  .btn-rota.waze:hover {
+    background: rgba(67, 177, 233, 0.18);
+    border-color: rgba(67, 177, 233, 0.5);
+  }
+  .btn-rota svg { width: 18px; height: 18px; flex: none; display: block; align-self: center; }
+  .btn-rota .waze-ico { color: #43B1E9; }
   .mapa-footer {
     display: flex; gap: 8px; padding: 10px 12px;
     border-top: 1px solid var(--line);
@@ -2024,16 +2051,31 @@
     <iframe id="mapaEmbed" class="mapa-frame" loading="lazy"
       title="Mapa do local do jogo" allowfullscreen></iframe>
     <div class="mapa-info">
-      <div class="mapa-local" id="mapaNomeLocal">📍 Arena Family</div>
-      <div class="mapa-sub">Fortaleza - CE · Toque para traçar a rota até o jogo:</div>
+      <div class="mapa-local" id="mapaNomeLocal">
+        <svg class="mapa-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        <span>Arena Family</span>
+      </div>
+      <div class="mapa-sub">
+        <span class="mapa-cidade">Fortaleza - CE</span>
+        <span class="mapa-sep">·</span>
+        <span>Escolha o app para traçar a rota até o jogo</span>
+      </div>
     </div>
     <div class="mapa-botoes">
       <a class="btn-rota maps" id="mapaBtnGoogle" href="https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
-        Abrir no Google Maps
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C7.6 2 4 5.6 4 10c0 5.2 8 12 8 12s8-6.8 8-12c0-4.4-3.6-8-8-8zm0 10.9a2.9 2.9 0 1 1 0-5.8 2.9 2.9 0 0 1 0 5.8z"></path>
+        </svg>
+        <span class="rota-txt">Google Maps</span>
       </a>
       <a class="btn-rota waze" id="mapaBtnWaze" href="https://waze.com/ul?ll=-3.7915037,-38.5619707&navigate=yes" target="_blank" rel="noopener noreferrer">
-        🚗 Waze
+        <svg class="waze-ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4.2a2.1 2.1 0 1 1 0 4.2 2.1 2.1 0 0 1 0-4.2zM6.9 17.4a1 1 0 0 1-.4-1.35l2.9-4.8 2.4 1.6-.7 2.6a1 1 0 1 1-1.85.8l.4-1.5-1.2-.8-1.7 2.8a1 1 0 0 1-1.35.4zm9.7 1a2.6 2.6 0 0 1-2.4 1.7 2.6 2.6 0 0 1-2.6-2.3 2.6 2.6 0 0 1 1.9-2.9l1.9-.5-1.3-2.2-1.4 2.6a1 1 0 0 1-1.75.95 1 1 0 0 1 .4-1.35l2.3-4.1a1 1 0 0 1 1.75 0l2.3 4.1a1 1 0 0 1-.4 1.35l-2.3-4.1-1.4 2.6-1.9-.5a2.6 2.6 0 0 0-1.9 2.9 2.6 2.6 0 0 0 2.6 2.3c.9 0 1.7-.4 2.2-1.1a1 1 0 0 1 1.5.87z"></path>
+        </svg>
+        <span class="rota-txt">Waze</span>
       </a>
     </div>
     <div class="mapa-footer">
@@ -2538,7 +2580,7 @@
   var loginBloqueadoAte = 0;
 
   /* login do Mesario: a senha e validada pelo Firebase Auth no servidor
-     do Claude Opus 5.5 (HTTPS). Nenhum hash fica exposto no codigo-fonte. */
+     do Firebase Auth (HTTPS). Nenhum hash fica exposto no codigo-fonte. */
   function loginMesario(senha) {
     /* rate limiting: 5 tentativas em 2 minutos -> bloqueio com backoff */
     var agora = Date.now();
@@ -3891,7 +3933,12 @@
     var link = state.mapsUrl || "";
     iframe.src = mapsEmbedUrl(link);
     if (inpUrl) inpUrl.value = link;
-    if (nomeLocal) nomeLocal.innerHTML = "📍 " + esc(MAPA_NOME);
+    if (nomeLocal) {
+      /* atualiza so o texto: o icone de pin fica intacto */
+      var spanNome = nomeLocal.querySelector("span");
+      if (spanNome) spanNome.textContent = MAPA_NOME;
+      else nomeLocal.textContent = MAPA_NOME;
+    }
 
     if (btnGoogle) {
       /* usa o link curto salvo; se ausente, monta um link de busca do Google Maps */

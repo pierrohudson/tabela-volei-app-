@@ -265,6 +265,25 @@ const LEGADO = {
   check("nome do local exibido", A.document.getElementById("mapaNomeLocal")?.textContent.includes("Arena Family"));
   check("campo de link do mapa existe", A.document.getElementById("mapaUrl") !== null);
 
+  // ---- VISUAL DO CARD DO MAPA ----
+  check("pin SVG do local presente",
+    A.document.querySelector("#mapaNomeLocal .mapa-pin") !== null);
+  check("nome do local em span separado (o JS nao apaga o icone)",
+    A.document.querySelector("#mapaNomeLocal > span") !== null);
+  check("render do mapa atualiza so o texto, sem innerHTML",
+    code.includes('spanNome.textContent = MAPA_NOME') && !code.includes('nomeLocal.innerHTML'));
+  check("botao do Google Maps tem icone SVG",
+    A.document.querySelector("#mapaBtnGoogle svg") !== null);
+  check("botao do Waze tem icone SVG",
+    A.document.querySelector("#mapaBtnWaze svg") !== null);
+  check("rotulo do botao do Maps e curto (sem 'Abrir no')",
+    A.document.querySelector("#mapaBtnGoogle .rota-txt")?.textContent.trim() === "Google Maps",
+    A.document.querySelector("#mapaBtnGoogle .rota-txt")?.textContent);
+  check("texto dos botoes quebra em 2 linhas em vez de ser cortado",
+    /\.btn-rota \.rota-txt \{[^}]*white-space:\s*normal/.test(html));
+  check("botoes de rota com largura igual (flex-basis 0)",
+    /\.btn-rota \{[^}]*flex:\s*1 1 0/.test(html));
+
   // ---- FINAIS E PREMIACAO DENTRO DA ABA DE JOGOS ----
   check("finais dentro da aba de jogos",
     A.document.getElementById("tab-jogos").contains(A.document.getElementById("finals")) &&
