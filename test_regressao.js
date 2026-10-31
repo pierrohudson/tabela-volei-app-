@@ -281,8 +281,11 @@ const LEGADO = {
     A.document.querySelector("#mapaBtnWaze .waze-ico rect")?.getAttribute("fill"));
   check("mascote do Waze tem o rosto (olhos + sorriso + rodinhas)",
     A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length === 4 &&
-    A.document.querySelectorAll("#mapaBtnWaze .waze-ico ellipse").length === 1,
-    A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length);
+    A.document.querySelectorAll("#mapaBtnWaze .waze-ico ellipse").length === 2,
+    {
+      circulos: A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length,
+      elipses: A.document.querySelectorAll("#mapaBtnWaze .waze-ico ellipse").length
+    });
   check("path generico de navegacao removido do icone do Waze",
     !A.document.querySelector('#mapaBtnWaze path[d^="M12 2a10 10"]'));
   check("icone do Waze com cores explicitas (sem fill herdado)",
