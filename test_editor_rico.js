@@ -210,6 +210,40 @@ function clicar(seletor) {
   const tamRuim = T.sanitizar('<div><span data-tam="9">x</span></div>');
   check("tamanho fora da escala removido", !tamRuim.includes('data-tam="9"'), tamRuim);
 
+  /* ---- 14) alinhamento por palavra/linha selecionada ---- */
+  editor.innerHTML = "<div>VOLEI SABADO 19:00</div><div>CONFIRMADO</div><div>ARENA FAMILY</div>";
+  selecionar(editor, "CONFIRMADO");
+  clicar('[data-info-alinhamento="center"]');
+  check("alinhamento center aplicado na linha selecionada",
+    editor.innerHTML.includes('data-alin="center"'), editor.innerHTML);
+  check("somente a linha selecionada foi alinhada ao centro",
+    editor.querySelectorAll('[data-alin="center"]').length === 1 &&
+    editor.querySelectorAll('[data-alin="center"]')[0].textContent === "CONFIRMADO",
+    editor.querySelectorAll('[data-alin="center"]').length);
+
+  /* ---- 15) botoes de fonte mostram numeros 14, 16, 20, 24 ---- */
+  const rotulosFonte = [...document.querySelectorAll("[data-info-fonte]")].map(b => b.textContent.trim());
+  check("botoes de fonte rotulados com numeros",
+    rotulosFonte.join(",") === "14,16,20,24", rotulosFonte);
+
+  /* ---- 16) tamanho de fonte aplicado ao clicar no botao com texto selecionado ---- */
+  editor.innerHTML = "<div>VOLEI SABADO 19:00</div><div>ARENA FAMILY</div>";
+  selecionar(editor, "ARENA FAMILY");
+  clicar('[data-info-fonte="1.25"]');
+  check("clique no botao 20 aplica data-tam 1.25 no trecho selecionado",
+    editor.innerHTML.includes('data-tam="1.25"'), editor.innerHTML);
+  check("data-tam cobriu apenas 'ARENA FAMILY'",
+    editor.querySelectorAll('[data-tam="1.25"]').length === 1 &&
+    editor.querySelectorAll('[data-tam="1.25"]')[0].textContent === "ARENA FAMILY");
+
+  /* ---- 17) icones do cabecalho com cores de marca em repouso ---- */
+  check("CSS define cor verde para o botao do WhatsApp em repouso",
+    /\.header-ico#btnWpp \{[^}]*color:\s*#25D366/.test(html));
+  check("CSS define cor rosa para o botao do Instagram em repouso",
+    /\.header-ico#btnInstagram \{[^}]*color:\s*#E1306C/.test(html));
+  check("CSS define cor azul para o botao do Pix em repouso",
+    /\.header-ico#btnPix \{[^}]*color:\s*#29B5E8/.test(html));
+
   console.log("\n=== " + (falhas ? falhas + " FALHAS" : "TODOS OS TESTES PASSARAM") + " ===");
   process.exit(falhas ? 1 : 0);
 })();

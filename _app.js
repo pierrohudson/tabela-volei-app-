@@ -2081,17 +2081,106 @@
     }
   }
 
+  /* Remove atributo (data-cor ou data-tam) do trecho selecionado */
+  function infoRemoverAtributo(sel, atributo) {
+    var editor = document.getElementById("infoJogoInput");
+    if (!editor || !sel || sel.rangeCount === 0) return;
+    var r = sel.getRangeAt(0);
+    if (r.collapsed) return;
+    var nos = [];
+    var walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null);
+    var no = walker.nextNode();
+    while (no) {
+      if (r.intersectsNode ? r.intersectsNode(no) : true) nos.push(no);
+      no = walker.nextNode();
+    }
+    for (var i = nos.length - 1; i >= 0; i--) {
+      var txt = nos[i];
+      var pai = txt.parentNode;
+      while (pai && pai !== editor) {
+        if (pai.hasAttribute && pai.hasAttribute(atributo)) {
+          pai.removeAttribute(atributo);
+          break;
+        }
+        pai = pai.parentNode;
+      }
+    }
+  }
+
   /* Aplica cor ou tamanho num trecho selecionado. */
   function infoAplicarTrecho(atributo, valor) {
     var sel = window.getSelection();
     if (!sel || sel.rangeCount === 0) return;
     if (sel.getRangeAt(0).collapsed) return;
 
+    if (!valor || valor === "padrao") {
+      infoRemoverAtributo(sel, atributo);
+      return;
+    }
+
     infoAplicarNosTrechos(sel, function () {
       var sp = document.createElement("span");
       sp.setAttribute(atributo, valor);
       return sp;
     });
+  }
+
+  /* Aplica alinhamento (left, center, right) no bloco/linha da palavra selecionada. */
+  function infoAplicarAlinhamento(alin) {
+    var editor = document.getElementById("infoJogoInput");
+    if (!editor) return;
+    var sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    var r = sel.getRangeAt(0);
+
+    /* garante que texto solto no editor seja envolvido em divs */
+    var filhos = Array.prototype.slice.call(editor.childNodes);
+    filhos.forEach(function (f) {
+      if (f.nodeType === 3) {
+        if (!f.nodeValue.trim()) return;
+        var div = document.createElement("div");
+        div.textContent = f.nodeValue;
+        editor.replaceChild(div, f);
+      }
+    });
+
+    var blocos = [];
+    var todasDivs = editor.querySelectorAll("div, p");
+    if (todasDivs.length === 0) {
+      editor.setAttribute("data-alin", alin);
+      editor.style.textAlign = alin;
+      return;
+    }
+
+    todasDivs.forEach(function (d) {
+      try {
+        if (r.intersectsNode && r.intersectsNode(d)) blocos.push(d);
+        else if (d.contains(r.startContainer) || d.contains(r.endContainer)) blocos.push(d);
+      } catch (e) {
+        if (d.contains(r.startContainer) || d.contains(r.endContainer)) blocos.push(d);
+      }
+    });
+
+    if (blocos.length === 0) {
+      var cur = r.startContainer;
+      while (cur && cur !== editor) {
+        if (cur.nodeType === 1 && (cur.tagName === "DIV" || cur.tagName === "P")) {
+          blocos.push(cur);
+          break;
+        }
+        cur = cur.parentNode;
+      }
+    }
+
+    if (blocos.length === 0) {
+      editor.setAttribute("data-alin", alin);
+      editor.style.textAlign = alin;
+    } else {
+      blocos.forEach(function (b) {
+        b.setAttribute("data-alin", alin);
+        b.style.textAlign = alin;
+      });
+    }
   }
 
   function initInfoJogoWidgets() {
@@ -2143,17 +2232,40 @@
       });
     }
     document.querySelectorAll("[data-info-alinhamento]").forEach(function (b) {
+      b.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+      });
       b.addEventListener("click", function () {
         if (!esAdmin) return;
-        var f = fmtAtual || normalizarInfoFormato(state.infoFormato);
-        aplicarFormato(b.dataset.infoAlinhamento, f.fonte);
+        var alin = b.dataset.infoAlinhamento;
+        infoAplicarAlinhamento(alin);
+        document.querySelectorAll("[data-info-alinhamento]").forEach(function (outro) {
+          outro.classList.toggle("ativo", outro === b);
+        });
+        var html = infoSanitizarHtml(inp ? inp.innerHTML : "");
+        infoSubstituirConteudo(vis, infoMuralHtml(html));
       });
     });
     document.querySelectorAll("[data-info-fonte]").forEach(function (b) {
+      b.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+      });
       b.addEventListener("click", function () {
         if (!esAdmin) return;
-        var f = fmtAtual || normalizarInfoFormato(state.infoFormato);
-        aplicarFormato(f.alinhamento, parseFloat(b.dataset.infoFonte));
+        var tamStr = b.dataset.infoFonte;
+        var sel = window.getSelection();
+        var temSelecao = sel && sel.rangeCount > 0 && !sel.getRangeAt(0).collapsed;
+        if (temSelecao) {
+          infoAplicarTrecho("data-tam", tamStr);
+        } else {
+          var f = fmtAtual || normalizarInfoFormato(state.infoFormato);
+          aplicarFormato(f.alinhamento, parseFloat(tamStr));
+        }
+        document.querySelectorAll("[data-info-fonte]").forEach(function (outro) {
+          outro.classList.toggle("ativo", outro === b);
+        });
+        var html = infoSanitizarHtml(inp ? inp.innerHTML : "");
+        infoSubstituirConteudo(vis, infoMuralHtml(html));
       });
     });
 
@@ -3173,6 +3285,7 @@
     sairMesario: sairMesario,
     aplicarEstilo: infoAplicarEstilo,
     aplicarTrecho: infoAplicarTrecho,
+    aplicarAlinhamento: infoAplicarAlinhamento,
     sanitizar: infoSanitizarHtml,
     muralHtml: infoMuralHtml,
     normalizar: infoNormalizarHtml,
