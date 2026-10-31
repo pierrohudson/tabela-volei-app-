@@ -276,16 +276,18 @@ const LEGADO = {
     A.document.querySelector("#mapaBtnGoogle svg") !== null);
   check("botao do Waze tem icone SVG",
     A.document.querySelector("#mapaBtnWaze svg") !== null);
-  check("icone do Waze e o mascote original (fundo #00AEEF)",
-    A.document.querySelector("#mapaBtnWaze .waze-ico rect")?.getAttribute("fill") === "#00AEEF",
-    A.document.querySelector("#mapaBtnWaze .waze-ico rect")?.getAttribute("fill"));
-  check("mascote do Waze tem o rosto (olhos + sorriso + rodinhas)",
-    A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length === 4 &&
-    A.document.querySelectorAll("#mapaBtnWaze .waze-ico ellipse").length === 2,
-    {
-      circulos: A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length,
-      elipses: A.document.querySelectorAll("#mapaBtnWaze .waze-ico ellipse").length
-    });
+  check("icone do Waze e o mascote original (sem quadrado azul)",
+    A.document.querySelector("#mapaBtnWaze .waze-ico rect") === null &&
+    !A.document.querySelector("#mapaBtnWaze .waze-ico path[d^='M12.3 1.6']") === false,
+    { rect: A.document.querySelectorAll("#mapaBtnWaze .waze-ico rect").length });
+  check("mascote do Waze: cabeca branca com contorno + rosto",
+    A.document.querySelector("#mapaBtnWaze .waze-ico path")?.getAttribute("fill") === "#ffffff",
+    A.document.querySelector("#mapaBtnWaze .waze-ico path")?.getAttribute("fill"));
+  check("mascote do Waze tem 2 olhos + 4 rodinhas (6 circulos)",
+    A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length === 6,
+    A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length);
+  check("botao do Waze com fundo azul oficial #00AEEF",
+    /\.btn-rota\.waze \{[^}]*background:\s*#00AEEF/.test(html));
   check("path generico de navegacao removido do icone do Waze",
     !A.document.querySelector('#mapaBtnWaze path[d^="M12 2a10 10"]'));
   check("icone do Waze com cores explicitas (sem fill herdado)",
