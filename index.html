@@ -1574,13 +1574,49 @@
   }
   .info-fmt-btn svg { width: 14px; height: 14px; display: block; }
   .info-fmt-btn.fonte-texto { width: auto; padding: 0 8px; font-size: .72rem; }
-  .info-jogo-edit textarea {
+  /* editor rico: contenteditable com formatacao por selecao */
+  .info-editor {
     width: 100%; background: var(--navy-900); color: var(--txt);
     border: 1px solid var(--line-strong); border-radius: 10px;
-    padding: 10px 12px; font: inherit; font-family: var(--font-display);
-    font-size: .92rem; line-height: 1.6; resize: vertical;
+    padding: 10px 12px; font-family: var(--font-display);
+    font-size: .92rem; line-height: 1.7;
+    min-height: 110px; max-height: 260px; overflow-y: auto;
+    white-space: pre-wrap; word-break: break-word;
   }
-  .info-jogo-edit textarea:focus { border-color: var(--turquoise); outline: none; }
+  .info-editor:focus { border-color: var(--turquoise); outline: none; }
+  .info-editor:empty::before {
+    content: attr(data-placeholder); color: var(--muted-2);
+    pointer-events: none;
+  }
+  .info-editor b, .info-editor strong { font-weight: 900; }
+  .info-editor i, .info-editor em { font-style: italic; }
+  .info-editor .info-linha-status { color: var(--lime); font-weight: 800; letter-spacing: .04em; }
+  .info-dica {
+    margin-top: 7px; font-size: .7rem; color: var(--muted-2);
+    line-height: 1.45;
+  }
+
+  /* paleta de cores do mural */
+  .info-cores {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--navy-900); border: 1px solid var(--line-strong);
+    border-radius: 9px; padding: 3px;
+  }
+  .info-cor {
+    width: 24px; height: 24px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--line-strong); padding: 0;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .info-cor:hover { transform: scale(1.12); }
+  .info-cor.ativo {
+    box-shadow: 0 0 0 2px var(--yellow);
+    border-color: var(--yellow);
+  }
+  .info-cor[data-info-cor="padrao"] {
+    background: var(--txt);
+    color: var(--navy-900); font-size: .58rem; font-weight: 900;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
   .info-jogo-acoes { display: flex; gap: 8px; margin-top: 10px; }
   .btn-editar-info {
     position: absolute; top: 10px; right: 10px;
@@ -2027,9 +2063,28 @@
           <button class="info-fmt-btn fonte-texto" type="button" data-info-fonte="1.25" aria-label="Fonte grande" title="Fonte grande">A</button>
           <button class="info-fmt-btn fonte-texto" type="button" data-info-fonte="1.55" aria-label="Fonte muito grande" title="Fonte muito grande">A</button>
         </div>
+        <div class="info-grupo" role="group" aria-label="Estilo do texto selecionado">
+          <span>Estilo</span>
+          <button class="info-fmt-btn" type="button" data-info-estilo="negrito" aria-label="Negrito" title="Negrito (apenas no texto selecionado)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h7a4 4 0 0 1 0 8H6zM6 12h8a4 4 0 0 1 0 8H6z"></path></svg>
+          </button>
+          <button class="info-fmt-btn" type="button" data-info-estilo="italico" aria-label="Itálico" title="Itálico (apenas no texto selecionado)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 4h-9M14 20H5M15 4L9 20"></path></svg>
+          </button>
+        </div>
+        <div class="info-cores" role="group" aria-label="Cor do texto selecionado">
+          <button class="info-cor ativo" type="button" data-info-cor="padrao" aria-label="Cor padrão" title="Cor padrão"></button>
+          <button class="info-cor" type="button" data-info-cor="#ffcf1a" aria-label="Amarelo" title="Amarelo" style="background:#ffcf1a"></button>
+          <button class="info-cor" type="button" data-info-cor="#2fd9d0" aria-label="Turquesa" title="Turquesa" style="background:#2fd9d0"></button>
+          <button class="info-cor" type="button" data-info-cor="#a6e22e" aria-label="Verde" title="Verde" style="background:#a6e22e"></button>
+          <button class="info-cor" type="button" data-info-cor="#ff4d4d" aria-label="Vermelho" title="Vermelho" style="background:#ff4d4d"></button>
+          <button class="info-cor" type="button" data-info-cor="#ffffff" aria-label="Branco" title="Branco" style="background:#ffffff"></button>
+        </div>
       </div>
-      <textarea id="infoJogoInput" maxlength="200" rows="4"
-        placeholder="Ex.: VOLEI QUARTA FEIRA 20:30 as 22:30&#10;CONFIRMADO&#10;ARENA FAMILY"></textarea>
+      <div class="info-editor" id="infoJogoInput" contenteditable="true" role="textbox"
+        aria-multiline="true" aria-label="Texto das informações do jogo"
+        data-placeholder="Ex.: VOLEI QUARTA FEIRA 20:30 as 22:30&#10;CONFIRMADO&#10;ARENA FAMILY"></div>
+      <div class="info-dica">Selecione o texto para aplicar cor, tamanho, negrito ou itálico só nele.</div>
       <div class="info-jogo-acoes">
         <button class="btn btn-primary" id="infoJogoSalvar">Salvar</button>
         <button class="btn btn-ghost" id="infoJogoCancelar">Cancelar</button>
@@ -2241,6 +2296,22 @@
   var INFO_ALINHAMENTOS = { left: "left", center: "center", right: "right" };
   var INFO_FONTES = [0.85, 1.02, 1.25, 1.55];
 
+  /* cores aceitas no editor do mural (vazio = cor padrao do tema) */
+  var INFO_CORES = {
+    "padrao": "",
+    "#ffcf1a": "#ffcf1a",
+    "#2fd9d0": "#2fd9d0",
+    "#a6e22e": "#a6e22e",
+    "#ff4d4d": "#ff4d4d",
+    "#ffffff": "#ffffff"
+  };
+
+  /* tags permitidas no HTML do mural */
+  var INFO_TAGS_PERMITIDAS = {
+    B: 1, STRONG: 1, I: 1, EM: 1, U: 1, S: 1,
+    BR: 1, DIV: 1, P: 1, SPAN: 1
+  };
+
   var state = loadState();
   function defaultState() {
     var teams = [];
@@ -2258,7 +2329,9 @@
       jogadores: [],
       formacao: null,
       sorteioBrinde: null,
-      infoJogo: "VOLEI QUARTA FEIRA 20:30 as 22:30\nCONFIRMADO\nARENA FAMILY",
+      infoJogo: "<div>VOLEI QUARTA FEIRA 20:30 as 22:30</div>" +
+        '<div class="info-linha-status">CONFIRMADO</div>' +
+        "<div>ARENA FAMILY</div>",
       infoFormato: { alinhamento: "left", fonte: 1.02 },
       mapsUrl: "https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8"
     };
@@ -2281,7 +2354,8 @@
         }) : [];
         s.formacao = s.formacao || null;
         s.sorteioBrinde = s.sorteioBrinde || null;
-        s.infoJogo = (typeof s.infoJogo === "string") ? s.infoJogo : "VOLEI QUARTA FEIRA 20:30 as 22:30\nCONFIRMADO\nARENA FAMILY";
+        s.infoJogo = (typeof s.infoJogo === "string") ? s.infoJogo : "";
+        s.infoJogo = infoNormalizarHtml(s.infoJogo);
         s.infoFormato = normalizarInfoFormato(s.infoFormato);
         s.mapsUrl = (typeof s.mapsUrl === "string" && s.mapsUrl) ? s.mapsUrl : "https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8";
         return s;
@@ -2361,7 +2435,7 @@
     state.jogadores = Array.isArray(dados.jogadores) ? dados.jogadores : [];
     state.formacao = dados.formacao || null;
     state.sorteioBrinde = dados.sorteioBrinde || null;
-    if (typeof dados.infoJogo === "string") state.infoJogo = dados.infoJogo;
+    if (typeof dados.infoJogo === "string") state.infoJogo = infoNormalizarHtml(dados.infoJogo);
     state.infoFormato = normalizarInfoFormato(dados.infoFormato || state.infoFormato);
     if (typeof dados.mapsUrl === "string" && dados.mapsUrl) state.mapsUrl = dados.mapsUrl;
     save();
@@ -2669,6 +2743,8 @@
       /* cadeado aberto */
       btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>';
     }
+    /* destrava os campos de edicao (o mural e o resto do painel) */
+    aplicarBloqueioEdicao();
     renderAll();
   }
 
@@ -3864,16 +3940,110 @@
     return { alinhamento: alin, fonte: ok ? fonte : 1.02 };
   }
 
-  /* desenha o mural a partir de um texto (usado no render e no preview ao vivo) */
-  function infoJogoHtml(texto) {
+  /* ---------- mural: texto puro <-> HTML rico ---------- */
+
+  /* Cria um elemento descartavel para parsear HTML com seguranca.
+     Usa createElement (funciona no browser e no linkedom dos testes). */
+  function infoParse(html) {
+    var cont = document.createElement("div");
+    var s = String(html || "");
+    if (s) cont.innerHTML = s;
+    return cont;
+  }
+
+  /* Troca o conteudo de um elemento por um fragmento.
+     Evita innerHTML = "" (quebra em alguns parsers de HTML). */
+  function infoSubstituirConteudo(el, frag) {
+    if (!el) return;
+    while (el.firstChild) el.removeChild(el.firstChild);
+    if (frag) el.appendChild(frag);
+  }
+
+  /* Converte texto puro (estado antigo) em HTML com as tags permitidas. */
+  function infoTextoParaHtml(texto) {
     return String(texto || "").split("\n").map(function (ln) {
       var limpa = ln.trim();
-      if (!limpa) return '<div style="height:6px"></div>';
+      if (!limpa) return "<div><br></div>";
       if (/confirmado|cancelado|adiado|em\s+andamento|encerrado/i.test(limpa)) {
-        return '<div class="info-linha-status">' + esc(limpa) + '</div>';
+        return '<div class="info-linha-status">' + esc(limpa) + "</div>";
       }
-      return '<div>' + esc(limpa) + '</div>';
+      return "<div>" + esc(limpa) + "</div>";
     }).join("");
+  }
+
+  /* Sanitiza o HTML do mural: remove tudo que nao for marcacao segura.
+     Mantem apenas b/strong/i/em/u/s/br/div/p/span, com atributos
+     controlados (cor e tamanho). Qualquer script ou evento e descartado. */
+  function infoSanitizarHtml(html) {
+    var raiz = infoParse(html);
+    var saida = [];
+
+    function Limpar(no) {
+      /* texto: preserva o conteudo, escapa os caracteres perigosos */
+      if (no.nodeType === 3) {
+        return esc(no.nodeValue || "");
+      }
+      if (no.nodeType !== 1) return "";
+
+      var tag = (no.tagName || "").toUpperCase();
+      if (!INFO_TAGS_PERMITIDAS[tag]) {
+        /* tag nao permitida: preserva o conteudo dos filhos, sem a tag */
+        var dentro = "";
+        for (var i = 0; i < no.childNodes.length; i++) dentro += Limpar(no.childNodes[i]);
+        return dentro;
+      }
+
+      var dentro = "";
+      for (var j = 0; j < no.childNodes.length; j++) dentro += Limpar(no.childNodes[j]);
+
+      if (tag === "BR") return "<br>";
+
+      /* atributos: so cor (span), tamanho (span) e a classe de status (div) */
+      var attrs = "";
+      if (tag === "DIV" && no.className === "info-linha-status") {
+        attrs += ' class="info-linha-status"';
+      }
+      if (tag === "SPAN") {
+        var cor = (no.getAttribute("data-cor") || "").toLowerCase();
+        var tam = parseFloat(no.getAttribute("data-tam"));
+        if (INFO_CORES[cor]) attrs += ' data-cor="' + esc(cor) + '"';
+        var valido = false;
+        for (var k = 0; k < INFO_FONTES.length; k++) {
+          if (Math.abs(INFO_FONTES[k] - tam) < 0.001) { valido = true; break; }
+        }
+        if (valido) attrs += ' data-tam="' + INFO_FONTES[k] + '"';
+        if (!attrs) return dentro;
+      }
+
+      return "<" + tag.toLowerCase() + attrs + ">" + dentro + "</" + tag.toLowerCase() + ">";
+    }
+
+    for (var c = 0; c < raiz.childNodes.length; c++) saida.push(Limpar(raiz.childNodes[c]));
+    return saida.join("");
+  }
+
+  /* Garante que o HTML salvo esteja no formato esperado (ou reconverte de texto). */
+  function infoNormalizarHtml(html) {
+    var s = String(html || "").trim();
+    if (!s) return "";
+    /* estado antigo: texto puro com quebras de linha */
+    if (!/[<>]/.test(s)) return infoTextoParaHtml(s);
+    return infoSanitizarHtml(s);
+  }
+
+  /* Texto puro do mural (paraymp o estado legado e o fallback). */
+  function infoHtmlParaTexto(html) {
+    var raiz = infoParse(html);
+    var linhas = [];
+    for (var i = 0; i < raiz.childNodes.length; i++) {
+      var no = raiz.childNodes[i];
+      var t = (no.textContent || "").trim();
+      if (no.nodeType === 1 && (no.tagName || "").toUpperCase() === "BR") t = "";
+      linhas.push(t);
+    }
+    /* remove linhas vazias no fim */
+    while (linhas.length && !linhas[linhas.length - 1]) linhas.pop();
+    return linhas.join("\n");
   }
 
   function renderInfoJogo() {
@@ -3882,7 +4052,56 @@
     var fmt = normalizarInfoFormato(state.infoFormato);
     vis.style.setProperty("--info-alinhamento", fmt.alinhamento);
     vis.style.setProperty("--info-fonte", fmt.fonte + "rem");
-    vis.innerHTML = infoJogoHtml(state.infoJogo || "");
+    infoSubstituirConteudo(vis, infoMuralHtml(state.infoJogo || ""));
+  }
+
+  /* Converte o HTML salvo do mural em HTML exibivel:
+     aplica cor e tamanho por trecho, herdando o formato global. */
+  function infoMuralHtml(html) {
+    var raiz = infoParse(html);
+
+    function Pintar(no) {
+      if (no.nodeType === 3) {
+        var frag = document.createDocumentFragment();
+        frag.appendChild(document.createTextNode(no.nodeValue || ""));
+        return frag;
+      }
+      if (no.nodeType !== 1) return document.createDocumentFragment();
+
+      var tag = (no.tagName || "").toUpperCase();
+      var frag = document.createDocumentFragment();
+      if (!INFO_TAGS_PERMITIDAS[tag]) {
+        for (var i = 0; i < no.childNodes.length; i++) frag.appendChild(Pintar(no.childNodes[i]));
+        return frag;
+      }
+      if (tag === "BR") {
+        frag.appendChild(document.createElement("br"));
+        return frag;
+      }
+
+      var el = document.createElement(tag.toLowerCase());
+      /* classe de status (CONFIRMADO etc.) */
+      if (tag === "DIV" && no.className === "info-linha-status") {
+        el.className = "info-linha-status";
+      }
+      /* cor e tamanho do trecho */
+      var cor = (no.getAttribute("data-cor") || "").toLowerCase();
+      if (INFO_CORES[cor]) el.style.color = INFO_CORES[cor];
+      var tam = parseFloat(no.getAttribute("data-tam"));
+      for (var k = 0; k < INFO_FONTES.length; k++) {
+        if (Math.abs(INFO_FONTES[k] - tam) < 0.001) {
+          el.style.fontSize = INFO_FONTES[k] + "rem";
+          break;
+        }
+      }
+      for (var j = 0; j < no.childNodes.length; j++) el.appendChild(Pintar(no.childNodes[j]));
+      frag.appendChild(el);
+      return frag;
+    }
+
+    var out = document.createDocumentFragment();
+    for (var c = 0; c < raiz.childNodes.length; c++) out.appendChild(Pintar(raiz.childNodes[c]));
+    return out;
   }
 
   /* Coordenadas padrao: Arena Family (Fortaleza - CE) */
@@ -3959,6 +4178,136 @@
   }
 
   /* ===== INICIALIZACAO DOS WIDGETS DE INFO E MAPA ===== */
+  /* ---------- aplicacao de formato no trecho selecionado ---------- */
+
+  /* Envolve cada trecho de texto selecionado em uma tag (<b>, <i>) ou
+     em um <span> com atributo (cor, tamanho).
+     Cada trecho e tratado separado: assim so o texto selecionado
+     muda, e nao a linha inteira. */
+  function infoAplicarNosTrechos(sel, fabrica) {
+    var editor = document.getElementById("infoJogoInput");
+    if (!editor) return;
+    if (!sel || sel.rangeCount === 0) return;
+    var r = sel.getRangeAt(0);
+    if (r.collapsed) return;
+
+    /* coleta os nos de texto tocados pela selecao */
+    var nos = [];
+    var walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null);
+    var no = walker.nextNode();
+    while (no) {
+      if (r.intersectsNode(no)) nos.push(no);
+      no = walker.nextNode();
+    }
+    if (!nos.length) return;
+
+    /* de tras para frente: assim os offsets nao mudam durante o processo */
+    for (var i = nos.length - 1; i >= 0; i--) {
+      var txt = nos[i];
+      var ini = (txt === r.startContainer) ? r.startOffset : 0;
+      var fim = (txt === r.endContainer) ? r.endOffset : txt.nodeValue.length;
+      if (fim <= ini) continue;
+      var conteudo = txt.nodeValue.slice(ini, fim);
+      if (!conteudo) continue;
+
+      var embrulho = fabrica();
+      embrulho.appendChild(document.createTextNode(conteudo));
+
+      /* divide o no original e troca so o trecho selecionado */
+      var depois = txt.splitText(fim);
+      var meio = txt.splitText(ini);
+      meio.parentNode.replaceChild(embrulho, meio);
+    }
+  }
+
+  /* Remove a tag de estilo (negrito/italico) de um trecho. */
+  function infoRemoverEstilo(sel, tag) {
+    var editor = document.getElementById("infoJogoInput");
+    if (!editor) return;
+    if (!sel || sel.rangeCount === 0) return;
+    var r = sel.getRangeAt(0);
+    if (r.collapsed) return;
+
+    var nos = [];
+    var walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null);
+    var no = walker.nextNode();
+    while (no) {
+      if (r.intersectsNode(no)) nos.push(no);
+      no = walker.nextNode();
+    }
+
+    for (var i = nos.length - 1; i >= 0; i--) {
+      var txt = nos[i];
+      /* ja esta dentro da tag? */
+      var pai = txt.parentNode;
+      var dentro = null;
+      while (pai && pai !== editor) {
+        if ((pai.tagName || "").toUpperCase() === tag) { dentro = pai; break; }
+        pai = pai.parentNode;
+      }
+      if (!dentro) continue;
+
+      var ini = (txt === r.startContainer) ? r.startOffset : 0;
+      var fim = (txt === r.endContainer) ? r.endOffset : txt.nodeValue.length;
+      if (fim <= ini) continue;
+      var conteudo = txt.nodeValue.slice(ini, fim);
+      if (!conteudo) continue;
+
+      /* extrai o trecho de dentro da tag e devolve ao nivel de fora */
+      var depois = txt.splitText(fim);
+      var meio = txt.splitText(ini);
+      var texto = document.createTextNode(conteudo);
+      /* insere logo apos a tag */
+      if (dentro.parentNode) {
+        dentro.parentNode.insertBefore(texto, dentro.nextSibling);
+        /* remove o pedaco que sobrou dentro da tag */
+        if (meio.parentNode) meio.parentNode.removeChild(meio);
+        /* se a tag ficou vazia, remove */
+        if (!dentro.firstChild && dentro.parentNode) {
+          dentro.parentNode.removeChild(dentro);
+        }
+      }
+    }
+  }
+
+  /* Aplica negrito ou italico no texto selecionado. */
+  function infoAplicarEstilo(tag) {
+    var sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    if (sel.getRangeAt(0).collapsed) return;
+
+    var maiuscula = tag.toUpperCase();
+    /* ja esta no estilo? entao remove */
+    var node = sel.getRangeAt(0).startContainer;
+    var pai = node.nodeType === 1 ? node : node.parentNode;
+    var jaTem = false;
+    while (pai && pai.id !== "infoJogoInput") {
+      if ((pai.tagName || "").toUpperCase() === maiuscula) { jaTem = true; break; }
+      pai = pai.parentNode;
+    }
+
+    if (jaTem) {
+      infoRemoverEstilo(sel, maiuscula);
+    } else {
+      infoAplicarNosTrechos(sel, function () {
+        return document.createElement(tag.toLowerCase());
+      });
+    }
+  }
+
+  /* Aplica cor ou tamanho num trecho selecionado. */
+  function infoAplicarTrecho(atributo, valor) {
+    var sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    if (sel.getRangeAt(0).collapsed) return;
+
+    infoAplicarNosTrechos(sel, function () {
+      var sp = document.createElement("span");
+      sp.setAttribute(atributo, valor);
+      return sp;
+    });
+  }
+
   function initInfoJogoWidgets() {
     var btnEditar = document.getElementById("infoJogoEditar");
     var btnSalvar = document.getElementById("infoJogoSalvar");
@@ -3970,7 +4319,8 @@
     if (btnEditar && edit && vis) {
       btnEditar.addEventListener("click", function () {
         if (!esAdmin) return;
-        if (inp) inp.value = state.infoJogo || "";
+        /* carrega o mural salvo no editor (HTML rico) */
+        if (inp) inp.innerHTML = infoNormalizarHtml(state.infoJogo || "");
         /* marca os controles com o formato atual */
         sincronizarBotoesFormato(normalizarInfoFormato(state.infoFormato));
         edit.hidden = false;
@@ -3979,13 +4329,14 @@
       });
     }
 
-    /* --- botoes de formatacao (alinhar / tamanho da fonte) --- */
+    /* --- botoes de formatacao (alinhar / tamanho da fonte global) --- */
     var fmtAtual = null;
 
     /* preview ao vivo: o mural mostra o que esta sendo digitado */
     if (inp && vis) {
       inp.addEventListener("input", function () {
-        vis.innerHTML = infoJogoHtml(inp.value);
+        var html = infoSanitizarHtml(inp.innerHTML);
+        infoSubstituirConteudo(vis, infoMuralHtml(html));
       });
     }
 
@@ -4020,10 +4371,52 @@
       });
     });
 
+    /* --- estilo do trecho selecionado (negrito / italico) --- */
+    document.querySelectorAll("[data-info-estilo]").forEach(function (b) {
+      b.addEventListener("mousedown", function (e) {
+        /* impede que o clique tire a selecao do texto */
+        e.preventDefault();
+      });
+      b.addEventListener("click", function () {
+        if (!esAdmin) return;
+        var estilo = b.dataset.infoEstilo;
+        if (estilo === "negrito") infoAplicarEstilo("B");
+        else if (estilo === "italico") infoAplicarEstilo("I");
+        /* preview imediato */
+        var html = infoSanitizarHtml(inp ? inp.innerHTML : "");
+        infoSubstituirConteudo(vis, infoMuralHtml(html));
+      });
+    });
+
+    /* --- cor do trecho selecionado --- */
+    document.querySelectorAll("[data-info-cor]").forEach(function (b) {
+      b.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+      });
+      b.addEventListener("click", function () {
+        if (!esAdmin) return;
+        var cor = b.dataset.infoCor;
+        infoAplicarTrecho("data-cor", cor);
+        document.querySelectorAll("[data-info-cor]").forEach(function (outro) {
+          outro.classList.toggle("ativo", outro.dataset.infoCor === cor);
+        });
+        var html = infoSanitizarHtml(inp ? inp.innerHTML : "");
+        infoSubstituirConteudo(vis, infoMuralHtml(html));
+      });
+    });
+
     if (btnSalvar && edit && vis) {
       btnSalvar.addEventListener("click", function () {
         if (!esAdmin) return;
-        state.infoJogo = (inp ? inp.value : "").slice(0, 200);
+        /* salva o HTML sanitizado (nao o texto puro) */
+        var html = infoSanitizarHtml(inp ? inp.innerHTML : "");
+        /* limita o tamanho do mural */
+        var texto = infoHtmlParaTexto(html);
+        if (texto.length > 200) {
+          alert("O mural pode ter no maximo 200 caracteres.");
+          return;
+        }
+        state.infoJogo = html;
         state.infoFormato = normalizarInfoFormato(fmtAtual || state.infoFormato);
         save();
         renderInfoJogo();
@@ -4111,6 +4504,19 @@
     if (rafOrig) rafOrig.disabled = travado;
     var rafPrem = document.getElementById("rafflePremio");
     if (rafPrem) rafPrem.readOnly = travado;
+    /* mural: o editor rico so e editavel pelo Mesario */
+    var editorInfo = document.getElementById("infoJogoInput");
+    if (editorInfo) {
+      /* setAttribute (e nao a propriedade) porque alguns parsers
+         de HTML nao refletem contentEditable no atributo */
+      editorInfo.setAttribute("contenteditable", travado ? "false" : "true");
+      editorInfo.setAttribute("aria-readonly", travado ? "true" : "false");
+    }
+    /* os controles de formatacao do mural so aparecem para o Mesario */
+    var barraFormato = document.querySelector(".info-format");
+    if (barraFormato) barraFormato.hidden = travado;
+    var dicaInfo = document.querySelector(".info-dica");
+    if (dicaInfo) dicaInfo.hidden = travado;
   }
 
   /* ===== EVENTOS ===== */
@@ -4973,6 +5379,21 @@
 
   /* ---- inicializacao ---- */
   renderAll();
+
+  /* Superficie de teste: expoe o essencial para os testes automatizados.
+     Nao expoe senha, token nem qualquer dado sensivel. */
+  window.__test = {
+    entrarMesario: entrarMesario,
+    sairMesario: sairMesario,
+    aplicarEstilo: infoAplicarEstilo,
+    aplicarTrecho: infoAplicarTrecho,
+    sanitizar: infoSanitizarHtml,
+    muralHtml: infoMuralHtml,
+    normalizar: infoNormalizarHtml,
+    textoParaHtml: infoTextoParaHtml,
+    htmlParaTexto: infoHtmlParaTexto,
+    estado: function () { return state; }
+  };
 
   /* modo leitura por padrao: o publico apenas acompanha */
   document.body.classList.add("modo-leitura");

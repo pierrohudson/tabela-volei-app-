@@ -217,6 +217,34 @@ const LEGADO = {
   check("alinhamento aplicado via variavel CSS",
     code.includes("--info-alinhamento") && code.includes("--info-fonte"));
 
+  // ---- EDITOR RICO: formatacao so no texto selecionado ----
+  check("editor do mural e contenteditable (nao textarea)",
+    A.document.getElementById("infoJogoInput")?.getAttribute("contenteditable") === "true" &&
+    A.document.querySelector("#infoJogoInput textarea") === null);
+  check("botoes de negrito e italico",
+    A.document.querySelectorAll("[data-info-estilo]").length === 2);
+  check("paleta de 6 cores para o trecho selecionado",
+    A.document.querySelectorAll("[data-info-cor]").length === 6);
+  check("aplicacao por trecho (nao a linha inteira) implementada",
+    code.includes("function infoAplicarNosTrechos"));
+  check("remocao do estilo aplicada",
+    code.includes("function infoRemoverEstilo"));
+  check("sanitizacao do HTML do mural",
+    code.includes("function infoSanitizarHtml") &&
+    code.includes("INFO_TAGS_PERMITIDAS") &&
+    code.includes("INFO_CORES"));
+  check("estado do mural guarda HTML sanitizado",
+    code.includes("state.infoJogo = html"));
+  check("mural legado (texto puro) convertido em HTML",
+    code.includes("function infoTextoParaHtml") &&
+    code.includes("infoNormalizarHtml"));
+  check("editor trava para espectador",
+    code.includes('editorInfo.setAttribute("contenteditable", travado'));
+  check("controles do mural escondidos para espectador",
+    code.includes("barraFormato.hidden = travado"));
+  check("dica de uso da formatacao presente",
+    A.document.querySelector(".info-dica") !== null);
+
   // ---- CONTADOR DE JOGADORES EM PILLS ----
   check("contador total de jogadores existe",
     A.document.getElementById("gavetaTotal") !== null);
