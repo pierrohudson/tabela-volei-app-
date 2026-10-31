@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "serve . -l 3000 --no-port-switching",
     "start": "serve . -l 3000 --no-port-switching",
-    "test": "node test_regressao.js && node test_flegar.js && node test_reset.js && node test_chat.js && node test_seguranca.js && node test_rotulo.js && node test_editor_rico.js",
+    "test": "node test_regressao.js && node test_flegar.js && node test_reset.js && node test_chat.js && node test_seguranca.js && node test_rotulo.js && node test_editor_rico.js && node test_torneio_dinamico.js",
     "test:regressao": "node test_regressao.js",
     "test:flegar": "node test_flegar.js",
     "test:reset": "node test_reset.js",
@@ -14,7 +14,8 @@
     "test:seguranca": "node test_seguranca.js",
     "test:rotulo": "node test_rotulo.js",
     "sync:app": "node -e \"const fs=require('fs');const html=fs.readFileSync('index.html','utf8');const m=html.match(/<script>([\\s\\S]*?)<\\/script>/);if(m)fs.writeFileSync('_app.js',m[1]);console.log('_app.js regenerado');\"",
-    "test:editor": "node test_editor_rico.js"
+    "test:editor": "node test_editor_rico.js",
+    "test:torneio": "node test_torneio_dinamico.js"
   },
   "dependencies": {
     "linkedom": "^0.18.14"

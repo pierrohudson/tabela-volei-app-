@@ -51,18 +51,47 @@
   var SESSION_KEY = "volei_admin_session";
 
   /* Ordem exata dos 10 confrontos (NÃO reorganizar) */
-  var MATCH_ORDER = [
-    [0, 1], /* J1:  Time 1 x Time 2 */
-    [2, 3], /* J2:  Time 3 x Time 4 */
-    [0, 4], /* J3:  Time 1 x Time 5 */
-    [1, 2], /* J4:  Time 2 x Time 3 */
-    [3, 4], /* J5:  Time 4 x Time 5 */
-    [0, 2], /* J6:  Time 1 x Time 3 */
-    [1, 3], /* J7:  Time 2 x Time 4 */
-    [2, 4], /* J8:  Time 3 x Time 5 */
-    [0, 3], /* J9:  Time 1 x Time 4 */
-    [1, 4]  /* J10: Time 2 x Time 5 */
-  ];
+  /* Grades oficiais de confrontos para 3, 4, 5 ou 6 times */
+  var TABELAS_CONFRONTOS = {
+    3: [
+      [0, 1], /* J1: Time 1 x Time 2 */
+      [1, 2], /* J2: Time 2 x Time 3 */
+      [0, 2]  /* J3: Time 1 x Time 3 */
+    ],
+    4: [
+      [0, 1], [2, 3], /* R1 */
+      [0, 2], [1, 3], /* R2 */
+      [0, 3], [1, 2]  /* R3 */
+    ],
+    5: [
+      /* Ordem exata dos 10 confrontos clássicos (NÃO reorganizar) */
+      [0, 1], /* J1:  Time 1 x Time 2 */
+      [2, 3], /* J2:  Time 3 x Time 4 */
+      [0, 4], /* J3:  Time 1 x Time 5 */
+      [1, 2], /* J4:  Time 2 x Time 3 */
+      [3, 4], /* J5:  Time 4 x Time 5 */
+      [0, 2], /* J6:  Time 1 x Time 3 */
+      [1, 3], /* J7:  Time 2 x Time 4 */
+      [2, 4], /* J8:  Time 3 x Time 5 */
+      [0, 3], /* J9:  Time 1 x Time 4 */
+      [1, 4]  /* J10: Time 2 x Time 5 */
+    ],
+    6: [
+      /* 15 jogos em 5 rodadas com descanso justo (round-robin) */
+      [0, 1], [2, 3], [4, 5], /* R1 */
+      [0, 2], [1, 4], [3, 5], /* R2 */
+      [0, 3], [1, 5], [2, 4], /* R3 */
+      [0, 4], [1, 3], [2, 5], /* R4 */
+      [0, 5], [1, 2], [3, 4]  /* R5 */
+    ]
+  };
+
+  function getMatchOrder(numT) {
+    var n = numT || (state && state.teams ? state.teams.length : 5);
+    return TABELAS_CONFRONTOS[n] || TABELAS_CONFRONTOS[5];
+  }
+  /* retrocompatibilidade com scripts/testes que leem MATCH_ORDER diretamente */
+  var MATCH_ORDER = TABELAS_CONFRONTOS[5];
 
   /* formatos aceitos no mural de informacoes (declarados antes do loadState) */
   var INFO_ALINHAMENTOS = { left: "left", center: "center", right: "right" };
@@ -85,9 +114,10 @@
   };
 
   var state = loadState();
-  function defaultState() {
+  function defaultState(numT) {
+    numT = (numT >= 3 && numT <= 6) ? numT : 5;
     var teams = [];
-    for (var i = 0; i < NUM_TEAMS; i++) {
+    for (var i = 0; i < numT; i++) {
       teams.push("TIME - " + (i + 1));
     }
     return {
@@ -114,7 +144,7 @@
       var raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return defaultState();
       var s = JSON.parse(raw);
-      if (s && Array.isArray(s.teams) && s.teams.length === NUM_TEAMS) {
+      if (s && Array.isArray(s.teams) && s.teams.length >= 3 && s.teams.length <= 6) {
         s.cfg = s.cfg || { win: 3, loss: 0 };
         s.scores = s.scores || {};
         s.finals = s.finals || { f34: { a: null, b: null }, f12: { a: null, b: null } };
@@ -189,7 +219,7 @@
 
   /* ---- estado remoto -> estado local (sem eco) ---- */
   function aplicarEstadoRemoto(dados) {
-    if (!dados || !Array.isArray(dados.teams) || dados.teams.length !== NUM_TEAMS) return;
+    if (!dados || !Array.isArray(dados.teams) || dados.teams.length < 3 || dados.teams.length > 6) return;
 
     /* Se o Mesario acabou de publicar, nao re-aplica o que acabou de ir para a
        nuvem (evita sobrescrever um placar mais novo com o estado local antigo). */
@@ -538,8 +568,9 @@
       };
     });
 
-    for (var m = 0; m < MATCH_ORDER.length; m++) {
-      var pair = MATCH_ORDER[m];
+    var matchOrder = getMatchOrder();
+    for (var m = 0; m < matchOrder.length; m++) {
+      var pair = matchOrder[m];
       var i = pair[0], j = pair[1];
       var s = getScore(i, j);
       if (s.a == null || s.b == null) continue;
@@ -582,14 +613,15 @@
 
   function playedCount() {
     var n = 0;
-    for (var m = 0; m < MATCH_ORDER.length; m++) {
-      var s = getScore(MATCH_ORDER[m][0], MATCH_ORDER[m][1]);
+    var matchOrder = getMatchOrder();
+    for (var m = 0; m < matchOrder.length; m++) {
+      var s = getScore(matchOrder[m][0], matchOrder[m][1]);
       if (s.a != null && s.b != null) n++;
     }
     return n;
   }
 
-  function allMatchesPlayed() { return playedCount() === MATCH_ORDER.length; }
+  function allMatchesPlayed() { return playedCount() === getMatchOrder().length; }
 
   /* ===== HELPERS DE VISTA ===== */
   function esc(s) {
@@ -671,8 +703,13 @@
   function renderMatches() {
     var wrap = document.getElementById("matches");
     wrap.innerHTML = "";
+    var matchOrder = getMatchOrder();
+    var hint = document.getElementById("jogosHint");
+    if (hint) {
+      hint.textContent = matchOrder.length + " confrontos da primeira fase";
+    }
 
-    MATCH_ORDER.forEach(function (pair, index) {
+    matchOrder.forEach(function (pair, index) {
       var i = pair[0], j = pair[1];
       var s = getScore(i, j);
       var played = s.a != null && s.b != null;
@@ -746,11 +783,13 @@
     var ready = allMatchesPlayed();
     var wrap = document.getElementById("finals");
     var noticeWrap = document.getElementById("finalNoticeWrap");
+    var matchOrder = getMatchOrder();
+    var numT = state.teams.length;
 
     noticeWrap.innerHTML = ready ? "" :
       '<div class="final-notice">' +
-        '<strong>Aguarde.</strong> Lance os 10 confrontos da primeira fase para liberar ' +
-        'automaticamente os finalistas da disputa de 3º lugar e da grande final.' +
+        '<strong>Aguarde.</strong> Lance os ' + matchOrder.length + ' confrontos da primeira fase para liberar ' +
+        (numT === 3 ? 'automaticamente os finalistas da grande final.' : 'automaticamente os finalistas da disputa de 3º lugar e da grande final.') +
       '</div>';
 
     function slot(pos) {
@@ -780,15 +819,17 @@
               'value="' + (sc.b == null ? "" : sc.b) + '" placeholder="–"' + disabled + '>' +
             '<div class="team-cell right">' + badgeB + '</div>' +
           '</div>' +
-          (played && aWin ? '' : '') +
         '</div>';
     }
 
-    wrap.innerHTML =
-      box("f34", "f34", "🥉", "Disputa de 3º Lugar", "3º × 4º colocado",
-          slot(2), slot(3), state.finals.f34) +
-      box("f12", "f12", "🏆", "Grande Final", "1º × 2º colocado",
-          slot(0), slot(1), state.finals.f12);
+    var htmlFinals = "";
+    if (numT >= 4) {
+      htmlFinals += box("f34", "f34", "🥉", "Disputa de 3º Lugar", "3º × 4º colocado",
+                        slot(2), slot(3), state.finals.f34);
+    }
+    htmlFinals += box("f12", "f12", "🏆", "Grande Final", "1º × 2º colocado",
+                      slot(0), slot(1), state.finals.f12);
+    wrap.innerHTML = htmlFinals;
 
     wrap.querySelectorAll("input.score").forEach(function (inp) {
       inp.addEventListener("input", function (e) {
@@ -820,15 +861,21 @@
     var r = ranked();
     var ready = allMatchesPlayed();
     var el = document.getElementById("podium");
+    var numT = state.teams.length;
 
     var p1 = null, p2 = null, p3 = null;
 
     if (ready) {
       var f12 = resolveFinalWinner(state.finals.f12, r[0], r[1]);
-      var f34 = resolveFinalWinner(state.finals.f34, r[2], r[3]);
       p1 = f12.winner;
       p2 = f12.loser;
-      p3 = f34.winner;
+      if (numT >= 4) {
+        var f34 = resolveFinalWinner(state.finals.f34, r[2], r[3]);
+        p3 = f34.winner;
+      } else {
+        /* Para 3 times, o 3º colocado da classificação geral leva o bronze diretamente */
+        p3 = r[2] || null;
+      }
     }
 
     el.innerHTML =
@@ -1407,7 +1454,7 @@
 
     html += '<div class="times-resultado">';
     f.times.forEach(function (t, i) {
-      var idx = i % NUM_TEAMS;
+      var idx = i % state.teams.length;
       html += '<div class="time-card t-' + idx + '">' +
         '<h4><span class="team-color-bar t-' + idx + '"></span>Time ' + (i + 1) + '</h4>' +
         '<div class="time-meta">' +
@@ -1687,7 +1734,46 @@
   }
 
   /* ===== RENDER GERAL ===== */
+  function sincronizarBotoesTorneio() {
+    var n = state && state.teams ? state.teams.length : 5;
+    document.querySelectorAll("[data-torneio-qtd]").forEach(function (b) {
+      b.classList.toggle("ativo", parseInt(b.dataset.torneioQtd, 10) === n);
+    });
+  }
+
+  function mudarQuantidadeTimes(novaQtd) {
+    if (!esAdmin) return;
+    novaQtd = parseInt(novaQtd, 10);
+    if (novaQtd < 3 || novaQtd > 6) return;
+    if (state.teams.length === novaQtd) return;
+
+    var temPlacar = Object.keys(state.scores).length > 0;
+    if (temPlacar) {
+      if (!confirm("Alterar o formato para " + novaQtd + " times vai reiniciar os placares deste torneio. Deseja continuar?")) {
+        sincronizarBotoesTorneio();
+        return;
+      }
+    }
+
+    var novosTimes = [];
+    for (var i = 0; i < novaQtd; i++) {
+      if (state.teams[i]) novosTimes.push(state.teams[i]);
+      else novosTimes.push("TIME - " + (i + 1));
+    }
+    state.teams = novosTimes;
+    state.scores = {};
+    state.finals = { f34: { a: null, b: null }, f12: { a: null, b: null } };
+
+    var inpSorteioTimes = document.getElementById("sorteioTimes");
+    if (inpSorteioTimes) inpSorteioTimes.value = String(novaQtd);
+
+    save();
+    renderAll();
+    publicarEstado();
+  }
+
   function renderAll() {
+    sincronizarBotoesTorneio();
     renderStandings();
     renderMatches();
     renderFinals();
@@ -2417,6 +2503,14 @@
     if (dicaInfo) dicaInfo.hidden = travado;
   }
 
+  /* ===== EVENTOS DE CONFIGURAÇÃO DO TORNEIO (3, 4, 5, 6 times) ===== */
+  document.querySelectorAll("[data-torneio-qtd]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (!esAdmin) return;
+      mudarQuantidadeTimes(b.dataset.torneioQtd);
+    });
+  });
+
   /* ===== EVENTOS ===== */
   var cfgWin = document.getElementById("cfgWin");
   var cfgLoss = document.getElementById("cfgLoss");
@@ -2576,7 +2670,7 @@
     var campNome = camp ? rotuloTime(camp.idx, camp.nome) : "(Aguardando Final)";
 
     var html = '<option value="campeao">🏆 Time Campeão: ' + esc(campNome) + '</option>';
-    for (var i = 0; i < NUM_TEAMS; i++) {
+    for (var i = 0; i < state.teams.length; i++) {
       var tNome = state.teams[i] || ("Time " + (i + 1));
       var qtd = obterElencoTime(i).length;
       html += '<option value="time_' + i + '">' + esc(rotuloTime(i, tNome)) +
@@ -3225,7 +3319,7 @@
          do Mesaro ao entrar pelo celular de outro aparelho).
          Se o banco esta vazio, publicamos o estado local para iniciar. */
       dbRead().then(function (dados) {
-        if (dados && Array.isArray(dados.teams) && dados.teams.length === NUM_TEAMS) {
+        if (dados && Array.isArray(dados.teams) && dados.teams.length >= 3 && dados.teams.length <= 6) {
           aplicarEstadoRemoto(dados);
           setLive("conectado", "Modo Admin — placar oficial carregado do banco");
         } else {
@@ -3283,6 +3377,8 @@
   window.__test = {
     entrarMesario: entrarMesario,
     sairMesario: sairMesario,
+    mudarQuantidadeTimes: mudarQuantidadeTimes,
+    getMatchOrder: getMatchOrder,
     aplicarEstilo: infoAplicarEstilo,
     aplicarTrecho: infoAplicarTrecho,
     aplicarAlinhamento: infoAplicarAlinhamento,
