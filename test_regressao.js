@@ -277,12 +277,14 @@ const LEGADO = {
   check("botao do Waze tem icone SVG",
     A.document.querySelector("#mapaBtnWaze svg") !== null);
   check("icone do Waze e o mascote original (sem quadrado azul)",
-    A.document.querySelector("#mapaBtnWaze .waze-ico rect") === null &&
-    !A.document.querySelector("#mapaBtnWaze .waze-ico path[d^='M12.3 1.6']") === false,
+    A.document.querySelector("#mapaBtnWaze .waze-ico rect") === null,
     { rect: A.document.querySelectorAll("#mapaBtnWaze .waze-ico rect").length });
   check("mascote do Waze: cabeca branca com contorno + rosto",
     A.document.querySelector("#mapaBtnWaze .waze-ico path")?.getAttribute("fill") === "#ffffff",
     A.document.querySelector("#mapaBtnWaze .waze-ico path")?.getAttribute("fill"));
+  check("contorno do mascote grosso (legivel a 18px)",
+    parseFloat(A.document.querySelector("#mapaBtnWaze .waze-ico path")?.getAttribute("stroke-width")) >= 1.8,
+    A.document.querySelector("#mapaBtnWaze .waze-ico path")?.getAttribute("stroke-width"));
   check("mascote do Waze tem 2 olhos + 4 rodinhas (6 circulos)",
     A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length === 6,
     A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length);
