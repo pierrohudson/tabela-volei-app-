@@ -1733,14 +1733,22 @@
 
   /* Converte texto puro (estado antigo) em HTML com as tags permitidas. */
   function infoTextoParaHtml(texto) {
-    return String(texto || "").split("\n").map(function (ln) {
+    /* linhas em branco viram espacadores curtos, nao linhas vazias:
+       assim o mural nao cresce com espacos sobrando */
+    var linhas = String(texto || "").split("\n").map(function (ln) {
       var limpa = ln.trim();
-      if (!limpa) return "<div><br></div>";
+      if (!limpa) return '<div class="info-espaco"><br></div>';
       if (/confirmado|cancelado|adiado|em\s+andamento|encerrado/i.test(limpa)) {
         return '<div class="info-linha-status">' + esc(limpa) + "</div>";
       }
       return "<div>" + esc(limpa) + "</div>";
-    }).join("");
+    });
+    /* remove espacadores seguidos no fim */
+    while (linhas.length) {
+      var ultima = linhas[linhas.length - 1];
+      if (ultima.indexOf("info-espaco") >= 0) linhas.pop(); else break;
+    }
+    return linhas.join("");
   }
 
   /* Sanitiza o HTML do mural: remove tudo que nao for marcacao segura.
@@ -1774,6 +1782,9 @@
       var attrs = "";
       if (tag === "DIV" && no.className === "info-linha-status") {
         attrs += ' class="info-linha-status"';
+      }
+      if (tag === "DIV" && no.className === "info-espaco") {
+        attrs += ' class="info-espaco"';
       }
       if (tag === "SPAN") {
         var cor = (no.getAttribute("data-cor") || "").toLowerCase();
@@ -1855,6 +1866,9 @@
       /* classe de status (CONFIRMADO etc.) */
       if (tag === "DIV" && no.className === "info-linha-status") {
         el.className = "info-linha-status";
+      }
+      if (tag === "DIV" && no.className === "info-espaco") {
+        el.className = "info-espaco";
       }
       /* cor e tamanho do trecho */
       var cor = (no.getAttribute("data-cor") || "").toLowerCase();
