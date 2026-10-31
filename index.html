@@ -4169,6 +4169,17 @@
      ============================================================ */
   var raffleGirando = false;
 
+  /* rotulo do time: o nome entre parenteses so aparece quando o admin
+     renomeou o time. O nome padrao ("TIME - 5") seria redundante. */
+  function rotuloTime(idx, nome) {
+    var n = String(nome || "").trim();
+    var numero = String(idx + 1);
+    if (!n) return "Time " + numero;
+    var m = /^TIME\s*-?\s*(\d+)$/i.exec(n);
+    if (m && m[1] === numero) return "Time " + numero;
+    return "Time " + numero + " (" + n + ")";
+  }
+
   function obterTimeCampeaoInfo() {
     var r = ranked();
     var ready = allMatchesPlayed();
@@ -4211,8 +4222,8 @@
         if (elenco.length) {
           return {
             titulo: (camp.oficial ? "🏆 Time Campeão · " : "🥇 1º Colocado · ") +
-              "Time " + (camp.idx + 1) + " (" + camp.nome + ")",
-            timeNome: "Time " + (camp.idx + 1) + " - " + camp.nome,
+              rotuloTime(camp.idx, camp.nome),
+            timeNome: rotuloTime(camp.idx, camp.nome),
             jogadores: elenco
           };
         }
@@ -4241,8 +4252,8 @@
       var el = obterElencoTime(tidx);
       var nomeT = state.teams[tidx] || ("Time " + (tidx + 1));
       return {
-        titulo: "Time " + (tidx + 1) + " (" + nomeT + ")",
-        timeNome: "Time " + (tidx + 1) + " - " + nomeT,
+        titulo: rotuloTime(tidx, nomeT),
+        timeNome: rotuloTime(tidx, nomeT),
         jogadores: el.length ? el : state.jogadores
       };
     }
@@ -4259,13 +4270,13 @@
     if (!sel) return;
     var atual = sel.value;
     var camp = obterTimeCampeaoInfo();
-    var campNome = camp ? (camp.nome + " (Time " + (camp.idx + 1) + ")") : "(Aguardando Final)";
+    var campNome = camp ? rotuloTime(camp.idx, camp.nome) : "(Aguardando Final)";
 
     var html = '<option value="campeao">🏆 Time Campeão: ' + esc(campNome) + '</option>';
     for (var i = 0; i < NUM_TEAMS; i++) {
       var tNome = state.teams[i] || ("Time " + (i + 1));
       var qtd = obterElencoTime(i).length;
-      html += '<option value="time_' + i + '">Time ' + (i + 1) + ' (' + esc(tNome) + ')' +
+      html += '<option value="time_' + i + '">' + esc(rotuloTime(i, tNome)) +
         (qtd ? ' · ' + qtd + ' atletas' : '') + '</option>';
     }
     html += '<option value="todos">👥 Todos os jogadores cadastrados (' + state.jogadores.length + ')</option>';
