@@ -225,6 +225,17 @@ const LEGADO = {
   check("resumo usa pills formatadas",
     A.document.querySelectorAll(".gaveta-pill").length === 2,
     A.document.querySelectorAll(".gaveta-pill").length);
+  /* o cabecalho da gaveta nao pode transbordar em telas estreitas */
+  check("cabecalho da gaveta pode encolher (min-width: 0)",
+    /\.gaveta-info \{[^}]*min-width:\s*0/.test(html));
+  check("titulo da gaveta pode encolher",
+    /\.gaveta-titulo \{[^}]*min-width:\s*0/.test(html));
+  check("pills com flex: none (nao encolhem fora de forma)",
+    /\.gaveta-pill \{[^}]*flex:\s*none/.test(html));
+  check("regra para telas de 380px existe",
+    html.includes("@media (max-width: 380px)"));
+  check("gaveta compacta na media de 580px",
+    /@media \(max-width: 580px\)[\s\S]*?\.gaveta-head \{[^}]*padding:\s*12px 14px/.test(html));
 
   // ---- BOTAO SORTEAR CENTRALIZADO ----
   check("botao sortear existe", A.document.getElementById("btnSortear") !== null);

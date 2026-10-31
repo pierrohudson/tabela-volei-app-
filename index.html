@@ -524,6 +524,7 @@
     display: flex; align-items: center; gap: 12px;
     font-size: 1.05rem; font-weight: 800; color: var(--txt);
     letter-spacing: .08em; text-transform: uppercase;
+    min-width: 0; flex: 0 1 auto;
   }
   .gaveta-barra {
     width: 5px; height: 22px; flex-shrink: 0;
@@ -534,11 +535,12 @@
   .gaveta-info {
     display: flex; align-items: center; gap: 10px;
     font-size: .78rem; font-weight: 700; color: var(--muted);
+    min-width: 0;
   }
   /* contador compacto: "20 jogadores · 20 marcados" em pills */
   .gaveta-contagem {
     display: inline-flex; align-items: center; gap: 6px;
-    white-space: nowrap;
+    white-space: nowrap; min-width: 0;
   }
   .gaveta-pill {
     display: inline-flex; align-items: baseline; gap: 4px;
@@ -547,6 +549,7 @@
     border-radius: 20px; padding: 3px 9px;
     font-size: .72rem; font-weight: 700; color: var(--muted);
     font-variant-numeric: tabular-nums;
+    flex: none;
   }
   .gaveta-pill b {
     font-size: .82rem; font-weight: 900; color: var(--txt);
@@ -1323,6 +1326,17 @@
     .podium-slot.second { order: 2; }
     .podium-slot.third { order: 3; }
     .header-actions { justify-content: center; gap: 10px; width: 100%; }
+
+    /* ===== GAVETA JOGADORES: cabeçalho compacto (cabe tudo em 1 linha) ===== */
+    .gaveta-head { padding: 12px 14px; gap: 8px; }
+    .gaveta-titulo { gap: 8px; font-size: .92rem; letter-spacing: .05em; }
+    .gaveta-barra { height: 18px; width: 4px; }
+    .gaveta-info { gap: 7px; }
+    .gaveta-contagem { gap: 5px; }
+    .gaveta-pill { padding: 2px 7px; font-size: .66rem; gap: 3px; }
+    .gaveta-pill b { font-size: .74rem; }
+    .gaveta-seta { width: 24px; height: 24px; }
+
     .header-ico { width: 42px; height: 42px; }
     .header-ico svg { width: 20px; height: 20px; }
     .live-bar { top: 10px; right: 12px; padding: 2px 7px; }
@@ -1416,6 +1430,17 @@
     .install-banner-text strong { font-size: .88rem; }
     .install-banner-text span { font-size: .75rem; }
     .install-guide ol { font-size: .78rem; line-height: 1.65; padding-left: 18px; }
+  }
+
+  /* telas muito estreitas (iPhone SE 1a geracao, 320px): aperta mais ainda */
+  @media (max-width: 380px) {
+    .gaveta-head { padding: 11px 10px; gap: 6px; }
+    .gaveta-titulo { gap: 6px; font-size: .84rem; letter-spacing: .03em; }
+    .gaveta-info { gap: 5px; }
+    .gaveta-contagem { gap: 4px; }
+    .gaveta-pill { padding: 2px 6px; font-size: .62rem; }
+    .gaveta-pill b { font-size: .7rem; }
+    .gaveta-seta { width: 22px; height: 22px; font-size: .72rem; }
   }
 
   /* ===== SORTEIO DO CAMPEÃO (estilo Raffle Pro) ===== */
