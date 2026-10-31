@@ -68,7 +68,7 @@ const LEGADO = {
     L.document.querySelectorAll("input.score")[0].value);
   check("estado legado: elenco vazio (sem erro)",
     /Nenhum jogador cadastrado/.test(L.document.getElementById("jogLista").textContent));
-  check("estado legado: sem quebra na aba", L.document.getElementById("tab-classif").classList.contains("ativo"));
+  check("estado legado: sem quebra na aba", L.document.getElementById("tab-info").classList.contains("ativo"));
 
   // ---- PLACAR + CLASSIFICACAO (regressao) ----
   const A = nova();
@@ -148,6 +148,17 @@ const LEGADO = {
 
   // ---- ABAS ----
   check("5 abas", A.document.querySelectorAll(".tab-btn").length === 5);
+
+  // ---- ORDEM DAS ABAS: Informacoes primeiro (checado antes de clicar) ----
+  const ordemAbas = [...A.document.querySelectorAll(".tab-btn")].map(b => b.dataset.tab);
+  check("Informacoes e a primeira aba",
+    ordemAbas[0] === "tab-info", ordemAbas);
+  check("Classificacao e a segunda aba",
+    ordemAbas[1] === "tab-classif", ordemAbas);
+  check("Informacoes e o painel ativo inicial",
+    A.document.getElementById("tab-info").classList.contains("ativo"),
+    A.document.querySelector(".tab-btn.ativo")?.dataset.tab);
+
   ["tab-classif", "tab-jogos", "tab-sorteio", "tab-info", "tab-jogadores"].forEach(id => {
     const btn = A.document.querySelector('[data-tab="' + id + '"]');
     btn.dispatchEvent(new A.window.Event("click"));
@@ -186,6 +197,43 @@ const LEGADO = {
   check("cada aba tem um icone svg",
     A.document.querySelectorAll(".tab-btn .tab-ico").length === 5,
     A.document.querySelectorAll(".tab-btn .tab-ico").length);
+
+  // ---- FORMATACAO DO MURAL (alinhar + tamanho da fonte) ----
+  check("3 botoes de alinhamento",
+    A.document.querySelectorAll("[data-info-alinhamento]").length === 3);
+  check("4 tamanhos de fonte",
+    A.document.querySelectorAll("[data-info-fonte]").length === 4);
+  check("alinhar: esquerda, centro e direita",
+    ["left", "center", "right"].every(a =>
+      A.document.querySelector('[data-info-alinhamento="' + a + '"]') !== null));
+  check("botao centralizar existe",
+    A.document.querySelector('[data-info-alinhamento="center"]') !== null);
+  check("controles de formatacao dentro do editor",
+    A.document.getElementById("infoJogoEdit").contains(
+      A.document.querySelector("[data-info-alinhamento]")));
+  check("funcao normalizarInfoFormato presente", code.includes("function normalizarInfoFormato"));
+  check("formato salvo no estado", code.includes("infoFormato"));
+  check("formato publicado no firebase", /infoFormato:\s*state\.infoFormato/.test(code));
+  check("alinhamento aplicado via variavel CSS",
+    code.includes("--info-alinhamento") && code.includes("--info-fonte"));
+
+  // ---- CONTADOR DE JOGADORES EM PILLS ----
+  check("contador total de jogadores existe",
+    A.document.getElementById("gavetaTotal") !== null);
+  check("contador de marcados existe",
+    A.document.getElementById("gavetaMarcados") !== null);
+  check("resumo usa pills formatadas",
+    A.document.querySelectorAll(".gaveta-pill").length === 2,
+    A.document.querySelectorAll(".gaveta-pill").length);
+
+  // ---- BOTAO SORTEAR CENTRALIZADO ----
+  check("botao sortear existe", A.document.getElementById("btnSortear") !== null);
+  check("botao sortear tem classe dedicada",
+    A.document.getElementById("btnSortear").classList.contains("btn-sortear"));
+  check("campos do sorteio agrupados",
+    A.document.querySelector(".sorteio-campos") !== null);
+  check("rotulos dos campos acima dos inputs",
+    A.document.querySelectorAll(".sorteio-campo .sorteio-label").length === 2);
 
   // ---- WIDGETS INFO DO JOGO + GOOGLE MAPS ----
   check("card de informacoes do jogo existe", A.document.getElementById("infoJogoVisual") !== null);

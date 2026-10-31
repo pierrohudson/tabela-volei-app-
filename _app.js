@@ -64,8 +64,11 @@
     [1, 4]  /* J10: Time 2 x Time 5 */
   ];
 
-  var state = loadState();
+  /* formatos aceitos no mural de informacoes (declarados antes do loadState) */
+  var INFO_ALINHAMENTOS = { left: "left", center: "center", right: "right" };
+  var INFO_FONTES = [0.85, 1.02, 1.25, 1.55];
 
+  var state = loadState();
   function defaultState() {
     var teams = [];
     for (var i = 0; i < NUM_TEAMS; i++) {
@@ -83,6 +86,7 @@
       formacao: null,
       sorteioBrinde: null,
       infoJogo: "VOLEI QUARTA FEIRA 20:30 as 22:30\nCONFIRMADO\nARENA FAMILY",
+      infoFormato: { alinhamento: "left", fonte: 1.02 },
       mapsUrl: "https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8"
     };
   }
@@ -105,6 +109,7 @@
         s.formacao = s.formacao || null;
         s.sorteioBrinde = s.sorteioBrinde || null;
         s.infoJogo = (typeof s.infoJogo === "string") ? s.infoJogo : "VOLEI QUARTA FEIRA 20:30 as 22:30\nCONFIRMADO\nARENA FAMILY";
+        s.infoFormato = normalizarInfoFormato(s.infoFormato);
         s.mapsUrl = (typeof s.mapsUrl === "string" && s.mapsUrl) ? s.mapsUrl : "https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8";
         return s;
       }
@@ -184,6 +189,7 @@
     state.formacao = dados.formacao || null;
     state.sorteioBrinde = dados.sorteioBrinde || null;
     if (typeof dados.infoJogo === "string") state.infoJogo = dados.infoJogo;
+    state.infoFormato = normalizarInfoFormato(dados.infoFormato || state.infoFormato);
     if (typeof dados.mapsUrl === "string" && dados.mapsUrl) state.mapsUrl = dados.mapsUrl;
     save();
     aplicandoRemoto = true;
@@ -214,6 +220,7 @@
         formacao: state.formacao,
         sorteioBrinde: state.sorteioBrinde,
         infoJogo: state.infoJogo,
+        infoFormato: state.infoFormato,
         mapsUrl: state.mapsUrl,
         atualizadoEm: agora
       };
@@ -1108,8 +1115,13 @@
       c.innerHTML = '<b style="color:var(--lime)">' + flegados + '</b> de ' + total + ' para o sorteio';
     }
     /* resumo no cabecalho da gaveta (visivel mesmo com a gaveta fechada) */
+    var gTotal = document.getElementById("gavetaTotal");
+    var gMarc = document.getElementById("gavetaMarcados");
+    if (gTotal) gTotal.textContent = String(total);
+    if (gMarc) gMarc.textContent = String(flegados);
+    /* fallback: se os pills nao existirem, usa o texto simples */
     var gResumo = document.getElementById("gavetaResumo");
-    if (gResumo) {
+    if (gResumo && !gTotal && !gMarc) {
       gResumo.textContent = total + (total === 1 ? " jogador" : " jogadores") +
         " · " + flegados + " marcados";
     }
@@ -1667,12 +1679,21 @@
   }
 
   /* ===== INFORMACOES DO JOGO (mural editavel) ===== */
-  function renderInfoJogo() {
-    var vis = document.getElementById("infoJogoVisual");
-    if (!vis) return;
-    var texto = state.infoJogo || "";
-    /* destaca linhas de status (CONFIRMADO, CANCELADO, etc.) */
-    var linhas = String(texto).split("\n").map(function (ln) {
+  /* garante que o formato salvo seja valido (evita estado corrompido) */
+  function normalizarInfoFormato(f) {
+    f = (f && typeof f === "object") ? f : {};
+    var alin = INFO_ALINHAMENTOS[f.alinhamento] ? f.alinhamento : "left";
+    var fonte = parseFloat(f.fonte);
+    var ok = false;
+    for (var i = 0; i < INFO_FONTES.length; i++) {
+      if (Math.abs(INFO_FONTES[i] - fonte) < 0.001) { ok = true; break; }
+    }
+    return { alinhamento: alin, fonte: ok ? fonte : 1.02 };
+  }
+
+  /* desenha o mural a partir de um texto (usado no render e no preview ao vivo) */
+  function infoJogoHtml(texto) {
+    return String(texto || "").split("\n").map(function (ln) {
       var limpa = ln.trim();
       if (!limpa) return '<div style="height:6px"></div>';
       if (/confirmado|cancelado|adiado|em\s+andamento|encerrado/i.test(limpa)) {
@@ -1680,7 +1701,15 @@
       }
       return '<div>' + esc(limpa) + '</div>';
     }).join("");
-    vis.innerHTML = linhas;
+  }
+
+  function renderInfoJogo() {
+    var vis = document.getElementById("infoJogoVisual");
+    if (!vis) return;
+    var fmt = normalizarInfoFormato(state.infoFormato);
+    vis.style.setProperty("--info-alinhamento", fmt.alinhamento);
+    vis.style.setProperty("--info-fonte", fmt.fonte + "rem");
+    vis.innerHTML = infoJogoHtml(state.infoJogo || "");
   }
 
   /* Coordenadas padrao: Arena Family (Fortaleza - CE) */
@@ -1764,15 +1793,60 @@
       btnEditar.addEventListener("click", function () {
         if (!esAdmin) return;
         if (inp) inp.value = state.infoJogo || "";
+        /* marca os controles com o formato atual */
+        sincronizarBotoesFormato(normalizarInfoFormato(state.infoFormato));
         edit.hidden = false;
-        vis.style.display = "none";
         btnEditar.hidden = true;
+        /* o mural continua visivel: e o preview ao vivo da formatacao */
       });
     }
+
+    /* --- botoes de formatacao (alinhar / tamanho da fonte) --- */
+    var fmtAtual = null;
+
+    /* preview ao vivo: o mural mostra o que esta sendo digitado */
+    if (inp && vis) {
+      inp.addEventListener("input", function () {
+        vis.innerHTML = infoJogoHtml(inp.value);
+      });
+    }
+
+    function aplicarFormato(alinhamento, fonte) {
+      fmtAtual = normalizarInfoFormato({ alinhamento: alinhamento, fonte: fonte });
+      /* aplica na hora, para o admin ver o resultado antes de salvar */
+      vis.style.setProperty("--info-alinhamento", fmtAtual.alinhamento);
+      vis.style.setProperty("--info-fonte", fmtAtual.fonte + "rem");
+      sincronizarBotoesFormato(fmtAtual);
+    }
+    function sincronizarBotoesFormato(fmt) {
+      document.querySelectorAll("[data-info-alinhamento]").forEach(function (b) {
+        b.classList.toggle("ativo", b.dataset.infoAlinhamento === fmt.alinhamento);
+      });
+      document.querySelectorAll("[data-info-fonte]").forEach(function (b) {
+        var v = parseFloat(b.dataset.infoFonte);
+        b.classList.toggle("ativo", Math.abs(v - fmt.fonte) < 0.001);
+      });
+    }
+    document.querySelectorAll("[data-info-alinhamento]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!esAdmin) return;
+        var f = fmtAtual || normalizarInfoFormato(state.infoFormato);
+        aplicarFormato(b.dataset.infoAlinhamento, f.fonte);
+      });
+    });
+    document.querySelectorAll("[data-info-fonte]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!esAdmin) return;
+        var f = fmtAtual || normalizarInfoFormato(state.infoFormato);
+        aplicarFormato(f.alinhamento, parseFloat(b.dataset.infoFonte));
+      });
+    });
+
     if (btnSalvar && edit && vis) {
       btnSalvar.addEventListener("click", function () {
         if (!esAdmin) return;
         state.infoJogo = (inp ? inp.value : "").slice(0, 200);
+        state.infoFormato = normalizarInfoFormato(fmtAtual || state.infoFormato);
         save();
         renderInfoJogo();
         publicarEstado();
@@ -1786,6 +1860,9 @@
         edit.hidden = true;
         vis.style.display = "";
         if (btnEditar) btnEditar.hidden = false;
+        /* descarta a formatacao nao salva */
+        fmtAtual = null;
+        renderInfoJogo();
       });
     }
 
@@ -2332,6 +2409,8 @@
     if (salva === "tab-finais" || salva === "tab-premio") salva = "tab-jogos";
     /* o Chat foi substituido pela aba de Informacoes */
     if (salva === "tab-chat") salva = "tab-info";
+    /* Informacoes e a aba inicial (primeiro acesso, sem aba salva) */
+    if (!salva) salva = "tab-info";
     if (salva) {
       var btn = bar.querySelector('[data-tab="' + salva + '"]');
       if (btn) btn.click();

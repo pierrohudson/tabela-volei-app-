@@ -535,6 +535,29 @@
     display: flex; align-items: center; gap: 10px;
     font-size: .78rem; font-weight: 700; color: var(--muted);
   }
+  /* contador compacto: "20 jogadores · 20 marcados" em pills */
+  .gaveta-contagem {
+    display: inline-flex; align-items: center; gap: 6px;
+    white-space: nowrap;
+  }
+  .gaveta-pill {
+    display: inline-flex; align-items: baseline; gap: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--line);
+    border-radius: 20px; padding: 3px 9px;
+    font-size: .72rem; font-weight: 700; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .gaveta-pill b {
+    font-size: .82rem; font-weight: 900; color: var(--txt);
+    line-height: 1;
+  }
+  .gaveta-pill.marcados {
+    background: rgba(255, 207, 26, 0.10);
+    border-color: rgba(255, 207, 26, 0.28);
+  }
+  .gaveta-pill.marcados b { color: var(--yellow); }
+  .gaveta-pill.separador { display: none; }
   .gaveta-seta {
     display: inline-flex; align-items: center; justify-content: center;
     width: 26px; height: 26px; border-radius: 8px;
@@ -769,24 +792,54 @@
 
   /* ===== SORTEIO / FORMACOES ===== */
   .sorteio-config {
-    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    display: flex; flex-direction: column; align-items: stretch; gap: 14px;
     background: var(--panel-2);
     border: 1px solid var(--line); border-radius: var(--radius-sm);
-    padding: 14px 16px; margin-bottom: 16px;
+    padding: 16px; margin-bottom: 16px;
   }
-  .sorteio-config label {
-    display: flex; align-items: center; gap: 7px;
-    font-size: .78rem; font-weight: 700; color: var(--muted);
+  /* os dois campos lado a lado, com o rotulo acima do input */
+  .sorteio-campos {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .sorteio-campo {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    font-size: .74rem; font-weight: 700; color: var(--muted);
+    text-align: center;
+  }
+  .sorteio-label {
+    font-size: .68rem; font-weight: 800; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--muted-2);
+    line-height: 1.2;
   }
   .sorteio-config input, .sorteio-config select {
     background: var(--navy-900); color: var(--txt);
-    border: 1px solid var(--line); border-radius: 7px;
-    padding: 7px 9px; font: inherit; font-size: .85rem; font-weight: 700;
+    border: 1px solid var(--line-strong); border-radius: 8px;
+    padding: 9px 10px; font: inherit; font-size: .95rem; font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    width: 100%; max-width: 110px; text-align: center;
   }
   .sorteio-config input:focus, .sorteio-config select:focus {
     outline: none; border-color: var(--yellow);
   }
-  .sorteio-config input[type=number] { width: 68px; text-align: center; }
+  .sorteio-config input[type=number] { width: 100%; max-width: 110px; text-align: center; }
+
+  /* botao Sortear: centralizado e com destaque */
+  .btn-sortear {
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    width: 100%; max-width: 260px; margin: 0 auto;
+    padding: 13px 22px; border-radius: 30px;
+    font-size: .98rem; font-weight: 900; letter-spacing: .02em;
+    border: none;
+    box-shadow: 0 6px 20px rgba(255, 207, 26, .3);
+    transition: transform .12s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .btn-sortear:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(255, 207, 26, .42);
+  }
+  .btn-sortear:active { transform: translateY(0) scale(.98); }
+  .btn-sortear-ico { font-size: 1.15rem; line-height: 1; }
+  .btn-sortear:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
 
   .times-resultado { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
   .time-card {
@@ -1455,11 +1508,43 @@
   }
   .info-jogo-visual {
     font-family: var(--font-display);
-    font-size: 1.02rem; font-weight: 700; line-height: 1.75;
+    font-size: var(--info-fonte, 1.02rem); font-weight: 700; line-height: 1.75;
     white-space: pre-wrap; color: var(--txt);
     min-height: 80px;
+    text-align: var(--info-alinhamento, left);
   }
   .info-jogo-visual .info-linha-status { color: var(--lime); font-weight: 800; letter-spacing: .04em; }
+
+  /* --- controles de formatacao do mural (so admin) --- */
+  .info-format {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .info-grupo {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--navy-900); border: 1px solid var(--line-strong);
+    border-radius: 9px; padding: 3px;
+  }
+  .info-grupo > span {
+    font-size: .62rem; font-weight: 800; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--muted-2);
+    padding: 0 5px 0 4px;
+  }
+  .info-fmt-btn {
+    width: 30px; height: 28px; border-radius: 6px;
+    background: transparent; border: 1px solid transparent;
+    color: var(--muted); cursor: pointer; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font: inherit; font-size: .78rem; font-weight: 800;
+    transition: background .15s ease, color .15s ease;
+  }
+  .info-fmt-btn:hover { background: rgba(255,255,255,.08); color: var(--txt); }
+  .info-fmt-btn.ativo {
+    background: rgba(255, 207, 26, .16); color: var(--yellow);
+    border-color: rgba(255, 207, 26, .45);
+  }
+  .info-fmt-btn svg { width: 14px; height: 14px; display: block; }
+  .info-fmt-btn.fonte-texto { width: auto; padding: 0 8px; font-size: .72rem; }
   .info-jogo-edit textarea {
     width: 100%; background: var(--navy-900); color: var(--txt);
     border: 1px solid var(--line-strong); border-radius: 10px;
@@ -1680,7 +1765,14 @@
 
 
 <nav class="tabs-bar" id="tabsBar" aria-label="Navegação principal">
-  <button class="tab-btn ativo" data-tab="tab-classif" aria-label="Classificação">
+  <button class="tab-btn ativo" data-tab="tab-info" aria-label="Informações">
+    <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M12 16v-4M12 8h.01"></path>
+    </svg>
+    <span class="tab-txt">Informações</span>
+  </button>
+  <button class="tab-btn" data-tab="tab-classif" aria-label="Classificação">
     <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <rect x="3" y="4" width="18" height="16" rx="2"></rect>
       <path d="M3 10h18M8 4v16"></path>
@@ -1709,56 +1801,11 @@
     </svg>
     <span class="tab-txt">Sorteio</span>
   </button>
-  <button class="tab-btn" data-tab="tab-info" aria-label="Informações">
-    <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="9"></circle>
-      <path d="M12 16v-4M12 8h.01"></path>
-    </svg>
-    <span class="tab-txt">Informações</span>
-  </button>
 </nav>
 
 <main class="wrap">
 
-  <!-- ===== CLASSIFICAÇÃO ===== -->
-  <div class="tab-panel ativo" id="tab-classif">
 
-  <h2 class="section-title">
-    Classificação
-    <span class="hint">Toque no nome do time para renomear</span>
-  </h2>
-  <div class="card">
-    <div class="table-responsive">
-      <table class="standings-table" id="standings">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th class="team-col" style="text-align:left;">Time</th>
-            <th>J</th>
-            <th>V</th>
-            <th>D</th>
-            <th>SP</th>
-            <th>SC</th>
-            <th>Saldo</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div class="config-bar">
-      <div class="config-inputs">
-        <label class="cfg-caption">Pontos por vitória
-          <input id="cfgWin" type="number" min="1" aria-label="Pontos por vitória">
-        </label>
-        <label class="cfg-caption">Pontos por derrota
-          <input id="cfgLoss" type="number" min="0" aria-label="Pontos por derrota">
-        </label>
-      </div>
-      <div class="cfg-tiebreak">Desempate: Pontos → Vitórias → Saldo → Sets Pró</div>
-    </div>
-  </div>
-  </div>
 
   <!-- ===== TABELA DE JOGOS + FINAIS + PREMIAÇÃO ===== -->
   <div class="tab-panel" id="tab-jogos">
@@ -1794,7 +1841,10 @@
           Jogadores
         </span>
         <span class="gaveta-info">
-          <span id="gavetaResumo">0 jogadores</span>
+          <span class="gaveta-contagem" id="gavetaResumo">
+            <span class="gaveta-pill"><b id="gavetaTotal">0</b> jogadores</span>
+            <span class="gaveta-pill marcados"><b id="gavetaMarcados">0</b> marcados</span>
+          </span>
           <span class="gaveta-seta" aria-hidden="true">▾</span>
         </span>
       </summary>
@@ -1844,13 +1894,20 @@
       <span class="hint">Sorteio equilibrado pela nota dos atletas</span>
     </h2>
     <div class="sorteio-config">
-      <label>Times
-        <input id="sorteioTimes" type="number" min="2" max="10" value="5">
-      </label>
-      <label>Jogadores por time
-        <input id="sorteioPorTime" type="number" min="1" max="20" value="4">
-      </label>
-      <button class="btn btn-primary" id="btnSortear">🎲 Sortear</button>
+      <div class="sorteio-campos">
+        <label class="sorteio-campo">
+          <span class="sorteio-label">Times</span>
+          <input id="sorteioTimes" type="number" min="2" max="10" value="5">
+        </label>
+        <label class="sorteio-campo">
+          <span class="sorteio-label">Jogadores por time</span>
+          <input id="sorteioPorTime" type="number" min="1" max="20" value="4">
+        </label>
+      </div>
+      <button class="btn btn-primary btn-sortear" id="btnSortear">
+        <span class="btn-sortear-ico" aria-hidden="true">🎲</span>
+        Sortear
+      </button>
     </div>
     <div id="sorteioResultado"></div>
   </div>
@@ -1889,7 +1946,7 @@
   </div>
 
   <!-- ===== INFORMACOES DO JOGO + LOCAL ===== -->
-  <div class="tab-panel" id="tab-info">
+  <div class="tab-panel ativo" id="tab-info">
   <h2 class="section-title">
     Informações do Jogo
     <span class="hint">Local, horário e status</span>
@@ -1897,6 +1954,27 @@
   <div class="info-jogo-card">
     <div class="info-jogo-visual" id="infoJogoVisual"></div>
     <div class="info-jogo-edit" id="infoJogoEdit" hidden>
+      <div class="info-format" role="group" aria-label="Formatação do mural">
+        <div class="info-grupo" role="group" aria-label="Alinhamento">
+          <span>Alinhar</span>
+          <button class="info-fmt-btn ativo" type="button" data-info-alinhamento="left" aria-label="Alinhar à esquerda" title="Alinhar à esquerda">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"></path></svg>
+          </button>
+          <button class="info-fmt-btn" type="button" data-info-alinhamento="center" aria-label="Centralizar" title="Centralizar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 10h10M4 14h16M7 18h10"></path></svg>
+          </button>
+          <button class="info-fmt-btn" type="button" data-info-alinhamento="right" aria-label="Alinhar à direita" title="Alinhar à direita">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M10 10h10M4 14h16M10 18h10"></path></svg>
+          </button>
+        </div>
+        <div class="info-grupo" role="group" aria-label="Tamanho da fonte">
+          <span>Fonte</span>
+          <button class="info-fmt-btn fonte-texto" type="button" data-info-fonte="0.85" aria-label="Fonte pequena" title="Fonte pequena">A</button>
+          <button class="info-fmt-btn fonte-texto ativo" type="button" data-info-fonte="1.02" aria-label="Fonte normal" title="Fonte normal">A</button>
+          <button class="info-fmt-btn fonte-texto" type="button" data-info-fonte="1.25" aria-label="Fonte grande" title="Fonte grande">A</button>
+          <button class="info-fmt-btn fonte-texto" type="button" data-info-fonte="1.55" aria-label="Fonte muito grande" title="Fonte muito grande">A</button>
+        </div>
+      </div>
       <textarea id="infoJogoInput" maxlength="200" rows="4"
         placeholder="Ex.: VOLEI QUARTA FEIRA 20:30 as 22:30&#10;CONFIRMADO&#10;ARENA FAMILY"></textarea>
       <div class="info-jogo-acoes">
@@ -1936,6 +2014,48 @@
     <div class="mapa-footer">
       <input id="mapaUrl" class="mapa-url-input" maxlength="300" placeholder="Link do Google Maps">
       <button class="btn btn-primary mapa-salvar" id="mapaSalvar">Salvar</button>
+    </div>
+  </div>
+  </div>
+
+  </div>
+
+  <!-- ===== CLASSIFICAÇÃO ===== -->
+  <div class="tab-panel" id="tab-classif">
+
+  <h2 class="section-title">
+    Classificação
+    <span class="hint">Toque no nome do time para renomear</span>
+  </h2>
+  <div class="card">
+    <div class="table-responsive">
+      <table class="standings-table" id="standings">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th class="team-col" style="text-align:left;">Time</th>
+            <th>J</th>
+            <th>V</th>
+            <th>D</th>
+            <th>SP</th>
+            <th>SC</th>
+            <th>Saldo</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="config-bar">
+      <div class="config-inputs">
+        <label class="cfg-caption">Pontos por vitória
+          <input id="cfgWin" type="number" min="1" aria-label="Pontos por vitória">
+        </label>
+        <label class="cfg-caption">Pontos por derrota
+          <input id="cfgLoss" type="number" min="0" aria-label="Pontos por derrota">
+        </label>
+      </div>
+      <div class="cfg-tiebreak">Desempate: Pontos → Vitórias → Saldo → Sets Pró</div>
     </div>
   </div>
   </div>
@@ -2043,8 +2163,11 @@
     [1, 4]  /* J10: Time 2 x Time 5 */
   ];
 
-  var state = loadState();
+  /* formatos aceitos no mural de informacoes (declarados antes do loadState) */
+  var INFO_ALINHAMENTOS = { left: "left", center: "center", right: "right" };
+  var INFO_FONTES = [0.85, 1.02, 1.25, 1.55];
 
+  var state = loadState();
   function defaultState() {
     var teams = [];
     for (var i = 0; i < NUM_TEAMS; i++) {
@@ -2062,6 +2185,7 @@
       formacao: null,
       sorteioBrinde: null,
       infoJogo: "VOLEI QUARTA FEIRA 20:30 as 22:30\nCONFIRMADO\nARENA FAMILY",
+      infoFormato: { alinhamento: "left", fonte: 1.02 },
       mapsUrl: "https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8"
     };
   }
@@ -2084,6 +2208,7 @@
         s.formacao = s.formacao || null;
         s.sorteioBrinde = s.sorteioBrinde || null;
         s.infoJogo = (typeof s.infoJogo === "string") ? s.infoJogo : "VOLEI QUARTA FEIRA 20:30 as 22:30\nCONFIRMADO\nARENA FAMILY";
+        s.infoFormato = normalizarInfoFormato(s.infoFormato);
         s.mapsUrl = (typeof s.mapsUrl === "string" && s.mapsUrl) ? s.mapsUrl : "https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8";
         return s;
       }
@@ -2163,6 +2288,7 @@
     state.formacao = dados.formacao || null;
     state.sorteioBrinde = dados.sorteioBrinde || null;
     if (typeof dados.infoJogo === "string") state.infoJogo = dados.infoJogo;
+    state.infoFormato = normalizarInfoFormato(dados.infoFormato || state.infoFormato);
     if (typeof dados.mapsUrl === "string" && dados.mapsUrl) state.mapsUrl = dados.mapsUrl;
     save();
     aplicandoRemoto = true;
@@ -2193,6 +2319,7 @@
         formacao: state.formacao,
         sorteioBrinde: state.sorteioBrinde,
         infoJogo: state.infoJogo,
+        infoFormato: state.infoFormato,
         mapsUrl: state.mapsUrl,
         atualizadoEm: agora
       };
@@ -3087,8 +3214,13 @@
       c.innerHTML = '<b style="color:var(--lime)">' + flegados + '</b> de ' + total + ' para o sorteio';
     }
     /* resumo no cabecalho da gaveta (visivel mesmo com a gaveta fechada) */
+    var gTotal = document.getElementById("gavetaTotal");
+    var gMarc = document.getElementById("gavetaMarcados");
+    if (gTotal) gTotal.textContent = String(total);
+    if (gMarc) gMarc.textContent = String(flegados);
+    /* fallback: se os pills nao existirem, usa o texto simples */
     var gResumo = document.getElementById("gavetaResumo");
-    if (gResumo) {
+    if (gResumo && !gTotal && !gMarc) {
       gResumo.textContent = total + (total === 1 ? " jogador" : " jogadores") +
         " · " + flegados + " marcados";
     }
@@ -3646,12 +3778,21 @@
   }
 
   /* ===== INFORMACOES DO JOGO (mural editavel) ===== */
-  function renderInfoJogo() {
-    var vis = document.getElementById("infoJogoVisual");
-    if (!vis) return;
-    var texto = state.infoJogo || "";
-    /* destaca linhas de status (CONFIRMADO, CANCELADO, etc.) */
-    var linhas = String(texto).split("\n").map(function (ln) {
+  /* garante que o formato salvo seja valido (evita estado corrompido) */
+  function normalizarInfoFormato(f) {
+    f = (f && typeof f === "object") ? f : {};
+    var alin = INFO_ALINHAMENTOS[f.alinhamento] ? f.alinhamento : "left";
+    var fonte = parseFloat(f.fonte);
+    var ok = false;
+    for (var i = 0; i < INFO_FONTES.length; i++) {
+      if (Math.abs(INFO_FONTES[i] - fonte) < 0.001) { ok = true; break; }
+    }
+    return { alinhamento: alin, fonte: ok ? fonte : 1.02 };
+  }
+
+  /* desenha o mural a partir de um texto (usado no render e no preview ao vivo) */
+  function infoJogoHtml(texto) {
+    return String(texto || "").split("\n").map(function (ln) {
       var limpa = ln.trim();
       if (!limpa) return '<div style="height:6px"></div>';
       if (/confirmado|cancelado|adiado|em\s+andamento|encerrado/i.test(limpa)) {
@@ -3659,7 +3800,15 @@
       }
       return '<div>' + esc(limpa) + '</div>';
     }).join("");
-    vis.innerHTML = linhas;
+  }
+
+  function renderInfoJogo() {
+    var vis = document.getElementById("infoJogoVisual");
+    if (!vis) return;
+    var fmt = normalizarInfoFormato(state.infoFormato);
+    vis.style.setProperty("--info-alinhamento", fmt.alinhamento);
+    vis.style.setProperty("--info-fonte", fmt.fonte + "rem");
+    vis.innerHTML = infoJogoHtml(state.infoJogo || "");
   }
 
   /* Coordenadas padrao: Arena Family (Fortaleza - CE) */
@@ -3743,15 +3892,60 @@
       btnEditar.addEventListener("click", function () {
         if (!esAdmin) return;
         if (inp) inp.value = state.infoJogo || "";
+        /* marca os controles com o formato atual */
+        sincronizarBotoesFormato(normalizarInfoFormato(state.infoFormato));
         edit.hidden = false;
-        vis.style.display = "none";
         btnEditar.hidden = true;
+        /* o mural continua visivel: e o preview ao vivo da formatacao */
       });
     }
+
+    /* --- botoes de formatacao (alinhar / tamanho da fonte) --- */
+    var fmtAtual = null;
+
+    /* preview ao vivo: o mural mostra o que esta sendo digitado */
+    if (inp && vis) {
+      inp.addEventListener("input", function () {
+        vis.innerHTML = infoJogoHtml(inp.value);
+      });
+    }
+
+    function aplicarFormato(alinhamento, fonte) {
+      fmtAtual = normalizarInfoFormato({ alinhamento: alinhamento, fonte: fonte });
+      /* aplica na hora, para o admin ver o resultado antes de salvar */
+      vis.style.setProperty("--info-alinhamento", fmtAtual.alinhamento);
+      vis.style.setProperty("--info-fonte", fmtAtual.fonte + "rem");
+      sincronizarBotoesFormato(fmtAtual);
+    }
+    function sincronizarBotoesFormato(fmt) {
+      document.querySelectorAll("[data-info-alinhamento]").forEach(function (b) {
+        b.classList.toggle("ativo", b.dataset.infoAlinhamento === fmt.alinhamento);
+      });
+      document.querySelectorAll("[data-info-fonte]").forEach(function (b) {
+        var v = parseFloat(b.dataset.infoFonte);
+        b.classList.toggle("ativo", Math.abs(v - fmt.fonte) < 0.001);
+      });
+    }
+    document.querySelectorAll("[data-info-alinhamento]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!esAdmin) return;
+        var f = fmtAtual || normalizarInfoFormato(state.infoFormato);
+        aplicarFormato(b.dataset.infoAlinhamento, f.fonte);
+      });
+    });
+    document.querySelectorAll("[data-info-fonte]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!esAdmin) return;
+        var f = fmtAtual || normalizarInfoFormato(state.infoFormato);
+        aplicarFormato(f.alinhamento, parseFloat(b.dataset.infoFonte));
+      });
+    });
+
     if (btnSalvar && edit && vis) {
       btnSalvar.addEventListener("click", function () {
         if (!esAdmin) return;
         state.infoJogo = (inp ? inp.value : "").slice(0, 200);
+        state.infoFormato = normalizarInfoFormato(fmtAtual || state.infoFormato);
         save();
         renderInfoJogo();
         publicarEstado();
@@ -3765,6 +3959,9 @@
         edit.hidden = true;
         vis.style.display = "";
         if (btnEditar) btnEditar.hidden = false;
+        /* descarta a formatacao nao salva */
+        fmtAtual = null;
+        renderInfoJogo();
       });
     }
 
@@ -4311,6 +4508,8 @@
     if (salva === "tab-finais" || salva === "tab-premio") salva = "tab-jogos";
     /* o Chat foi substituido pela aba de Informacoes */
     if (salva === "tab-chat") salva = "tab-info";
+    /* Informacoes e a aba inicial (primeiro acesso, sem aba salva) */
+    if (!salva) salva = "tab-info";
     if (salva) {
       var btn = bar.querySelector('[data-tab="' + salva + '"]');
       if (btn) btn.click();
