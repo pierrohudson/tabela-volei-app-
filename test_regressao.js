@@ -284,9 +284,15 @@ const LEGADO = {
     A.document.querySelectorAll("#mapaBtnWaze .waze-ico path").length);
   check("mascote do Waze em branco com o rosto recortado (mascara SVG)",
     A.document.querySelector("#mapaBtnWaze .waze-ico mask") !== null);
-  check("viewBox do Waze e o da imagem original (250x225)",
-    A.document.querySelector("#mapaBtnWaze .waze-ico")?.getAttribute("viewBox") === "14.50 14.50 250.00 225.00",
+  /* o viewBox foi ajustado ao bbox real do traceado para o mascote ficar
+     com a mesma altura visual do pin do Google Maps (15px) */
+  check("viewBox do Waze ajustado ao desenho (bbox justo)",
+    A.document.querySelector("#mapaBtnWaze .waze-ico")?.getAttribute("viewBox") === "7.48 -5.55 264.60 264.60",
     A.document.querySelector("#mapaBtnWaze .waze-ico")?.getAttribute("viewBox"));
+  check("mascote do Waze usa o mesmo tamanho do pin do Maps",
+    !/\.btn-rota \.waze-ico \{/.test(html) &&
+    /\.btn-rota svg \{ width: 18px; height: 18px/.test(html),
+    "regra unica .btn-rota svg para os dois icones");
   check("botao do Waze azul, igual ao Google Maps",
     /\.btn-rota\.waze \{[^}]*background:\s*linear-gradient\(135deg, #00AEEF/.test(html));
   check("mascote branco sobre o botao azul (fill #ffffff)",
