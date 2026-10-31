@@ -1,38 +1,8 @@
-/* Testa a unicidade de apelidos do chat */
+/* Verifica que o Chat foi REMOVIDO do app e substituido pela aba de Informacoes */
 const fs = require("fs");
 const { parseHTML } = require("linkedom");
 const html = fs.readFileSync("index.html", "utf8");
 const code = fs.readFileSync("_app.js", "utf8");
-
-function nova(seed) {
-  const { document, window } = parseHTML(html);
-  const store = Object.assign({}, seed || {});
-  const localStorage = {
-    getItem: k => (k in store ? store[k] : null),
-    setItem: (k, v) => { store[k] = String(v); },
-    removeItem: k => { delete store[k]; }
-  };
-  const fakeFetch = (url, init) => {
-    const u = String(url);
-    let body = null;
-    if (u.includes("signInWithPassword")) body = { idToken: "T", refreshToken: "R", expiresIn: 3600 };
-    return Promise.resolve({
-      ok: true, status: 200,
-      json: () => Promise.resolve(body),
-      text: () => Promise.resolve(JSON.stringify(body)),
-      body: null
-    });
-  };
-  const nav = { userAgent: "iPhone", platform: "iPhone", maxTouchPoints: 5, serviceWorker: { register: () => Promise.resolve() } };
-  const fn = new window.Function("document", "window", "localStorage", "confirm", "print", "navigator",
-    "fetch", "AbortController", "ReadableStream", "TextDecoder", "setTimeout", "setInterval",
-    "clearTimeout", "unescape", "encodeURIComponent", "Date", "Math", "JSON", "alert", code);
-  fn(document, window, localStorage, () => true, () => {}, nav, fakeFetch,
-    function () { this.signal = { addEventListener() {} }; this.abort = () => {}; },
-    undefined, TextDecoder, setTimeout, setInterval, clearTimeout,
-    unescape, encodeURIComponent, Date, Math, JSON, () => {});
-  return { document, window, localStorage };
-}
 
 let fails = 0;
 function check(n, c, e) {
@@ -41,30 +11,49 @@ function check(n, c, e) {
 }
 
 (() => {
-  const A = nova();
-  // 1) elemento de aviso removido
-  check("texto 'Ao enviar, você concorda' removido",
-    A.document.getElementById("chatAviso") === null);
+  const { document } = parseHTML(html);
 
-  // 2) campo de apelido e mensagem de erro existem
-  check("campo de apelido existe", A.document.getElementById("chatNick") !== null);
-  check("elemento de erro de apelido existe", A.document.getElementById("chatNickMsg") !== null);
-  check("botao trocar nome existe", A.document.getElementById("chatTrocar") !== null);
+  // 1) Nenhum elemento do chat sobrou no HTML
+  check("aba do chat removida", document.getElementById("tab-chat") === null);
+  check("botao do chat na barra de abas removido",
+    document.querySelector('[data-tab="tab-chat"]') === null);
+  check("lista de mensagens removida", document.getElementById("chatLista") === null);
+  check("campo de mensagem removido", document.getElementById("chatInput") === null);
+  check("campo de apelido removido", document.getElementById("chatNick") === null);
+  check("botao enviar removido", document.getElementById("chatEnviar") === null);
+  check("botao limpar chat removido", document.getElementById("chatLimpar") === null);
+  check("indicador de status do chat removido", document.getElementById("chatDot") === null);
+  check("nenhum elemento com classe chat-* no HTML",
+    document.querySelectorAll('[class*="chat-"]').length === 0,
+    document.querySelectorAll('[class*="chat-"]').length);
 
-  // 3) botao de envio sem nós de texto vazios dentro (garante alinhamento)
-  const btnEnv = A.document.getElementById("chatEnviar");
-  const filhos = [...btnEnv.childNodes];
-  const temTextoVazio = filhos.some(n => n.nodeType === 3 && n.textContent.trim() === "");
-  check("botao enviar: svg limpo (sem texto vazio desalinhando)",
-    btnEnv.querySelector("svg") !== null && !temTextoVazio);
+  // 2) Nenhuma logica de chat sobrou no JS
+  check("sem funcao chatInit no codigo", !code.includes("function chatInit"));
+  check("sem funcao chatReservarNick no codigo", !code.includes("function chatReservarNick"));
+  check("sem funcao chatLiberarNick no codigo", !code.includes("function chatLiberarNick"));
+  check("sem funcao chatDefinirNick no codigo", !code.includes("function chatDefinirNick"));
+  check("sem funcao chatNormalizarNick no codigo", !code.includes("function chatNormalizarNick"));
+  check("sem criacao de sessao temporaria de chat", !code.includes("chatCriarSessao"));
+  check("sem stream do chat", !code.includes("chatIniciarStream"));
+  check("path chat-apelidos removido", !code.includes('"chat-apelidos"'));
+  check("path /chat nao e mais lido", !code.includes('var CHAT_PATH = "chat"'));
+  check("nenhuma chamada a chatInit()", !code.includes("chatInit()"));
 
-  // 4) unicidade: normalizacao de apelido (funcao existe no app)
-  const appCode = fs.readFileSync("_app.js", "utf8");
-  check("funcao chatNormalizarNick presente no app", appCode.includes("function chatNormalizarNick"));
-  check("funcao chatReservarNick presente no app", appCode.includes("function chatReservarNick"));
-  check("funcao chatLiberarNick presente no app", appCode.includes("function chatLiberarNick"));
-  check("path chat-apelidos configurado", appCode.includes('"chat-apelidos"'));
+  // 3) A nova aba de Informacoes substituiu o chat
+  check("aba de informacoes existe", document.getElementById("tab-info") !== null);
+  check("botao de informacoes na barra de abas",
+    document.querySelector('[data-tab="tab-info"]') !== null);
+  check("rotulo 'Informações'",
+    document.querySelector('[data-tab="tab-info"] .tab-txt')?.textContent.trim() === "Informações");
+  check("informacoes do jogo dentro da aba info",
+    document.getElementById("tab-info")?.contains(document.getElementById("infoJogoVisual")));
+  check("mapa do local dentro da aba info",
+    document.getElementById("tab-info")?.contains(document.getElementById("mapaEmbed")));
+  check("classificacao fora da aba info",
+    !document.getElementById("tab-info")?.contains(document.getElementById("standings")));
+  check("classificacao dentro da aba classif",
+    document.getElementById("tab-classif")?.contains(document.getElementById("standings")));
 
-  console.log("\n=== " + (fails ? fails + " FALHAS" : "TODOS OS TESTES DE CHAT PASSARAM") + " ===");
+  console.log("\n=== " + (fails ? fails + " FALHAS" : "CHAT REMOVIDO E INFORMACOES OK") + " ===");
   process.exit(fails ? 1 : 0);
 })();

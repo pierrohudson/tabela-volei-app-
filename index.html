@@ -428,8 +428,7 @@
     box-shadow: none !important; cursor: default;
   }
   body.modo-leitura .btn-danger,
-  body.modo-leitura .header-ico#btnReset,
-  body.modo-leitura #chatLimpar { display: none !important; }
+  body.modo-leitura .header-ico#btnReset { display: none !important; }
   body.modo-leitura .section-title .hint { display: none; }
   /* ===== ABAS DE NAVEGACAO (estilo WhatsApp: icone em cima, rotulo embaixo) ===== */
   .tabs-bar {
@@ -1534,129 +1533,8 @@
   }
   .mapa-url-input:focus { border-color: var(--turquoise); outline: none; color: var(--txt); }
   .mapa-salvar { padding: 8px 14px; font-size: .78rem; flex: none; }
-  .body.modo-leitura .btn-editar-info,
+  body.modo-leitura .btn-editar-info,
   body.modo-leitura .mapa-footer { display: none; }
-
-  /* ===== CHAT AO VIVO ===== */
-  .chat-card {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: var(--radius); overflow: hidden;
-    display: flex; flex-direction: column;
-    height: min(62vh, 520px);
-    box-shadow: var(--shadow);
-  }
-  .chat-topo {
-    display: flex; align-items: center; gap: 8px;
-    padding: 11px 14px;
-    background: var(--panel-2);
-    border-bottom: 1px solid var(--line);
-    flex: none;
-  }
-  .chat-topo h3 {
-    margin: 0; font-size: .92rem; font-weight: 800;
-    letter-spacing: .06em; text-transform: uppercase;
-    margin-right: auto;
-  }
-  .chat-online {
-    display: inline-flex; align-items: center;
-  }
-  .chat-online .live-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .chat-lista {
-    flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-    padding: 12px 14px; display: flex; flex-direction: column; gap: 9px;
-  }
-  .chat-lista::-webkit-scrollbar { width: 5px; }
-  .chat-lista::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
-  .chat-msg {
-    max-width: 86%; padding: 9px 12px; border-radius: 14px;
-    background: var(--panel-2); border: 1px solid var(--line);
-    align-self: flex-start; border-bottom-left-radius: 4px;
-    animation: chatIn .22s ease;
-  }
-  .chat-msg.minha {
-    align-self: flex-end; border-bottom-left-radius: 14px; border-bottom-right-radius: 4px;
-    background: linear-gradient(135deg, rgba(0,180,216,.22) 0%, rgba(0,119,182,.18) 100%);
-    border-color: rgba(0,180,216,.35);
-  }
-  @keyframes chatIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .chat-autor {
-    font-size: .68rem; font-weight: 800; letter-spacing: .03em;
-    color: var(--turquoise); margin-bottom: 3px; text-transform: uppercase;
-  }
-  .chat-msg.minha .chat-autor { color: var(--yellow); }
-  .chat-texto {
-    font-size: .9rem; line-height: 1.45; color: var(--txt);
-    word-wrap: break-word; overflow-wrap: anywhere; white-space: pre-wrap;
-  }
-  .chat-hora {
-    font-size: .62rem; color: var(--muted-2); margin-top: 4px;
-    text-align: right; font-variant-numeric: tabular-nums;
-  }
-  .chat-sistema {
-    align-self: center; font-size: .72rem; color: var(--muted);
-    background: rgba(255,255,255,.05); padding: 5px 12px; border-radius: 20px;
-    border: 1px solid var(--line);
-  }
-  .chat-vazio {
-    margin: auto; text-align: center; color: var(--muted-2);
-    font-size: .84rem; padding: 30px 16px;
-  }
-  .chat-vazio .emoji { font-size: 2rem; display: block; margin-bottom: 8px; }
-  .chat-form {
-    display: flex; gap: 8px; padding: 10px 12px;
-    border-top: 1px solid var(--line); background: var(--panel-2); flex: none;
-  }
-  .chat-input {
-    flex: 1; min-width: 0; background: var(--navy-900);
-    border: 1px solid var(--line); color: var(--txt);
-    border-radius: 22px; padding: 10px 15px;
-    font: inherit; font-size: .88rem;
-  }
-  .chat-input::placeholder { color: var(--muted-2); }
-  .chat-input:focus { border-color: var(--turquoise); outline: none; }
-  .chat-enviar {
-    flex: none; width: 42px; height: 42px; border-radius: 50%;
-    background: linear-gradient(135deg, #00B4D8 0%, #0077B6 100%);
-    color: #fff; border: none; cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 14px rgba(0,180,216,.4);
-    transition: transform .12s ease, opacity .15s ease;
-    padding: 0; line-height: 0;
-  }
-  .chat-enviar:hover { transform: scale(1.06); }
-  .chat-enviar:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-  .chat-enviar svg {
-    width: 19px; height: 19px; flex: none;
-    display: block; margin: 0; padding: 0;
-    position: relative; left: 1px;  /* compensa a ponta da flecha na horizontal */
-  }
-  .chat-nick {
-    display: flex; gap: 8px; padding: 12px;
-    border-bottom: 1px solid var(--line); background: var(--panel-2); flex: none;
-  }
-  .chat-nick input {
-    flex: 1; min-width: 0; background: var(--navy-900);
-    border: 1px solid var(--line); color: var(--txt);
-    border-radius: 10px; padding: 10px 13px; font: inherit; font-size: .88rem;
-  }
-  .chat-nick input:focus { border-color: var(--turquoise); outline: none; }
-  .chat-nick button {
-    flex: none; padding: 0 18px; border-radius: 10px; border: none;
-    background: var(--turquoise); color: #04222A; font: inherit;
-    font-size: .85rem; font-weight: 800; cursor: pointer;
-  }
-  .chat-aviso {
-    font-size: .68rem; color: var(--muted-2); padding: 7px 14px;
-    background: rgba(255,255,255,.03); border-top: 1px solid var(--line);
-    flex: none; line-height: 1.4;
-  }
-  .chat-nick.erro input { border-color: #ff4d4d; }
-  .chat-nick-msg {
-    font-size: .7rem; color: #ff8080; font-weight: 700;
-    padding: 0 12px 8px; background: var(--panel-2); flex: none;
-    display: none;
-  }
-  .chat-nick-msg.show { display: block; }
 
   /* ===== Impressão / PDF ===== */
   @media print {
@@ -1831,11 +1709,12 @@
     </svg>
     <span class="tab-txt">Sorteio</span>
   </button>
-  <button class="tab-btn" data-tab="tab-chat" aria-label="Chat">
+  <button class="tab-btn" data-tab="tab-info" aria-label="Informações">
     <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"></path>
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M12 16v-4M12 8h.01"></path>
     </svg>
-    <span class="tab-txt">Chat</span>
+    <span class="tab-txt">Informações</span>
   </button>
 </nav>
 
@@ -1843,56 +1722,6 @@
 
   <!-- ===== CLASSIFICAÇÃO ===== -->
   <div class="tab-panel ativo" id="tab-classif">
-
-  <!-- ===== MURAL DE INFORMACOES DO JOGO ===== -->
-  <h2 class="section-title">
-    Informações do Jogo
-    <span class="hint">Local, horário e status</span>
-  </h2>
-  <div class="info-jogo-card">
-    <div class="info-jogo-visual" id="infoJogoVisual"></div>
-    <div class="info-jogo-edit" id="infoJogoEdit" hidden>
-      <textarea id="infoJogoInput" maxlength="200" rows="4"
-        placeholder="Ex.: VOLEI QUARTA FEIRA 20:30 as 22:30&#10;CONFIRMADO&#10;ARENA FAMILY"></textarea>
-      <div class="info-jogo-acoes">
-        <button class="btn btn-primary" id="infoJogoSalvar">Salvar</button>
-        <button class="btn btn-ghost" id="infoJogoCancelar">Cancelar</button>
-      </div>
-    </div>
-    <button class="btn-editar-info" id="infoJogoEditar" aria-label="Editar informações do jogo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-      </svg>
-    </button>
-  </div>
-
-  <!-- ===== MAPA DO LOCAL ===== -->
-  <h2 class="section-title">
-    Local do Jogo
-    <span class="hint">Arena Family · Traçar rota</span>
-  </h2>
-  <div class="mapa-card">
-    <iframe id="mapaEmbed" class="mapa-frame" loading="lazy"
-      title="Mapa do local do jogo" allowfullscreen></iframe>
-    <div class="mapa-info">
-      <div class="mapa-local" id="mapaNomeLocal">📍 Arena Family</div>
-      <div class="mapa-sub">Fortaleza - CE · Toque para traçar a rota até o jogo:</div>
-    </div>
-    <div class="mapa-botoes">
-      <a class="btn-rota maps" id="mapaBtnGoogle" href="https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
-        Abrir no Google Maps
-      </a>
-      <a class="btn-rota waze" id="mapaBtnWaze" href="https://waze.com/ul?ll=-3.7915037,-38.5619707&navigate=yes" target="_blank" rel="noopener noreferrer">
-        🚗 Waze
-      </a>
-    </div>
-    <div class="mapa-footer">
-      <input id="mapaUrl" class="mapa-url-input" maxlength="300" placeholder="Link do Google Maps">
-      <button class="btn btn-primary mapa-salvar" id="mapaSalvar">Salvar</button>
-    </div>
-  </div>
 
   <h2 class="section-title">
     Classificação
@@ -2059,45 +1888,56 @@
     <div id="raffleResultado"></div>
   </div>
 
-  <!-- ===== CHAT AO VIVO ===== -->
-  <div class="tab-panel" id="tab-chat">
-    <h2 class="section-title">
-      Chat do Campeonato
-      <span class="hint">Converse ao vivo com quem está acompanhando</span>
-    </h2>
-
-    <div class="chat-card">
-      <div class="chat-topo">
-        <h3>Chat</h3>
-        <span class="chat-online" aria-label="Status da conexão">
-          <span class="live-dot" id="chatDot"></span>
-        </span>
-        <button class="btn btn-ghost" id="chatTrocar" hidden
-          style="padding:5px 11px;font-size:.72rem;border-radius:20px">Trocar nome</button>
-        <button class="btn btn-ghost" id="chatLimpar" hidden
-          style="padding:5px 11px;font-size:.72rem;border-radius:20px">Limpar</button>
+  <!-- ===== INFORMACOES DO JOGO + LOCAL ===== -->
+  <div class="tab-panel" id="tab-info">
+  <h2 class="section-title">
+    Informações do Jogo
+    <span class="hint">Local, horário e status</span>
+  </h2>
+  <div class="info-jogo-card">
+    <div class="info-jogo-visual" id="infoJogoVisual"></div>
+    <div class="info-jogo-edit" id="infoJogoEdit" hidden>
+      <textarea id="infoJogoInput" maxlength="200" rows="4"
+        placeholder="Ex.: VOLEI QUARTA FEIRA 20:30 as 22:30&#10;CONFIRMADO&#10;ARENA FAMILY"></textarea>
+      <div class="info-jogo-acoes">
+        <button class="btn btn-primary" id="infoJogoSalvar">Salvar</button>
+        <button class="btn btn-ghost" id="infoJogoCancelar">Cancelar</button>
       </div>
-
-      <!-- primeira vez: escolhe um apelido -->
-      <div class="chat-nick" id="chatNickBox">
-        <input type="text" id="chatNick" maxlength="18" placeholder="Seu apelido no chat" autocomplete="nickname">
-        <button id="chatNickBtn">Entrar</button>
-      </div>
-      <div class="chat-nick-msg" id="chatNickMsg"></div>
-
-      <div class="chat-lista" id="chatLista">
-        <div class="chat-vazio" id="chatVazio">
-          <span class="emoji">🏐</span>
-          Nenhuma mensagem ainda.<br>Seja a primeira pessoa a falar!
-        </div>
-      </div>
-
-      <form class="chat-form" id="chatForm">
-        <input class="chat-input" id="chatInput" maxlength="300" placeholder="Escreva sua mensagem…"
-          autocomplete="off" disabled>
-        <button class="chat-enviar" id="chatEnviar" type="submit" disabled aria-label="Enviar mensagem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 3 9-3 9 19-9Z"></path><path d="M6 12h16"></path></svg></button>
-      </form>
     </div>
+    <button class="btn-editar-info" id="infoJogoEditar" aria-label="Editar informações do jogo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ===== MAPA DO LOCAL ===== -->
+  <h2 class="section-title">
+    Local do Jogo
+    <span class="hint">Arena Family · Traçar rota</span>
+  </h2>
+  <div class="mapa-card">
+    <iframe id="mapaEmbed" class="mapa-frame" loading="lazy"
+      title="Mapa do local do jogo" allowfullscreen></iframe>
+    <div class="mapa-info">
+      <div class="mapa-local" id="mapaNomeLocal">📍 Arena Family</div>
+      <div class="mapa-sub">Fortaleza - CE · Toque para traçar a rota até o jogo:</div>
+    </div>
+    <div class="mapa-botoes">
+      <a class="btn-rota maps" id="mapaBtnGoogle" href="https://maps.app.goo.gl/eM9BXU1Gom4VBpFN8" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+        Abrir no Google Maps
+      </a>
+      <a class="btn-rota waze" id="mapaBtnWaze" href="https://waze.com/ul?ll=-3.7915037,-38.5619707&navigate=yes" target="_blank" rel="noopener noreferrer">
+        🚗 Waze
+      </a>
+    </div>
+    <div class="mapa-footer">
+      <input id="mapaUrl" class="mapa-url-input" maxlength="300" placeholder="Link do Google Maps">
+      <button class="btn btn-primary mapa-salvar" id="mapaSalvar">Salvar</button>
+    </div>
+  </div>
   </div>
 
 </main>
@@ -2613,7 +2453,6 @@
       btn.classList.remove("btn-admin-on");
       btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
     }
-    if (typeof chatAtualizarBotao === "function") chatAtualizarBotao();
     renderAll();
   }
 
@@ -2629,7 +2468,6 @@
       /* cadeado aberto */
       btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>';
     }
-    if (typeof chatAtualizarBotao === "function") chatAtualizarBotao();
     renderAll();
   }
 
@@ -4360,582 +4198,6 @@
   }
 
   /* ============================================================
-     CHAT AO VIVO — todos conversam sem fazer login
-     ------------------------------------------------------------
-     Cada visitante recebe uma identidade temporaria (conta Firebase
-     criada automaticamente, sem senha para o usuario). Isso permite
-     escrever no path /chat usando o token, enquanto a leitura e
-     publica (todo mundo ve as mensagens).
-     ============================================================ */
-  var CHAT_PATH = "chat";
-  var chatRef = DB_URL + "/" + CHAT_PATH + ".json";
-  var chatLimite = 100;          /* quantas mensagens ficam guardadas */
-  var chatSessao = null;         /* { idToken, refreshToken, expiraEm, uid } */
-  var chatStreamCtrl = null;
-  var chatMensagens = {};        /* id -> mensagem */
-  var chatMeuId = null;          /* id da ultima mensagem enviada por mim */
-  var chatNick = "";
-  var chatApelidos = {};         /* apelido em minusculas -> { uid, em } */
-  var CHAT_SESSION_KEY = "volei_chat_session";
-  var CHAT_NICK_KEY = "volei_chat_nick";
-  var CHAT_NICKS_PATH = "chat-apelidos";
-  var CHAT_NICK_TTL = 45 * 60 * 1000; /* apelido inativo por 45 min fica livre */
-
-  /* ---------- apelidos reservados (garante que ninguem repete o nome) ---------- */
-  function chatNormalizarNick(n) {
-    /* sem acentos, minusculo, sem espacos extras: "Joao Silva" == "joao silva" */
-    var s = String(n || "").trim().toLowerCase();
-    if (s.normalize) s = s.normalize("NFD").replace(/[̀-ͯ]/g, "");
-    return s.replace(/\s+/g, " ");
-  }
-
-  function chatCarregarApelidos() {
-    return fetch(DB_URL + "/" + CHAT_NICKS_PATH + ".json").then(function (r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    }).then(function (d) {
-      chatApelidos = {};
-      if (d && typeof d === "object") {
-        var agora = Date.now();
-        Object.keys(d).forEach(function (k) {
-          var reg = d[k];
-          /* suporte retroativo: se era so string, assume registro recente */
-          if (typeof reg === "string") reg = { uid: reg, em: agora };
-          if (reg && reg.uid) {
-            /* se expirou (inativo por > 45 min), nem considera ocupado */
-            if (!reg.em || (agora - reg.em) < CHAT_NICK_TTL) {
-              chatApelidos[k] = reg;
-            }
-          }
-        });
-      }
-      return chatApelidos;
-    }).catch(function () {
-      chatApelidos = {};
-      return chatApelidos;
-    });
-  }
-
-  /* reserva o apelido; se outro aparelho ja usa ativamente, devolve false */
-  function chatReservarNick(nick) {
-    if (!chatSessao || !chatSessao.idToken) return Promise.resolve(false);
-    var chave = chatNormalizarNick(nick);
-    if (!chave) return Promise.resolve(false);
-
-    /* sempre recarrega do banco antes de decidir para ter o estado mais fresco */
-    return chatCarregarApelidos().then(function (lista) {
-      var existente = lista[chave];
-      var agora = Date.now();
-
-      /* ja e meu? (mesmo aparelho, recarregou a pagina) -> renova o timestamp */
-      if (existente && existente.uid === chatSessao.uid) {
-        chatTocarNick(chave);
-        return true;
-      }
-
-      /* ocupado ativamente por outro aparelho? */
-      if (existente && existente.uid !== chatSessao.uid) {
-        var idade = agora - (existente.em || 0);
-        if (idade < CHAT_NICK_TTL) {
-          return false; /* realmente em uso ativo por outro */
-        }
-      }
-
-      /* livre ou expirado: grava meu uid e timestamp */
-      var payload = { uid: chatSessao.uid, em: agora };
-      var url = DB_URL + "/" + CHAT_NICKS_PATH + "/" + encodeURIComponent(chave) +
-                ".json?auth=" + encodeURIComponent(chatSessao.idToken);
-      return fetch(url, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      }).then(function (r) {
-        if (!r.ok) throw new Error("falha-reserva:" + r.status);
-        chatApelidos[chave] = payload;
-        return true;
-      }).catch(function () {
-        return false;
-      });
-    });
-  }
-
-  /* atualiza o timestamp do meu apelido para nao expirar enquanto estou usando */
-  function chatTocarNick(chave) {
-    if (!chatSessao || !chatSessao.idToken || !chave) return;
-    var url = DB_URL + "/" + CHAT_NICKS_PATH + "/" + encodeURIComponent(chave) +
-              "/em.json?auth=" + encodeURIComponent(chatSessao.idToken);
-    fetch(url, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Date.now())
-    }).catch(function () {});
-  }
-
-  /* devolve o apelido quando a pessoa desiste (ou troca de nome) */
-  function chatLiberarNick(nick) {
-    if (!chatSessao || !chatSessao.idToken) return;
-    var chave = chatNormalizarNick(nick);
-    if (!chave) return;
-    var reg = chatApelidos[chave];
-    if (reg && reg.uid && reg.uid !== chatSessao.uid) return;
-    delete chatApelidos[chave];
-    fetch(DB_URL + "/" + CHAT_NICKS_PATH + "/" + encodeURIComponent(chave) +
-          ".json?auth=" + encodeURIComponent(chatSessao.idToken), { method: "DELETE" })
-      .catch(function () {});
-  }
-
-  function chatSalvarSessao(s) {
-    try { localStorage.setItem(CHAT_SESSION_KEY, JSON.stringify(s)); } catch (e) {}
-  }
-  function chatCarregarSessao() {
-    try {
-      var raw = localStorage.getItem(CHAT_SESSION_KEY);
-      if (!raw) return null;
-      var s = JSON.parse(raw);
-      return (s && s.idToken && s.refreshToken) ? s : null;
-    } catch (e) { return null; }
-  }
-  function chatApagarSessao() {
-    try { localStorage.removeItem(CHAT_SESSION_KEY); } catch (e) {}
-  }
-
-  /* ---------- identidade temporaria (criada sem intervencao do usuario) ---------- */
-  function chatGarantirSessao() {
-    var s = chatCarregarSessao();
-    if (s && s.expiraEm > Date.now() + 60000) {
-      chatSessao = s;
-      return Promise.resolve(s);
-    }
-    /* token expirado: tenta renovar antes de criar outra conta */
-    if (s && s.refreshToken) {
-      return fetch("https://securetoken.googleapis.com/v1/token?key=" + API_KEY, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ grant_type: "refresh_token", refresh_token: s.refreshToken })
-      }).then(function (r) { return r.json(); }).then(function (d) {
-        if (d && d.id_token) {
-          s.idToken = d.id_token;
-          s.expiraEm = Date.now() + (Number(d.expires_in || 3600) - 60) * 1000;
-          chatSessao = s;
-          chatSalvarSessao(s);
-          return s;
-        }
-        return chatCriarSessao();
-      }).catch(function () { return chatCriarSessao(); });
-    }
-    return chatCriarSessao();
-  }
-
-  function chatCriarSessao() {
-    /* e-mail descartavel unico por aparelho; a senha nunca e mostrada nem usada */
-    var uid = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-    var email = "chat-" + uid + "@visitante.voleidobosque.app";
-    var senha = "V" + Math.random().toString(36).slice(2, 10) + "a1!";
-
-    return authPost("signUp", { email: email, password: senha, returnSecureToken: true })
-      .then(function (d) {
-        if (d.__status === 200 && d.idToken) {
-          var s = {
-            idToken: d.idToken,
-            refreshToken: d.refreshToken,
-            expiraEm: Date.now() + (Number(d.expiresIn || 3600) - 60) * 1000,
-            uid: uid
-          };
-          chatSessao = s;
-          chatSalvarSessao(s);
-          return s;
-        }
-        var msg = (d.error && d.error.message) || "";
-        if (/EMAIL_EXISTS/i.test(msg)) {
-          /* ja existe: tenta entrar */
-          return authPost("signInWithPassword", { email: email, password: senha, returnSecureToken: true })
-            .then(function (d2) {
-              if (d2.__status === 200 && d2.idToken) {
-                var s2 = {
-                  idToken: d2.idToken, refreshToken: d2.refreshToken,
-                  expiraEm: Date.now() + (Number(d2.expiresIn || 3600) - 60) * 1000, uid: uid
-                };
-                chatSessao = s2; chatSalvarSessao(s2);
-                return s2;
-              }
-              throw new Error("sem-sessao");
-            });
-        }
-        throw new Error("sem-sessao");
-      });
-  }
-
-  /* ---------- escrita ---------- */
-  function chatEnviar(texto) {
-    if (!chatSessao || !chatSessao.idToken) return Promise.reject(new Error("sem-sessao"));
-    var msg = {
-      id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      texto: String(texto),
-      autor: chatNick,
-      em: Date.now(),
-      dono: chatSessao.uid
-    };
-    chatMeuId = msg.id;
-    var url = DB_URL + "/" + CHAT_PATH + "/" + msg.id + ".json?auth=" +
-              encodeURIComponent(chatSessao.idToken);
-    return fetch(url, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(msg)
-    }).then(function (r) {
-      if (!r.ok) throw new Error("falha-envio");
-      chatMensagens[msg.id] = msg;
-      chatRender();
-      chatLimparAntigas();
-      chatTocarNick(chatNormalizarNick(chatNick));
-      return msg;
-    });
-  }
-
-  /* ---------- leitura inicial ---------- */
-  function chatCarregarHistorico() {
-    return fetch(chatRef).then(function (r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    }).then(function (d) {
-      chatMensagens = {};
-      if (d && typeof d === "object") {
-        Object.keys(d).forEach(function (k) {
-          var m = d[k];
-          if (m && m.id && m.texto) chatMensagens[m.id] = m;
-        });
-      }
-      chatRender();
-    }).catch(function () { /* offline: mostra o que tem no cache local */ });
-  }
-
-  /* ---------- tempo real (SSE) ---------- */
-  function chatIniciarStream() {
-    if (chatStreamCtrl) return;
-    if (typeof fetch === "undefined" || typeof ReadableStream === "undefined") return;
-
-    chatStreamCtrl = new AbortController();
-    var url = chatRef + "?print=silent";
-
-    fetch(url, {
-      headers: { "Accept": "text/event-stream" },
-      signal: chatStreamCtrl.signal
-    }).then(function (res) {
-      if (!res.ok || !res.body) throw new Error("stream " + res.status);
-      chatStatus("conectado");
-      var reader = res.body.getReader();
-      var dec = new TextDecoder();
-      var buffer = "";
-
-      function processar(bloco) {
-        var linhas = bloco.split("\n");
-        for (var i = 0; i < linhas.length; i++) {
-          var ln = linhas[i].trim();
-          if (ln.indexOf("data:") !== 0) continue;
-          var json = ln.slice(5).trim();
-          if (!json || json === "null") continue;
-          try {
-            var ev = JSON.parse(json);
-            if (!ev || !ev.path) continue;
-            /* caminho "/<id>" = uma mensagem isolada */
-            if (ev.path.length > 1 && ev.path.indexOf("/", 1) === -1) {
-              var id = ev.path.slice(1);
-              if (ev.data && ev.data.id) {
-                chatMensagens[ev.data.id] = ev.data;
-                chatRender();
-              } else if (ev.data === null) {
-                delete chatMensagens[id];
-                chatRender();
-              }
-            }
-            /* caminho "/" = recarrega tudo (usado pelo botao limpar) */
-            else if (ev.path === "/") {
-              chatMensagens = {};
-              if (ev.data && typeof ev.data === "object") {
-                Object.keys(ev.data).forEach(function (k) {
-                  var m = ev.data[k];
-                  if (m && m.id && m.texto) chatMensagens[m.id] = m;
-                });
-              }
-              chatRender();
-            }
-          } catch (e) { /* payload malformado: ignora */ }
-        }
-      }
-
-      (function pump() {
-        return reader.read().then(function (r) {
-          if (r.done) return;
-          buffer += dec.decode(r.value, { stream: true });
-          var partes = buffer.split("\n\n");
-          buffer = partes.pop();
-          for (var p = 0; p < partes.length; p++) processar(partes[p]);
-          return pump();
-        });
-      })().catch(function () { /* encerrado: reconecta abaixo */ });
-    }).catch(function () {
-      chatStatus("offline");
-      chatStreamCtrl = null;
-      setTimeout(function () { if (!chatStreamCtrl) chatIniciarStream(); }, 5000);
-    });
-  }
-
-  function chatPararStream() {
-    if (chatStreamCtrl) {
-      try { chatStreamCtrl.abort(); } catch (e) {}
-      chatStreamCtrl = null;
-    }
-  }
-
-  /* ---------- limpeza do historico (mantem as N mais recentes) ---------- */
-  function chatLimparAntigas() {
-    var ids = Object.keys(chatMensagens);
-    if (ids.length <= chatLimite) return;
-    ids.sort(function (a, b) {
-      var ma = chatMensagens[a], mb = chatMensagens[b];
-      return (ma.em || 0) - (mb.em || 0);
-    });
-    var excessos = ids.slice(0, ids.length - chatLimite);
-    if (!chatSessao || !chatSessao.idToken) return;
-    excessos.forEach(function (id) {
-      fetch(DB_URL + "/" + CHAT_PATH + "/" + id + ".json?auth=" +
-            encodeURIComponent(chatSessao.idToken), { method: "DELETE" })
-        .catch(function () {});
-    });
-  }
-
-  /* ---------- render ---------- */
-  function chatStatus(st) {
-    var el = document.getElementById("chatStatus");
-    var dot = document.getElementById("chatDot");
-    if (!dot) return;
-    if (st === "conectado") {
-      if (el) el.textContent = "ao vivo";
-      dot.style.background = "var(--lime)";
-      dot.style.boxShadow = "0 0 8px var(--lime-glow)";
-      dot.setAttribute("title", "Conectado ao vivo");
-    } else if (st === "offline") {
-      if (el) el.textContent = "offline";
-      dot.style.background = "var(--muted-2)";
-      dot.style.boxShadow = "none";
-      dot.setAttribute("title", "Offline");
-    } else {
-      if (el) el.textContent = "conectando…";
-      dot.style.background = "var(--yellow)";
-      dot.style.boxShadow = "0 0 8px var(--yellow-glow)";
-      dot.setAttribute("title", "Conectando…");
-    }
-  }
-
-  function chatHora(ts) {
-    try {
-      var d = new Date(ts || Date.now());
-      var h = d.getHours(), m = d.getMinutes();
-      return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
-    } catch (e) { return ""; }
-  }
-
-  function chatRender() {
-    var lista = document.getElementById("chatLista");
-    if (!lista) return;
-    var vazio = document.getElementById("chatVazio");
-
-    var ids = Object.keys(chatMensagens);
-    ids.sort(function (a, b) {
-      var ma = chatMensagens[a], mb = chatMensagens[b];
-      return (ma.em || 0) - (mb.em || 0);
-    });
-
-    if (!ids.length) {
-      if (vazio) vazio.hidden = false;
-      lista.innerHTML = "";
-      if (vazio) lista.appendChild(vazio);
-      return;
-    }
-    if (vazio) vazio.hidden = true;
-
-    /* reconstroi a lista (poucas mensagens: leve e simples) */
-    var html = "";
-    ids.forEach(function (id) {
-      var m = chatMensagens[id];
-      var minha = (m.dono && chatSessao && m.dono === chatSessao.uid);
-      html += '<div class="chat-msg' + (minha ? " minha" : "") + '">' +
-                '<div class="chat-autor">' + esc(m.autor || "Anônimo") + '</div>' +
-                '<div class="chat-texto">' + esc(m.texto || "") + '</div>' +
-                '<div class="chat-hora">' + chatHora(m.em) + '</div>' +
-              '</div>';
-    });
-    lista.innerHTML = html;
-
-    /* rola para o fim se o usuario ja estava no fim */
-    try {
-      var pertoDoFim = lista.scrollHeight - lista.scrollTop - lista.clientHeight < 140;
-      if (pertoDoFim) lista.scrollTop = lista.scrollHeight;
-    } catch (e) {}
-  }
-
-  /* ---------- nickname ---------- */
-  function chatMostrarErroNick(texto) {
-    var m = document.getElementById("chatNickMsg");
-    var box = document.getElementById("chatNickBox");
-    if (!m) return;
-    if (texto) {
-      m.textContent = texto;
-      m.classList.add("show");
-      if (box) box.classList.add("erro");
-    } else {
-      m.textContent = "";
-      m.classList.remove("show");
-      if (box) box.classList.remove("erro");
-    }
-  }
-
-  function chatDefinirNick(nick) {
-    var limpo = String(nick || "").trim().slice(0, 18);
-    if (!limpo) {
-      chatMostrarErroNick("Digite um apelido para entrar no chat.");
-      return;
-    }
-    var btn = document.getElementById("chatNickBtn");
-    if (btn) btn.disabled = true;
-    chatMostrarErroNick("");
-
-    chatReservarNick(limpo).then(function (ok) {
-      if (btn) btn.disabled = false;
-      if (!ok) {
-        chatMostrarErroNick("Esse apelido já está sendo usado. Escolha outro.");
-        var inp = document.getElementById("chatNick");
-        if (inp) { inp.value = ""; try { inp.focus(); } catch (e) {} }
-        return;
-      }
-      /* só agora assume o apelido */
-      var anterior = chatNick;
-      if (anterior && chatNormalizarNick(anterior) !== chatNormalizarNick(limpo)) {
-        chatLiberarNick(anterior);
-      }
-      chatNick = limpo;
-      try { localStorage.setItem(CHAT_NICK_KEY, chatNick); } catch (e) {}
-      var box = document.getElementById("chatNickBox");
-      if (box) box.hidden = true;
-      var inp2 = document.getElementById("chatInput");
-      if (inp2) inp2.disabled = false;
-      var btn2 = document.getElementById("chatEnviar");
-      if (btn2) btn2.disabled = false;
-      var btnTrocar = document.getElementById("chatTrocar");
-      if (btnTrocar) btnTrocar.hidden = false;
-      try { if (inp2) inp2.focus(); } catch (e) {}
-    }).catch(function () {
-      if (btn) btn.disabled = false;
-      chatMostrarErroNick("Não foi possível conectar. Tente de novo.");
-    });
-  }
-
-  /* ---------- inicializacao ---------- */
-  function chatInit() {
-    var lista = document.getElementById("chatLista");
-    if (!lista) return;
-    chatAtualizarBotao();
-
-    /* apelido salvo? */
-    var nickSalvo = "";
-    try { nickSalvo = localStorage.getItem(CHAT_NICK_KEY) || ""; } catch (e) {}
-
-    /* garante a sessao (cria a conta temporaria se preciso) */
-    chatGarantirSessao().then(function () {
-      chatStatus("conectado");
-      chatCarregarHistorico();
-      chatIniciarStream();
-      /* so entra com o apelido salvo DEPOIS de carregar a lista de nomes
-         reservados -- caso outro aparelho ja tenha ficado com ele,
-         a pessoa escolhe outro. */
-      if (nickSalvo) {
-        chatCarregarApelidos().then(function () {
-          chatDefinirNick(nickSalvo);
-        }).catch(function () {
-          chatDefinirNick(nickSalvo);
-        });
-      }
-    }).catch(function () {
-      chatStatus("offline");
-    });
-
-    /* botao "Trocar nome" (mostra a caixa de apelido de novo) */
-    var btnTrocar = document.getElementById("chatTrocar");
-    if (btnTrocar) {
-      btnTrocar.addEventListener("click", function () {
-        /* devolve o apelido atual para que ele possa ser usado por outro */
-        if (chatNick) chatLiberarNick(chatNick);
-        chatNick = "";
-        try { localStorage.removeItem(CHAT_NICK_KEY); } catch (e) {}
-        var box = document.getElementById("chatNickBox");
-        if (box) box.hidden = false;
-        var inp = document.getElementById("chatInput");
-        if (inp) inp.disabled = true;
-        var btn = document.getElementById("chatEnviar");
-        if (btn) btn.disabled = true;
-        btnTrocar.hidden = true;
-        chatMostrarErroNick("");
-        var inpNick = document.getElementById("chatNick");
-        if (inpNick) { inpNick.value = ""; try { inpNick.focus(); } catch (e) {} }
-      });
-    }
-
-    /* botao "Entrar" do apelido */
-    var btnNick = document.getElementById("chatNickBtn");
-    var inpNick = document.getElementById("chatNick");
-    if (btnNick && inpNick) {
-      btnNick.addEventListener("click", function () {
-        chatDefinirNick(inpNick.value);
-      });
-      inpNick.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") { e.preventDefault(); chatDefinirNick(inpNick.value); }
-      });
-    }
-
-    /* envio */
-    var form = document.getElementById("chatForm");
-    var inp = document.getElementById("chatInput");
-    var btn = document.getElementById("chatEnviar");
-    if (form && inp) {
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        var texto = (inp.value || "").trim();
-        if (!texto) return;
-        inp.value = "";
-        if (btn) btn.disabled = true;
-        chatEnviar(texto).catch(function () {
-          inp.value = texto; /* devolve o texto se falhar */
-        }).then(function () {
-          if (btn) btn.disabled = false;
-          try { inp.focus(); } catch (e) {}
-        });
-      });
-    }
-
-    /* admin pode limpar o chat */
-    var btnLimpar = document.getElementById("chatLimpar");
-    if (btnLimpar) {
-      btnLimpar.addEventListener("click", function () {
-        if (!confirm("Limpar todas as mensagens do chat?")) return;
-        if (!chatSessao || !chatSessao.idToken) return;
-        fetch(chatRef + "?auth=" + encodeURIComponent(chatSessao.idToken), { method: "DELETE" })
-          .then(function () {
-            chatMensagens = {};
-            chatRender();
-          }).catch(function () {
-            alert("Não foi possível limpar o chat.");
-          });
-      });
-    }
-  }
-
-  /* atualiza o botao "Limpar" conforme o modo (admin/espectador) */
-  function chatAtualizarBotao() {
-    var b = document.getElementById("chatLimpar");
-    if (b) b.hidden = !esAdmin;
-  }
-
-  /* ============================================================
      PIX — QR Code + copia e cola
      ============================================================ */
   (function initPix() {
@@ -5047,6 +4309,8 @@
     try { salva = localStorage.getItem("volei_aba_ativa"); } catch (e) {}
     /* abas Finais e Premiacao foram unificadas em Jogos */
     if (salva === "tab-finais" || salva === "tab-premio") salva = "tab-jogos";
+    /* o Chat foi substituido pela aba de Informacoes */
+    if (salva === "tab-chat") salva = "tab-info";
     if (salva) {
       var btn = bar.querySelector('[data-tab="' + salva + '"]');
       if (btn) btn.click();
@@ -5451,8 +4715,6 @@
     iniciarStream();
   });
 
-  /* CHAT AO VIVO: liga o chat (cria a sessao temporaria e abre o stream) */
-  try { chatInit(); } catch (e) { /* chat nao bloqueia o resto do app */ }
   try { initInfoJogoWidgets(); } catch (e) {}
 
   /* renova o token do Mesario periodicamente */

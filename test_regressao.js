@@ -148,7 +148,7 @@ const LEGADO = {
 
   // ---- ABAS ----
   check("5 abas", A.document.querySelectorAll(".tab-btn").length === 5);
-  ["tab-classif", "tab-jogos", "tab-sorteio", "tab-chat", "tab-jogadores"].forEach(id => {
+  ["tab-classif", "tab-jogos", "tab-sorteio", "tab-info", "tab-jogadores"].forEach(id => {
     const btn = A.document.querySelector('[data-tab="' + id + '"]');
     btn.dispatchEvent(new A.window.Event("click"));
   });
@@ -156,22 +156,33 @@ const LEGADO = {
   check("aba de jogadores ativa apos clicar",
     A.document.getElementById("tab-jogadores").classList.contains("ativo"));
 
-  // ---- CHAT (estrutura) ----
-  check("aba do chat existe", A.document.getElementById("tab-chat") !== null);
-  check("lista do chat existe", A.document.getElementById("chatLista") !== null);
-  check("campo de mensagem existe", A.document.getElementById("chatInput") !== null);
-  check("botao enviar existe", A.document.getElementById("chatEnviar") !== null);
-  check("campo de apelido existe", A.document.getElementById("chatNick") !== null);
-  check("indicador de status do chat existe (bolinha)",
-    A.document.getElementById("chatDot") !== null);
-  check("chatTopo mostra apenas 'Chat'",
-    A.document.querySelector(".chat-topo h3") !== null &&
-    A.document.querySelector(".chat-topo h3").textContent.trim() === "Chat",
-    A.document.querySelector(".chat-topo h3")?.textContent);
-  check("sem texto 'ao vivo' ao lado da bolinha",
-    A.document.getElementById("chatStatus") === null);
-  check("chat aparece na barra de abas",
-    A.document.querySelector('[data-tab="tab-chat"]') !== null);
+  // ---- CHAT REMOVIDO ----
+  check("aba do chat nao existe mais", A.document.getElementById("tab-chat") === null);
+  check("chat nao aparece na barra de abas",
+    A.document.querySelector('[data-tab="tab-chat"]') === null);
+  check("lista do chat removida", A.document.getElementById("chatLista") === null);
+  check("campo de mensagem removido", A.document.getElementById("chatInput") === null);
+  check("campo de apelido removido", A.document.getElementById("chatNick") === null);
+  check("nenhum elemento com classe chat-* no app",
+    A.document.querySelectorAll('[class*="chat-"]').length === 0,
+    A.document.querySelectorAll('[class*="chat-"]').length);
+  check("codigo do app sem modulo de chat",
+    !code.includes("chatInit") && !code.includes("chatReservarNick"));
+
+  // ---- NOVA ABA DE INFORMACOES ----
+  check("aba de informacoes existe", A.document.getElementById("tab-info") !== null);
+  check("informacoes aparece na barra de abas",
+    A.document.querySelector('[data-tab="tab-info"]') !== null);
+  check("rotulo da aba e 'Informacoes'",
+    A.document.querySelector('[data-tab="tab-info"] .tab-txt')?.textContent.trim() === "Informações",
+    A.document.querySelector('[data-tab="tab-info"] .tab-txt')?.textContent);
+  check("informacoes do jogo dentro da aba de informacoes",
+    A.document.getElementById("tab-info").contains(A.document.getElementById("infoJogoVisual")) &&
+    A.document.getElementById("tab-info").contains(A.document.getElementById("mapaEmbed")));
+  check("classificacao NAO esta dentro da aba de informacoes",
+    !A.document.getElementById("tab-info").contains(A.document.getElementById("standings")));
+  check("classificacao continua na aba de classificacao",
+    A.document.getElementById("tab-classif").contains(A.document.getElementById("standings")));
   check("cada aba tem um icone svg",
     A.document.querySelectorAll(".tab-btn .tab-ico").length === 5,
     A.document.querySelectorAll(".tab-btn .tab-ico").length);
@@ -218,8 +229,12 @@ const LEGADO = {
   check("sem botao adicionar", R.document.getElementById("btnAddJogador").hidden === true);
   check("sem botao importar elenco", R.document.getElementById("btnImportarElenco").hidden === true);
   check("sem botao sortear", R.document.getElementById("btnSortear").hidden === true);
-  check("sem botao limpar chat para espectador",
-    R.document.getElementById("chatLimpar").hidden === true);
+  /* o linkedom nao aplica CSS: a regra e conferida no texto-fonte */
+  check("CSS esconde o botao de editar info no modo leitura",
+    /body\.modo-leitura \.btn-editar-info/.test(html) &&
+    !/\.body\.modo-leitura \.btn-editar-info/.test(html));
+  check("CSS esconde o campo de link do mapa no modo leitura",
+    /body\.modo-leitura \.mapa-footer/.test(html));
 
   // espectador nao edita o placar
   const antes = R.localStorage.getItem("tabela_volei_cores_v2");
