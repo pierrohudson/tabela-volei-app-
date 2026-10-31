@@ -276,6 +276,17 @@ const LEGADO = {
     A.document.querySelector("#mapaBtnGoogle svg") !== null);
   check("botao do Waze tem icone SVG",
     A.document.querySelector("#mapaBtnWaze svg") !== null);
+  check("icone do Waze e o mascote original (fundo #00AEEF)",
+    A.document.querySelector("#mapaBtnWaze .waze-ico rect")?.getAttribute("fill") === "#00AEEF",
+    A.document.querySelector("#mapaBtnWaze .waze-ico rect")?.getAttribute("fill"));
+  check("mascote do Waze tem o rosto (olhos + sorriso + rodinhas)",
+    A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length === 4 &&
+    A.document.querySelectorAll("#mapaBtnWaze .waze-ico ellipse").length === 1,
+    A.document.querySelectorAll("#mapaBtnWaze .waze-ico circle").length);
+  check("path generico de navegacao removido do icone do Waze",
+    !A.document.querySelector('#mapaBtnWaze path[d^="M12 2a10 10"]'));
+  check("icone do Waze com cores explicitas (sem fill herdado)",
+    !A.document.querySelector("#mapaBtnWaze .waze-ico")?.getAttribute("fill"));
   check("rotulo do botao do Maps e curto (sem 'Abrir no')",
     A.document.querySelector("#mapaBtnGoogle .rota-txt")?.textContent.trim() === "Google Maps",
     A.document.querySelector("#mapaBtnGoogle .rota-txt")?.textContent);
