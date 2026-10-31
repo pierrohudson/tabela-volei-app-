@@ -1377,7 +1377,7 @@
     var html = '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;' +
       'margin-bottom:14px;font-size:.8rem;color:var(--muted)">' +
       '<span>✅ <b style="color:var(--lime)">' + usados + '</b> jogadores distribuídos</span>' +
-      '<span>⚖️ Diferença entre os times: <b style="color:' +
+      '<span>Diferença entre os times: <b style="color:' +
         (dif < 0.5 ? "var(--lime)" : "var(--yellow)") + '">' + dif.toFixed(1) + '</b> ponto(s) de nota</span>' +
       (f.sobrando && f.sobrando.length
         ? '<span>👥 <b style="color:var(--yellow)">' + f.sobrando.length + '</b> fora do sorteio</span>'
